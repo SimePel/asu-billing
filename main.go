@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	t = template.Must(template.New("adm").ParseGlob("templates/adm/*.html"))
+	admT = template.Must(template.New("adm").ParseGlob("templates/adm/*.html"))
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 }
 
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t.ExecuteTemplate(w, "login", nil)
+	admT.ExecuteTemplate(w, "login", nil)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -42,5 +42,5 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t.ExecuteTemplate(w, "index", nil)
+	admT.ExecuteTemplate(w, "index", nil)
 }
