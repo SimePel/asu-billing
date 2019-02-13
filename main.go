@@ -26,7 +26,7 @@ func main() {
 }
 
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t.ExecuteTemplate(w, "admin-login", nil)
+	t.ExecuteTemplate(w, "login", nil)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
