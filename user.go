@@ -12,6 +12,10 @@ var (
 	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
 )
 
+func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	usrT.ExecuteTemplate(w, "index", nil)
+}
+
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	usrT.ExecuteTemplate(w, "login", nil)
 }
