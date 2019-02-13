@@ -17,6 +17,7 @@ func main() {
 
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 	router.GET("/admin-login", adminLogin)
+	router.GET("/admin-index", adminIndex)
 	router.POST("/admin-login", authAdmin)
 
 	err := http.ListenAndServe(":8080", router)
@@ -38,4 +39,8 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	// ldap auth here then sql query to get the role of user
 	// if it is alright then redirect to admin page
+}
+
+func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	t.ExecuteTemplate(w, "index", nil)
 }
