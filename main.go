@@ -13,7 +13,7 @@ func main() {
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	router.GET("/admin-login", adminLogin)
-	router.GET("/admin-index", adminIndex)
+	router.GET("/admin", adminIndex)
 	router.GET("/user-login", userLogin)
 	router.GET("/add-user", newUserForm)
 
