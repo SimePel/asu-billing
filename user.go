@@ -94,3 +94,10 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session.Save(r, w)
 	http.Redirect(w, r, "/user", http.StatusFound)
 }
+
+func userLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "user")
+	session.Values["user_logged"] = "false"
+	session.Save(r, w)
+	http.Redirect(w, r, "/user-login", http.StatusFound)
+}
