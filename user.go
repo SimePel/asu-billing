@@ -73,4 +73,5 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	l.Close()
+	http.Redirect(w, r, "/user", http.StatusFound)
 }
