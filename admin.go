@@ -20,17 +20,16 @@ var (
 )
 
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "session")
+	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
 		http.Redirect(w, r, "/admin", http.StatusFound)
 		return
 	}
-
 	admT.ExecuteTemplate(w, "login", nil)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "session")
+	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
 		http.Redirect(w, r, "/admin", http.StatusFound)
 		return
@@ -90,7 +89,7 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "session")
+	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
 		admT.ExecuteTemplate(w, "index", nil)
 		return
@@ -99,14 +98,14 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "session")
+	session, _ := store.Get(r, "admin")
 	session.Values["admin_logged"] = "false"
 	session.Save(r, w)
 	http.Redirect(w, r, "/admin-login", http.StatusFound)
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "session")
+	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
 		admT.ExecuteTemplate(w, "new-user-form", nil)
 		return
