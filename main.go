@@ -3,9 +3,21 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 )
+
+var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+
+func init() {
+	store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7,
+		HttpOnly: true,
+	}
+}
 
 func main() {
 	router := httprouter.New()

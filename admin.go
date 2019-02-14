@@ -20,10 +20,22 @@ var (
 )
 
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "session")
+	if session.Values["admin_logged"] == "true" {
+		http.Redirect(w, r, "/admin", http.StatusFound)
+		return
+	}
+
 	admT.ExecuteTemplate(w, "login", nil)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "session")
+	if session.Values["admin_logged"] == "true" {
+		http.Redirect(w, r, "/admin", http.StatusFound)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		log.Println("form parsing: ", err)
 		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
@@ -72,15 +84,27 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	l.Close()
 
+	session.Values["admin_logged"] = "true"
+	session.Save(r, w)
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	admT.ExecuteTemplate(w, "index", nil)
+	session, _ := store.Get(r, "session")
+	if session.Values["admin_logged"] == "true" {
+		admT.ExecuteTemplate(w, "index", nil)
+		return
+	}
+	http.Redirect(w, r, "/admin-login", http.StatusFound)
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	admT.ExecuteTemplate(w, "new-user-form", nil)
+	session, _ := store.Get(r, "session")
+	if session.Values["admin_logged"] == "true" {
+		admT.ExecuteTemplate(w, "new-user-form", nil)
+		return
+	}
+	http.Redirect(w, r, "/admin-login", http.StatusFound)
 }
 
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
