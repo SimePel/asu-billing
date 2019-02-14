@@ -28,10 +28,10 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "user")
 	if session.Values["user_logged"] == "true" {
-		usrT.ExecuteTemplate(w, "login", nil)
+		http.Redirect(w, r, "/user", http.StatusFound)
 		return
 	}
-	http.Redirect(w, r, "/user-login", http.StatusFound)
+	usrT.ExecuteTemplate(w, "login", nil)
 }
 
 func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
