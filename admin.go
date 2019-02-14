@@ -1,11 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/julienschmidt/httprouter"
+	"gopkg.in/ldap.v3"
+)
+
+const (
+	ldapServer = "ads.mc.asu.ru:3268"
 )
 
 var (
@@ -23,8 +30,49 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// ldap auth here then sql query to get the role of user
-	// if it is alright then redirect to admin page
+	l, err := ldap.Dial("tcp", ldapServer)
+	if err != nil {
+		log.Fatal("could not connect to ldap server: ", err)
+	}
+
+	bindUsername := os.Getenv("LDAP_LOGIN")
+	bindPassword := os.Getenv("LDAP_PASSWORD")
+	err = l.Bind(bindUsername, bindPassword)
+	if err != nil {
+		log.Fatal("could not to bind: ", err)
+	}
+
+	username := r.FormValue("username")
+	searchRequest := ldap.NewSearchRequest(
+		"dc=mc,dc=asu,dc=ru",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf("(&(memberOf=cn=billing,ou=groups,ou=vc,dc=mc,dc=asu,dc=ru)(samAccountName=%s))", username),
+		[]string{"dn"},
+		nil,
+	)
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		log.Fatal("could not to do ldap.Search: ", err)
+	}
+
+	if len(sr.Entries) != 1 {
+		log.Println("Uncorrect login")
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+
+	// Bind as the user to verify their password
+	userdn := sr.Entries[0].DN
+	password := r.FormValue("password")
+	err = l.Bind(userdn, password)
+	if err != nil {
+		log.Println("Uncorrect password: ", err)
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+	l.Close()
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
