@@ -17,14 +17,30 @@ var (
 )
 
 func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	usrT.ExecuteTemplate(w, "index", nil)
+	session, _ := store.Get(r, "user")
+	if session.Values["user_logged"] == "true" {
+		usrT.ExecuteTemplate(w, "index", nil)
+		return
+	}
+	http.Redirect(w, r, "/user-login", http.StatusFound)
 }
 
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	usrT.ExecuteTemplate(w, "login", nil)
+	session, _ := store.Get(r, "user")
+	if session.Values["user_logged"] == "true" {
+		usrT.ExecuteTemplate(w, "login", nil)
+		return
+	}
+	http.Redirect(w, r, "/user-login", http.StatusFound)
 }
 
 func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "user")
+	if session.Values["user_logged"] == "true" {
+		http.Redirect(w, r, "/user", http.StatusFound)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		log.Println("form parsing: ", err)
 		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
@@ -73,5 +89,8 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	l.Close()
+
+	session.Values["user_logged"] = "true"
+	session.Save(r, w)
 	http.Redirect(w, r, "/user", http.StatusFound)
 }
