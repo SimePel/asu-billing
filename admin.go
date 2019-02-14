@@ -98,6 +98,13 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin-login", http.StatusFound)
 }
 
+func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "session")
+	session.Values["admin_logged"] = "false"
+	session.Save(r, w)
+	http.Redirect(w, r, "/admin-login", http.StatusFound)
+}
+
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "session")
 	if session.Values["admin_logged"] == "true" {

@@ -26,6 +26,7 @@ func main() {
 
 	router.GET("/admin-login", adminLogin)
 	router.GET("/admin", adminIndex)
+	router.GET("/admin-logout", adminLogout)
 	router.GET("/user-login", userLogin)
 	router.GET("/add-user", newUserForm)
 	router.GET("/user", userIndex)
