@@ -25,38 +25,31 @@
       <div class="container">
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">ФИО: </span>
-          Рожков Вячеслав Игоревич
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Номер договора: </span>
-          П-12313
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Тип подключения: </span>
-          Проводное
+          {{.Name}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Тариф: </span>
-          Базовый-30мб (300р)
+          {{.Tariff}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Внутренний IP: </span>
-          10.1.108.100
+          {{.InIP}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Внешний IP: </span>
-          82.200.46.10
+          {{.ExtIP}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Логин: </span>
-          rozhkov.464@stud.asu.ru
+          {{.Login}}
         </p>
         <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Дата подключения: </span>
-          2019-02-13 12:39:44
+          <span class="has-text-weight-semibold">Дата отключения: </span>
+          {{.PaymentsEnds}}
         </p>
         <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Остаток на счету: </span> 100 рублей
+          <span class="has-text-weight-semibold">Остаток на счету: </span>
+          {{.Money}}
           <span class="field">
             <span class="control">
               <a class="button is-success" href="/pay">
@@ -64,9 +57,6 @@
               </a>
             </span>
           </span>
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Подлючен</span>
         </p>
         <div class="field">
           <p class="control">
