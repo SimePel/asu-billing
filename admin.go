@@ -109,11 +109,11 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	coll := client.Database("billing").Collection("users")
-	cur, err := coll.Find(context.Background(), bson.D{})
+	showType := r.URL.Query().Get("type")
+	cur, err := getAppropriateCursor(coll, showType)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cur.Close(context.Background())
 
 	users := make([]User, 0)
 	user := User{}
@@ -124,6 +124,7 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 		users = append(users, user)
 	}
+	cur.Close(context.Background())
 
 	var correctedUsers CorrectedUsers
 	for _, user := range users {
@@ -138,6 +139,28 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		})
 	}
 	admT.ExecuteTemplate(w, "index", correctedUsers)
+}
+
+func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Cursor, error) {
+	if showType == "wired" {
+		return coll.Find(context.Background(), bson.D{
+			{Key: "tariff", Value: bson.D{
+				{Key: "$in", Value: bson.A{1, 2}}},
+			},
+		})
+	}
+	if showType == "wireless" {
+		return coll.Find(context.Background(), bson.D{
+			{Key: "tariff", Value: 3},
+		})
+	}
+	if showType == "active" {
+		return coll.Find(context.Background(), bson.D{})
+	}
+	if showType == "inactive" {
+		return coll.Find(context.Background(), bson.D{})
+	}
+	return coll.Find(context.Background(), bson.D{})
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
