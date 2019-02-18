@@ -155,10 +155,23 @@ func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Curso
 		})
 	}
 	if showType == "active" {
-		return coll.Find(context.Background(), bson.D{})
+		return coll.Find(context.Background(), bson.D{
+			{Key: "payments_ends", Value: bson.D{
+				{Key: "$gte", Value: "new Date()"},
+			}},
+		})
 	}
 	if showType == "inactive" {
-		return coll.Find(context.Background(), bson.D{})
+		return coll.Find(context.Background(), bson.D{
+			{Key: "$or", Value: bson.A{
+				bson.D{{Key: "payments_ends", Value: nil}},
+				bson.D{
+					{Key: "payments_ends", Value: bson.D{
+						{Key: "$lt", Value: "new Date()"},
+					}},
+				},
+			}},
+		})
 	}
 	return coll.Find(context.Background(), bson.D{})
 }
