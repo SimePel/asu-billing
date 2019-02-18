@@ -42,6 +42,47 @@
         <p class="level-item"><a class="button is-warning" href="/admin-logout">Выйти</a></p>
       </div>
     </nav>
+    <div class="container">
+      <div class="columns">
+        <div class="column is-half is-offset-one-quarter">
+          <table class="table is-hoverable">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Логин</th>
+                <th>Остаток на счету</abbr></th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Users}}
+              <tr>
+                <td>
+                  {{.Name}}
+                </td>
+                <td>
+                  {{.Login}}
+                </td>
+                <td>
+                  <span class="level">
+                    <span class="level-left">
+                      <span class="level-item">
+                        {{.Money}}
+                      </span>
+                    </span>
+                    <span class="level-right">
+                      <span class="level-item">
+                        <a class="button is-small is-info">Пополнить</a>
+                      </span>
+                    </span>
+                  </span>
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </body>
 
 </html>

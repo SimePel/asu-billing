@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log"
@@ -8,6 +9,8 @@ import (
 	"os"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo"
 	"gopkg.in/ldap.v3"
 )
 
@@ -88,13 +91,53 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
+// CorrectedUsers is a slice of CorrectedUser
+type CorrectedUsers struct {
+	Users []CorrectedUser
+}
+
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "true" {
-		admT.ExecuteTemplate(w, "index", nil)
+	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
 		return
 	}
-	http.Redirect(w, r, "/admin-login", http.StatusFound)
+
+	client, err := mongo.Connect(context.Background(), "mongodb://localhost:27017")
+	if err != nil {
+		log.Fatal("could not connect to mongo", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+	cur, err := coll.Find(context.Background(), bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cur.Close(context.Background())
+
+	users := make([]User, 0)
+	user := User{}
+	for cur.Next(context.Background()) {
+		err := cur.Decode(&user)
+		if err != nil {
+			log.Fatal(err)
+		}
+		users = append(users, user)
+	}
+
+	var correctedUsers CorrectedUsers
+	for _, user := range users {
+		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
+			Tariff:       tariffStringRepr(user.Tariff),
+			Money:        user.Money,
+			Name:         user.Name,
+			Login:        user.Login,
+			InIP:         user.InIP,
+			ExtIP:        user.ExtIP,
+			PaymentsEnds: user.PaymentsEnds.Format("2.01.2006"),
+		})
+	}
+	admT.ExecuteTemplate(w, "index", correctedUsers)
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
