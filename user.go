@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -109,18 +108,6 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	l, err := ldap.Dial("tcp", ldapServer)
-	if err != nil {
-		log.Fatal("could not connect to ldap server: ", err)
-	}
-
-	bindUsername := os.Getenv("LDAP_LOGIN")
-	bindPassword := os.Getenv("LDAP_PASSWORD")
-	err = l.Bind(bindUsername, bindPassword)
-	if err != nil {
-		log.Fatal("could not to bind: ", err)
-	}
-
 	login := r.FormValue("login")
 	pieces := strings.Split(login, "\\")
 	searchRequest := ldap.NewSearchRequest(
@@ -130,27 +117,13 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		[]string{"dn"},
 		nil,
 	)
-	sr, err := l.Search(searchRequest)
-	if err != nil {
-		log.Fatal("could not to do ldap.Search: ", err)
-	}
 
-	if len(sr.Entries) != 1 {
-		log.Println("Uncorrect login")
+	err := ldapAuth(w, r, searchRequest)
+	if err != nil {
+		log.Println(err)
 		http.Redirect(w, r, "/user-login", http.StatusFound)
 		return
 	}
-
-	// Bind as the user to verify their password
-	userdn := sr.Entries[0].DN
-	password := r.FormValue("password")
-	err = l.Bind(userdn, password)
-	if err != nil {
-		log.Println("Uncorrect password: ", err)
-		http.Redirect(w, r, "/user-login", http.StatusFound)
-		return
-	}
-	l.Close()
 
 	session.Values["user_logged"] = "true"
 	session.AddFlash(pieces[1] + getRightPostfix(pieces[0]))

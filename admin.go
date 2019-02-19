@@ -6,12 +6,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
-	"gopkg.in/ldap.v3"
+	ldap "gopkg.in/ldap.v3"
 )
 
 const (
@@ -44,47 +43,21 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	l, err := ldap.Dial("tcp", ldapServer)
-	if err != nil {
-		log.Fatal("could not connect to ldap server: ", err)
-	}
-
-	bindUsername := os.Getenv("LDAP_LOGIN")
-	bindPassword := os.Getenv("LDAP_PASSWORD")
-	err = l.Bind(bindUsername, bindPassword)
-	if err != nil {
-		log.Fatal("could not to bind: ", err)
-	}
-
-	username := r.FormValue("username")
+	login := r.FormValue("login")
 	searchRequest := ldap.NewSearchRequest(
 		"dc=mc,dc=asu,dc=ru",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(memberOf=cn=billing,ou=groups,ou=vc,dc=mc,dc=asu,dc=ru)(samAccountName=%s))", username),
+		fmt.Sprintf("(&(memberOf=cn=billing,ou=groups,ou=vc,dc=mc,dc=asu,dc=ru)(samAccountName=%s))", login),
 		[]string{"dn"},
 		nil,
 	)
-	sr, err := l.Search(searchRequest)
-	if err != nil {
-		log.Fatal("could not to do ldap.Search: ", err)
-	}
 
-	if len(sr.Entries) != 1 {
-		log.Println("Uncorrect login")
+	err := ldapAuth(w, r, searchRequest)
+	if err != nil {
+		log.Println(err)
 		http.Redirect(w, r, "/admin-login", http.StatusFound)
 		return
 	}
-
-	// Bind as the user to verify their password
-	userdn := sr.Entries[0].DN
-	password := r.FormValue("password")
-	err = l.Bind(userdn, password)
-	if err != nil {
-		log.Println("Uncorrect password: ", err)
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-	l.Close()
 
 	session.Values["admin_logged"] = "true"
 	session.Save(r, w)
