@@ -69,7 +69,7 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		Login:        user.Login,
 		InIP:         user.InIP,
 		ExtIP:        user.ExtIP,
-		PaymentsEnds: user.PaymentsEnds.Format("2.01.2006"),
+		PaymentsEnds: formatTime(user.PaymentsEnds),
 	})
 }
 

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/mongodb/mongo-go-driver/bson"
@@ -108,7 +109,7 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			Login:        user.Login,
 			InIP:         user.InIP,
 			ExtIP:        user.ExtIP,
-			PaymentsEnds: user.PaymentsEnds.Format("2.01.2006"),
+			PaymentsEnds: formatTime(user.PaymentsEnds),
 		})
 	}
 	admT.ExecuteTemplate(w, "index", correctedUsers)
@@ -154,6 +155,14 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session.Values["admin_logged"] = "false"
 	session.Save(r, w)
 	http.Redirect(w, r, "/admin-login", http.StatusFound)
+}
+
+
+func formatTime(t time.Time) string {
+	if t.Unix() < 0 {
+		return "Оплата еще не производилась"
+	}
+	return t.Format("2.01.2006")
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
