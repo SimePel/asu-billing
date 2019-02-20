@@ -57,7 +57,7 @@
               {{range .Users}}
               <tr>
                 <td>
-                  {{.Name}}
+                  <a href="/user-info?login={{.Login}}">{{.Name}}</a>
                 </td>
                 <td>
                   {{.Login}}

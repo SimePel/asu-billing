@@ -157,6 +157,37 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin-login", http.StatusFound)
 }
 
+func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "admin")
+	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+
+	client, err := mongo.Connect(context.Background(), "mongodb://localhost:27017")
+	if err != nil {
+		log.Fatal("could not connect to mongo", err)
+	}
+
+	user := User{}
+	login := r.URL.Query().Get("login")
+	filter := bson.D{{Key: "login", Value: login}}
+	coll := client.Database("billing").Collection("users")
+	err = coll.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	admT.ExecuteTemplate(w, "user-info", CorrectedUser{
+		Tariff:       tariffStringRepr(user.Tariff),
+		Money:        user.Money,
+		Name:         user.Name,
+		Login:        user.Login,
+		InIP:         user.InIP,
+		ExtIP:        user.ExtIP,
+		PaymentsEnds: formatTime(user.PaymentsEnds),
+	})
+}
 
 func formatTime(t time.Time) string {
 	if t.Unix() < 0 {

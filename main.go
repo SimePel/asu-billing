@@ -30,6 +30,7 @@ func main() {
 	router.GET("/user-logout", userLogout)
 	router.GET("/user-login", userLogin)
 	router.GET("/add-user", newUserForm)
+	router.GET("/user-info", userInfo)
 	router.GET("/user", userIndex)
 
 	router.POST("/admin-login", authAdmin)
