@@ -65,11 +65,6 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
-// CorrectedUsers is a slice of CorrectedUser
-type CorrectedUsers struct {
-	Users []CorrectedUser
-}
-
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
@@ -100,7 +95,9 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	cur.Close(context.Background())
 
-	var correctedUsers CorrectedUsers
+	var correctedUsers struct {
+		Users []CorrectedUser
+	}
 	for _, user := range users {
 		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
 			Tariff:       tariffStringRepr(user.Tariff),
