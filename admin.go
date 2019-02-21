@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -100,6 +101,7 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	for _, user := range users {
 		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
+			ID:           user.ID,
 			Tariff:       tariffStringRepr(user.Tariff),
 			Money:        user.Money,
 			Name:         user.Name,
@@ -167,8 +169,8 @@ func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	user := User{}
-	login := r.URL.Query().Get("login")
-	filter := bson.D{{Key: "login", Value: login}}
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	filter := bson.D{{Key: "_id", Value: id}}
 	coll := client.Database("billing").Collection("users")
 	err = coll.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
@@ -176,6 +178,7 @@ func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	admT.ExecuteTemplate(w, "user-info", CorrectedUser{
+		ID:           user.ID,
 		Tariff:       tariffStringRepr(user.Tariff),
 		Money:        user.Money,
 		Name:         user.Name,

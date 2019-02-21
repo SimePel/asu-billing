@@ -19,19 +19,21 @@ var (
 	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
 )
 
-// User is data type from mongodb
+// User is an instance of users collection from mongodb
 type User struct {
-	Name         string    `bson:"name"`
+	ID           int       `bson:"_id"`
 	Money        int       `bson:"money"`
-	Login        string    `bson:"login"`
 	Tariff       int       `bson:"tariff"`
+	Name         string    `bson:"name"`
+	Login        string    `bson:"login"`
 	InIP         string    `bson:"in_ip"`
 	ExtIP        string    `bson:"ext_ip"`
 	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
 }
 
-// CorrectedUser needs to appropriate printing on user page
+// CorrectedUser needs to print appropriate information about user
 type CorrectedUser struct {
+	ID           int
 	Money        int
 	Name         string
 	Login        string
@@ -63,6 +65,7 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	usrT.ExecuteTemplate(w, "index", CorrectedUser{
+		ID:           user.ID,
 		Tariff:       tariffStringRepr(user.Tariff),
 		Money:        user.Money,
 		Name:         user.Name,
