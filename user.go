@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"html/template"
 	"log"
@@ -10,8 +9,6 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	ldap "gopkg.in/ldap.v3"
 )
 
@@ -50,43 +47,8 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	client, err := mongo.Connect(context.Background(), "mongodb://localhost:27017")
-	if err != nil {
-		log.Fatal("could not connect to mongo", err)
-	}
-
-	user := User{}
 	flashes := session.Flashes()
-	filter := bson.M{"login": flashes[len(flashes)-1].(string)}
-	coll := client.Database("billing").Collection("users")
-	err = coll.FindOne(context.Background(), filter).Decode(&user)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	usrT.ExecuteTemplate(w, "index", CorrectedUser{
-		ID:           user.ID,
-		Tariff:       tariffStringRepr(user.Tariff),
-		Money:        user.Money,
-		Name:         user.Name,
-		Login:        user.Login,
-		InIP:         user.InIP,
-		ExtIP:        user.ExtIP,
-		PaymentsEnds: formatTime(user.PaymentsEnds),
-	})
-}
-
-func tariffStringRepr(tariff int) string {
-	if tariff == 1 {
-		return "Базовый30мб (300р)"
-	}
-	if tariff == 2 {
-		return "Базовый30мб+IP (400р)"
-	}
-	if tariff == 3 {
-		return "Беспроводной (200р)"
-	}
-	return "Неизвестный тариф"
+	usrT.ExecuteTemplate(w, "index", getUserDataByLogin(flashes[len(flashes)-1].(string)))
 }
 
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

@@ -1,17 +1,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	ldap "gopkg.in/ldap.v3"
 )
 
@@ -73,80 +69,8 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	client, err := mongo.Connect(context.Background(), "mongodb://localhost:27017")
-	if err != nil {
-		log.Fatal("could not connect to mongo", err)
-	}
-
-	coll := client.Database("billing").Collection("users")
-	showType := r.URL.Query().Get("type")
-	cur, err := getAppropriateCursor(coll, showType)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	users := make([]User, 0)
-	user := User{}
-	for cur.Next(context.Background()) {
-		err := cur.Decode(&user)
-		if err != nil {
-			log.Fatal(err)
-		}
-		users = append(users, user)
-	}
-	cur.Close(context.Background())
-
-	var correctedUsers struct {
-		Users []CorrectedUser
-	}
-	for _, user := range users {
-		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
-			ID:           user.ID,
-			Tariff:       tariffStringRepr(user.Tariff),
-			Money:        user.Money,
-			Name:         user.Name,
-			Login:        user.Login,
-			InIP:         user.InIP,
-			ExtIP:        user.ExtIP,
-			PaymentsEnds: formatTime(user.PaymentsEnds),
-		})
-	}
-	admT.ExecuteTemplate(w, "index", correctedUsers)
-}
-
-func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Cursor, error) {
-	if showType == "wired" {
-		return coll.Find(context.Background(), bson.D{
-			{Key: "tariff", Value: bson.D{
-				{Key: "$in", Value: bson.A{1, 2}}},
-			},
-		})
-	}
-	if showType == "wireless" {
-		return coll.Find(context.Background(), bson.D{
-			{Key: "tariff", Value: 3},
-		})
-	}
-	if showType == "active" {
-		return coll.Find(context.Background(), bson.D{
-			{Key: "payments_ends", Value: bson.D{
-				{Key: "$gte", Value: "new Date()"},
-			}},
-		})
-	}
-	if showType == "inactive" {
-		return coll.Find(context.Background(), bson.D{
-			{Key: "$or", Value: bson.A{
-				bson.D{{Key: "payments_ends", Value: nil}},
-				bson.D{
-					{Key: "payments_ends", Value: bson.D{
-						{Key: "$lt", Value: "new Date()"},
-					}},
-				},
-			}},
-		})
-	}
-	return coll.Find(context.Background(), bson.D{})
+	t := r.URL.Query().Get("type")
+	admT.ExecuteTemplate(w, "index", getUsersByType(t))
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -163,37 +87,8 @@ func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	client, err := mongo.Connect(context.Background(), "mongodb://localhost:27017")
-	if err != nil {
-		log.Fatal("could not connect to mongo", err)
-	}
-
-	user := User{}
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
-	filter := bson.D{{Key: "_id", Value: id}}
-	coll := client.Database("billing").Collection("users")
-	err = coll.FindOne(context.Background(), filter).Decode(&user)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	admT.ExecuteTemplate(w, "user-info", CorrectedUser{
-		ID:           user.ID,
-		Tariff:       tariffStringRepr(user.Tariff),
-		Money:        user.Money,
-		Name:         user.Name,
-		Login:        user.Login,
-		InIP:         user.InIP,
-		ExtIP:        user.ExtIP,
-		PaymentsEnds: formatTime(user.PaymentsEnds),
-	})
-}
-
-func formatTime(t time.Time) string {
-	if t.Unix() < 0 {
-		return "Оплата еще не производилась"
-	}
-	return t.Format("2.01.2006")
+	admT.ExecuteTemplate(w, "user-info", getUserDataByID(id))
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
