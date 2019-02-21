@@ -107,3 +107,14 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 }
+
+func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "admin")
+	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
+}

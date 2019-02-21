@@ -32,6 +32,7 @@ func main() {
 	router.GET("/add-user", newUserForm)
 	router.GET("/user-info", userInfo)
 	router.GET("/user", userIndex)
+	router.GET("/pay", pay)
 
 	router.POST("/admin-login", authAdmin)
 	router.POST("/user-login", authUser)
