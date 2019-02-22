@@ -28,38 +28,44 @@
               <div class="field">
                 <label class="label">ФИО</label>
                 <div class="control">
-                  <input class="input" type="text" placeholder="">
+                  <input class="input" name="name" type="text" placeholder="" required>
                 </div>
               </div>
               <label class="label">Логин</label>
               <div class="field has-addons">
-                <p class="control">
-                  <input class="input" type="text" placeholder="">
-                </p>
-                <p class="control">
+                <div class="control">
+                  <input class="input" name="login" type="text" placeholder="" required>
+                </div>
+                <div class="control">
                   <a class="button is-static">
                     @stud.asu.ru
                   </a>
-                </p>
+                </div>
               </div>
               <div class="field">
                 <label class="label">Тариф</label>
                 <div class="control">
                   <div class="select">
-                    <select>
-                      <option>Базовый-30мб (300р)</option>
-                      <option>Базовый-30мб+Публичный IP (400р)</option>
-                      <option>Беспроводной (200р)</option>
+                    <select name="tariff" required>
+                      <option value="1">Базовый-30мб (300р)</option>
+                      <option value="2">Базовый-30мб+Публичный IP (400р)</option>
+                      <option value="3">Беспроводной (200р)</option>
                     </select>
                   </div>
                 </div>
               </div>
               <div class="field">
-                <p class="control">
+                <label class="label">Сумма</label>
+                <div class="control">
+                  <input class="input" name="money" type="number" placeholder="">
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
                   <button class="button is-success">
                     Добавить
                   </button>
-                </p>
+                </div>
               </div>
             </form>
           </div>

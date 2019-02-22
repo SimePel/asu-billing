@@ -101,11 +101,34 @@ func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "admin")
+	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		log.Println("form parsing: ", err)
 		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
 		return
 	}
+
+	name := r.FormValue("name")
+	login := r.FormValue("login") + "@stud.asu.ru"
+	moneyStr := r.FormValue("money")
+	tariffStr := r.FormValue("tariff")
+	tariff, _ := strconv.Atoi(tariffStr)
+	money := 0
+	if moneyStr != "" {
+		money, _ = strconv.Atoi(moneyStr)
+	}
+
+	err := addUserIntoMongo(name, login, tariff, money)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

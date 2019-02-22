@@ -1,12 +1,57 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
+
+func addUserIntoMongo(name, login string, tariff, money int) error {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		return fmt.Errorf("could not connect to mongo: %v", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+
+	all, err := coll.CountDocuments(nil, bson.D{{}})
+	if err != nil {
+		return fmt.Errorf("could not count documents: %v", err)
+	}
+
+	_, err = coll.InsertOne(nil, bson.D{
+		{Key: "_id", Value: all + 1},
+		{Key: "name", Value: name},
+		{Key: "login", Value: login},
+		{Key: "tariff", Value: tariff},
+		{Key: "money", Value: money},
+		{Key: "in_ip", Value: getUnusedInIP(client)},
+		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
+	})
+	if err != nil {
+		return fmt.Errorf("could not insert: %v", err)
+	}
+
+	return nil
+}
+
+func getUnusedInIP(client *mongo.Client) string {
+	coll := client.Database("billing").Collection("inIPs")
+
+	var ip struct {
+		IP   string `bson:"ip"`
+		Used bool   `bson:"used"`
+	}
+	err := coll.FindOne(nil, bson.D{{Key: "used", Value: false}}).Decode(&ip)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return ip.IP
+}
 
 type CorrectedUsers struct {
 	Users []CorrectedUser
