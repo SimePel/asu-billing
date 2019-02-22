@@ -32,15 +32,7 @@
             <form action="/pay?id={{.ID}}" method="post">
               <div class="field">
                 <label class="label">Тариф</label>
-                <div class="control">
-                  <div class="select">
-                    <select>
-                      <option>Базовый-30мб (300р)</option>
-                      <option>Базовый-30мб+Публичный IP (400р)</option>
-                      <option>Беспроводной (200р)</option>
-                    </select>
-                  </div>
-                </div>
+                {{.Tariff}}
               </div>
               <div class="field">
                 <label class="label">Сумма</label>
