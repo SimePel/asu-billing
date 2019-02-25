@@ -69,12 +69,6 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		log.Println("form parsing: ", err)
-		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
-		return
-	}
-
 	login := r.FormValue("login")
 	pieces := strings.Split(login, "\\")
 	searchRequest := ldap.NewSearchRequest(

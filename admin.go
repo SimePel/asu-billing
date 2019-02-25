@@ -35,12 +35,6 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		log.Println("form parsing: ", err)
-		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
-		return
-	}
-
 	login := r.FormValue("login")
 	searchRequest := ldap.NewSearchRequest(
 		"dc=mc,dc=asu,dc=ru",
@@ -63,7 +57,7 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t := r.URL.Query().Get("type")
+	t := r.FormValue("type")
 	admT.ExecuteTemplate(w, "index", getUsersByType(t))
 }
 
@@ -75,7 +69,7 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	id, _ := strconv.Atoi(r.FormValue("id"))
 	admT.ExecuteTemplate(w, "user-info", getUserDataByID(id))
 }
 
@@ -84,17 +78,10 @@ func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if err := r.ParseForm(); err != nil {
-		log.Println("form parsing: ", err)
-		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
-		return
-	}
-
 	name := r.FormValue("name")
 	login := r.FormValue("login") + "@stud.asu.ru"
+	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 	moneyStr := r.FormValue("money")
-	tariffStr := r.FormValue("tariff")
-	tariff, _ := strconv.Atoi(tariffStr)
 	money := 0
 	if moneyStr != "" {
 		money, _ = strconv.Atoi(moneyStr)
@@ -109,20 +96,15 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	id, _ := strconv.Atoi(r.FormValue("id"))
 	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
 }
 
 func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if err := r.ParseForm(); err != nil {
-		log.Println("form parsing: ", err)
-		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
-		return
-	}
-
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	id, _ := strconv.Atoi(r.FormValue("id"))
 	moneyStr := r.FormValue("money")
 	money, _ := strconv.Atoi(moneyStr)
+
 	addMoneyToUser(id, money)
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
