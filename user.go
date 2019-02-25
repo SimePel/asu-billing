@@ -21,6 +21,7 @@ type User struct {
 	ID           int       `bson:"_id"`
 	Money        int       `bson:"money"`
 	Tariff       int       `bson:"tariff"`
+	Active       bool      `bson:"active"`
 	Name         string    `bson:"name"`
 	Login        string    `bson:"login"`
 	InIP         string    `bson:"in_ip"`
@@ -32,6 +33,7 @@ type User struct {
 type CorrectedUser struct {
 	ID           int
 	Money        int
+	Active       bool
 	Name         string
 	Login        string
 	Tariff       string

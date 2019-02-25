@@ -106,6 +106,7 @@ func getUsersByType(t string) CorrectedUsers {
 	for _, user := range users {
 		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
 			ID:           user.ID,
+			Active:       user.Active,
 			Tariff:       tariffStringRepr(user.Tariff),
 			Money:        user.Money,
 			Name:         user.Name,
@@ -134,21 +135,12 @@ func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Curso
 	}
 	if showType == "active" {
 		return coll.Find(nil, bson.D{
-			{Key: "payments_ends", Value: bson.D{
-				{Key: "$gte", Value: "new Date()"},
-			}},
+			{Key: "active", Value: true},
 		})
 	}
 	if showType == "inactive" {
 		return coll.Find(nil, bson.D{
-			{Key: "$or", Value: bson.A{
-				bson.D{{Key: "payments_ends", Value: nil}},
-				bson.D{
-					{Key: "payments_ends", Value: bson.D{
-						{Key: "$lt", Value: "new Date()"},
-					}},
-				},
-			}},
+			{Key: "active", Value: false},
 		})
 	}
 	return coll.Find(nil, bson.D{})
@@ -170,6 +162,7 @@ func getUserDataByID(id int) CorrectedUser {
 
 	return CorrectedUser{
 		ID:           user.ID,
+		Active:       user.Active,
 		Tariff:       tariffStringRepr(user.Tariff),
 		Money:        user.Money,
 		Name:         user.Name,
@@ -195,6 +188,7 @@ func getUserDataByLogin(login string) CorrectedUser {
 
 	return CorrectedUser{
 		ID:           user.ID,
+		Active:       user.Active,
 		Tariff:       tariffStringRepr(user.Tariff),
 		Money:        user.Money,
 		Name:         user.Name,
