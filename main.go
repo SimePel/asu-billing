@@ -25,19 +25,19 @@ func main() {
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	router.GET("/admin-login", adminLogin)
-	router.GET("/admin", adminIndex)
+	router.GET("/admin", adminAuthCheck(adminIndex))
 	router.GET("/admin-logout", adminLogout)
 	router.GET("/user-logout", userLogout)
 	router.GET("/user-login", userLogin)
-	router.GET("/add-user", newUserForm)
-	router.GET("/user-info", userInfo)
+	router.GET("/add-user", adminAuthCheck(newUserForm))
+	router.GET("/user-info", adminAuthCheck(userInfo))
 	router.GET("/user", userIndex)
-	router.GET("/pay", payForm)
+	router.GET("/pay", adminAuthCheck(payForm))
 
 	router.POST("/admin-login", authAdmin)
 	router.POST("/user-login", authUser)
-	router.POST("/add-user", addNewUser)
-	router.POST("/pay", pay)
+	router.POST("/add-user", adminAuthCheck(addNewUser))
+	router.POST("/pay", adminAuthCheck(pay))
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {

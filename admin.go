@@ -63,12 +63,6 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-
 	t := r.URL.Query().Get("type")
 	admT.ExecuteTemplate(w, "index", getUsersByType(t))
 }
@@ -81,32 +75,15 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 	admT.ExecuteTemplate(w, "user-info", getUserDataByID(id))
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "true" {
-		admT.ExecuteTemplate(w, "new-user-form", nil)
-		return
-	}
-	http.Redirect(w, r, "/admin-login", http.StatusFound)
+	admT.ExecuteTemplate(w, "new-user-form", nil)
 }
 
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		log.Println("form parsing: ", err)
 		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
@@ -132,23 +109,11 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
 }
 
 func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session, _ := store.Get(r, "admin")
-	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		log.Println("form parsing: ", err)
 		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
