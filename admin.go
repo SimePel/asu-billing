@@ -131,7 +131,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
-func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
 		http.Redirect(w, r, "/admin-login", http.StatusFound)
@@ -140,4 +140,25 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
+}
+
+func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	session, _ := store.Get(r, "admin")
+	if session.Values["admin_logged"] == "false" || session.Values["admin_logged"] == nil {
+		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		log.Println("form parsing: ", err)
+		http.Error(w, "Problems with fetching your data from the form. Please try again", http.StatusInternalServerError)
+		return
+	}
+
+	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
+	moneyStr := r.FormValue("money")
+	money, _ := strconv.Atoi(moneyStr)
+	addMoneyToUser(id, money)
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }

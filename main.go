@@ -32,11 +32,12 @@ func main() {
 	router.GET("/add-user", newUserForm)
 	router.GET("/user-info", userInfo)
 	router.GET("/user", userIndex)
-	router.GET("/pay", pay)
+	router.GET("/pay", payForm)
 
 	router.POST("/admin-login", authAdmin)
 	router.POST("/user-login", authUser)
 	router.POST("/add-user", addNewUser)
+	router.POST("/pay", pay)
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {

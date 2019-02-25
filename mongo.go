@@ -53,6 +53,28 @@ func getUnusedInIP(client *mongo.Client) string {
 	return ip.IP
 }
 
+func addMoneyToUser(id, money int) {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		log.Fatal("could not connect to mongo", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+	_, err = coll.UpdateOne(nil,
+		bson.D{
+			{Key: "_id", Value: id},
+		},
+		bson.D{
+			{Key: "$inc", Value: bson.D{
+				{Key: "money", Value: money},
+			}},
+		},
+	)
+	if err != nil {
+		log.Fatal("could not update money field", err)
+	}
+}
+
 type CorrectedUsers struct {
 	Users []CorrectedUser
 }
