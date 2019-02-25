@@ -23,7 +23,7 @@ func addUserIntoMongo(name, login string, tariff, money int) error {
 	}
 
 	_, err = coll.InsertOne(nil, bson.D{
-		{Key: "_id", Value: all + 1},
+		{Key: "_id", Value: int(all + 1)},
 		{Key: "name", Value: name},
 		{Key: "login", Value: login},
 		{Key: "tariff", Value: tariff},
