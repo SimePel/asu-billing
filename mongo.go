@@ -222,7 +222,7 @@ func getUserDataByLogin(login string) CorrectedUser {
 
 func formatTime(t time.Time) string {
 	if t.Unix() < 0 {
-		return "Оплата еще не производилась"
+		return ""
 	}
 	return t.Format("2.01.2006")
 }

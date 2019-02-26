@@ -50,19 +50,23 @@
           {{.Login}}
         </p>
         <p class="is-size-4 margin-17px">
+          {{if .PaymentsEnds}}
           <span class="has-text-weight-semibold">Дата отключения: </span>
           {{.PaymentsEnds}}
+          {{else}}
+          Оплата еще не производилась
+          {{end}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Остаток на счету: </span>
           {{.Money}}
           <span class="field">
             <span class="control">
-                <a class="button is-warning" href="/pay?id={{.ID}}">
-                  <span class="icon">
-                    <i class="fas fa-hand-holding-usd"></i>
-                  </span>
-                </a>
+              <a class="button is-warning" href="/pay?id={{.ID}}">
+                <span class="icon">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </span>
+              </a>
             </span>
           </span>
         </p>
