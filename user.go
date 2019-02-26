@@ -16,6 +16,7 @@ var (
 	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
 )
 
+// Tariff type
 type Tariff struct {
 	ID    int    `bson:"id"`
 	Price int    `bson:"price"`
