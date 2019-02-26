@@ -57,6 +57,12 @@
           Оплата еще не производилась
           {{end}}
         </p>
+        {{if .Comment}}
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Комментарий: </span>
+          {{.Comment}}
+        </p>
+        {{end}}
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Остаток на счету: </span>
           {{.Money}}
