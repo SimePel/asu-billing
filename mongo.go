@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
-func addUserIntoMongo(name, login string, tariff, money int) error {
+func addUserIntoMongo(name, login, tariff, phone, comment string, money int) error {
 	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
