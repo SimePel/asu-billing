@@ -54,7 +54,11 @@ func getUnusedInIP(client *mongo.Client) string {
 		IP   string `bson:"ip"`
 		Used bool   `bson:"used"`
 	}
-	err := coll.FindOne(nil, bson.D{{Key: "used", Value: false}}).Decode(&ip)
+	err := coll.FindOneAndUpdate(nil,
+		bson.D{{Key: "used", Value: false}},
+		bson.D{{Key: "$set", Value: bson.D{
+			{Key: "used", Value: true},
+		}}}).Decode(&ip)
 	if err != nil {
 		log.Fatal(err)
 	}
