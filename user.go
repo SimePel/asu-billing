@@ -32,6 +32,8 @@ type User struct {
 	InIP         string    `bson:"in_ip"`
 	ExtIP        string    `bson:"ext_ip"`
 	Tariff       Tariff    `bson:"tariff"`
+	Phone        string    `bson:"phone,omitempty"`
+	Comment      string    `bson:"comment,omitempty"`
 	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
 }
 
@@ -45,6 +47,8 @@ type CorrectedUser struct {
 	Tariff       Tariff
 	InIP         string
 	ExtIP        string
+	Phone        string
+	Comment      string
 	PaymentsEnds string
 }
 

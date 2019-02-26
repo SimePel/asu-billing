@@ -39,6 +39,8 @@ func addUserIntoMongo(name, login string, tariff, money int) error {
 		{Key: "active", Value: false},
 		{Key: "in_ip", Value: getUnusedInIP(client)},
 		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
+		{Key: "phone", Value: phone},
+		{Key: "comment", Value: comment},
 	})
 	if err != nil {
 		return fmt.Errorf("could not insert: %v", err)
@@ -126,6 +128,8 @@ func getUsersByType(t string) CorrectedUsers {
 			Login:        user.Login,
 			InIP:         user.InIP,
 			ExtIP:        user.ExtIP,
+			Phone:        user.Phone,
+			Comment:      user.Comment,
 			PaymentsEnds: formatTime(user.PaymentsEnds),
 		})
 	}
@@ -182,6 +186,8 @@ func getUserDataByID(id int) CorrectedUser {
 		Login:        user.Login,
 		InIP:         user.InIP,
 		ExtIP:        user.ExtIP,
+		Phone:        user.Phone,
+		Comment:      user.Comment,
 		PaymentsEnds: formatTime(user.PaymentsEnds),
 	}
 }
@@ -208,6 +214,8 @@ func getUserDataByLogin(login string) CorrectedUser {
 		Login:        user.Login,
 		InIP:         user.InIP,
 		ExtIP:        user.ExtIP,
+		Phone:        user.Phone,
+		Comment:      user.Comment,
 		PaymentsEnds: formatTime(user.PaymentsEnds),
 	}
 }

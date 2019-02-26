@@ -81,13 +81,16 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	name := r.FormValue("name")
 	login := r.FormValue("login") + "@stud.asu.ru"
 	tariff := r.FormValue("tariff")
+	phone := r.FormValue("phone")
+	comment := r.FormValue("comment")
+
 	moneyStr := r.FormValue("money")
 	money := 0
 	if moneyStr != "" {
 		money, _ = strconv.Atoi(moneyStr)
 	}
 
-	err := addUserIntoMongo(name, login, tariff, money)
+	err := addUserIntoMongo(name, login, tariff, phone, comment, money)
 	if err != nil {
 		log.Fatal(err)
 	}

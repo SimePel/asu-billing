@@ -27,6 +27,12 @@
           <span class="has-text-weight-semibold">ФИО: </span>
           {{.Name}}
         </p>
+        {{if .Phone}}
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Телефон: </span>
+          {{.Phone}}
+        </p>
+        {{end}}
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Тариф: </span>
           {{.Tariff.Name}} ({{.Tariff.Price}}р)
