@@ -32,7 +32,7 @@
             <form action="/pay?id={{.ID}}" method="post">
               <div class="field">
                 <label class="label">Тариф</label>
-                {{.Tariff}}
+                {{.Tariff.Name}} ({{.Tariff.Price}}р)
               </div>
               <div class="field">
                 <label class="label">Сумма</label>

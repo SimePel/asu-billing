@@ -22,11 +22,19 @@ func addUserIntoMongo(name, login string, tariff, money int) error {
 		return fmt.Errorf("could not count documents: %v", err)
 	}
 
+	pieces := strings.Split(tariff, " ")
+	tID, _ := strconv.Atoi(pieces[0])
+	tName := pieces[1]
+	tPrice, _ := strconv.Atoi(pieces[2])
 	_, err = coll.InsertOne(nil, bson.D{
 		{Key: "_id", Value: int(all + 1)},
 		{Key: "name", Value: name},
 		{Key: "login", Value: login},
-		{Key: "tariff", Value: tariff},
+		{Key: "tariff", Value: bson.D{
+			{Key: "id", Value: tID},
+			{Key: "name", Value: tName},
+			{Key: "price", Value: tPrice},
+		}},
 		{Key: "money", Value: money},
 		{Key: "active", Value: false},
 		{Key: "in_ip", Value: getUnusedInIP(client)},
@@ -108,7 +116,7 @@ func getUsersByType(t string) CorrectedUsers {
 		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
 			ID:           user.ID,
 			Active:       user.Active,
-			Tariff:       tariffStringRepr(user.Tariff),
+			Tariff:       user.Tariff,
 			Money:        user.Money,
 			Name:         user.Name,
 			Login:        user.Login,
@@ -124,14 +132,14 @@ func getUsersByType(t string) CorrectedUsers {
 func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Cursor, error) {
 	if showType == "wired" {
 		return coll.Find(nil, bson.D{
-			{Key: "tariff", Value: bson.D{
-				{Key: "$in", Value: bson.A{1, 2}}},
-			},
+			{Key: "tariff.id", Value: bson.D{
+				{Key: "$in", Value: bson.A{1, 2}},
+			}},
 		})
 	}
 	if showType == "wireless" {
 		return coll.Find(nil, bson.D{
-			{Key: "tariff", Value: 3},
+			{Key: "tariff.id", Value: 3},
 		})
 	}
 	if showType == "active" {
@@ -164,7 +172,7 @@ func getUserDataByID(id int) CorrectedUser {
 	return CorrectedUser{
 		ID:           user.ID,
 		Active:       user.Active,
-		Tariff:       tariffStringRepr(user.Tariff),
+		Tariff:       user.Tariff,
 		Money:        user.Money,
 		Name:         user.Name,
 		Login:        user.Login,
@@ -190,7 +198,7 @@ func getUserDataByLogin(login string) CorrectedUser {
 	return CorrectedUser{
 		ID:           user.ID,
 		Active:       user.Active,
-		Tariff:       tariffStringRepr(user.Tariff),
+		Tariff:       user.Tariff,
 		Money:        user.Money,
 		Name:         user.Name,
 		Login:        user.Login,
@@ -198,19 +206,6 @@ func getUserDataByLogin(login string) CorrectedUser {
 		ExtIP:        user.ExtIP,
 		PaymentsEnds: formatTime(user.PaymentsEnds),
 	}
-}
-
-func tariffStringRepr(tariff int) string {
-	if tariff == 1 {
-		return "Базовый30мб (300р)"
-	}
-	if tariff == 2 {
-		return "Базовый30мб+IP (400р)"
-	}
-	if tariff == 3 {
-		return "Беспроводной (200р)"
-	}
-	return "Неизвестный тариф"
 }
 
 func formatTime(t time.Time) string {

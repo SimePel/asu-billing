@@ -16,16 +16,22 @@ var (
 	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
 )
 
+type Tariff struct {
+	ID    int    `bson:"id"`
+	Price int    `bson:"price"`
+	Name  string `bson:"name"`
+}
+
 // User is an instance of users collection from mongodb
 type User struct {
 	ID           int       `bson:"_id"`
 	Money        int       `bson:"money"`
-	Tariff       int       `bson:"tariff"`
 	Active       bool      `bson:"active"`
 	Name         string    `bson:"name"`
 	Login        string    `bson:"login"`
 	InIP         string    `bson:"in_ip"`
 	ExtIP        string    `bson:"ext_ip"`
+	Tariff       Tariff    `bson:"tariff"`
 	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
 }
 
@@ -36,7 +42,7 @@ type CorrectedUser struct {
 	Active       bool
 	Name         string
 	Login        string
-	Tariff       string
+	Tariff       Tariff
 	InIP         string
 	ExtIP        string
 	PaymentsEnds string

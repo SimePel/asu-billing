@@ -80,7 +80,7 @@ func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	name := r.FormValue("name")
 	login := r.FormValue("login") + "@stud.asu.ru"
-	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
+	tariff := r.FormValue("tariff")
 	moneyStr := r.FormValue("money")
 	money := 0
 	if moneyStr != "" {
