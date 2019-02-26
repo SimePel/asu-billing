@@ -28,6 +28,7 @@ func addUserIntoMongo(name, login string, tariff, money int) error {
 		{Key: "login", Value: login},
 		{Key: "tariff", Value: tariff},
 		{Key: "money", Value: money},
+		{Key: "active", Value: false},
 		{Key: "in_ip", Value: getUnusedInIP(client)},
 		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
 	})
