@@ -11,17 +11,79 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
-func addUserIntoMongo(name, login, tariff, phone, comment string, money int) error {
+func withdrawMoney(id int) error {
 	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
 	coll := client.Database("billing").Collection("users")
+	user := User{}
+	err = coll.FindOne(nil, bson.D{{Key: "_id", Value: id}}).Decode(&user)
+	if err != nil {
+		return fmt.Errorf("could not find user by id: %v", err)
+	}
+
+	if user.Money < user.Tariff.Price {
+		return nil
+	}
+
+	months := user.Money / user.Tariff.Price
+
+	if !user.Active {
+		paymentsEnds := time.Now().AddDate(0, months, 0)
+		_, err := coll.UpdateOne(nil,
+			bson.D{
+				{Key: "_id", Value: user.ID},
+			},
+			bson.D{
+				{Key: "$set", Value: bson.D{
+					{Key: "payments_ends", Value: paymentsEnds},
+					{Key: "active", Value: true},
+				}},
+				{Key: "$inc", Value: bson.D{
+					{Key: "money", Value: -(user.Tariff.Price * months)},
+				}},
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("could not update \"payments_ends\" field: %v", err)
+		}
+		return nil
+	}
+
+	paymentsEnds := user.PaymentsEnds.AddDate(0, months, 0)
+	_, err = coll.UpdateOne(nil,
+		bson.D{
+			{Key: "_id", Value: user.ID},
+		},
+		bson.D{
+			{Key: "$set", Value: bson.D{
+				{Key: "payments_ends", Value: paymentsEnds},
+			}},
+			{Key: "$inc", Value: bson.D{
+				{Key: "money", Value: -(user.Tariff.Price * months)},
+			}},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("could not update \"payments_ends\" field: %v", err)
+	}
+
+	return nil
+}
+
+func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		return 0, fmt.Errorf("could not connect to mongo: %v", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
 
 	all, err := coll.CountDocuments(nil, bson.D{{}})
 	if err != nil {
-		return fmt.Errorf("could not count documents: %v", err)
+		return 0, fmt.Errorf("could not count documents: %v", err)
 	}
 
 	pieces := strings.Split(tariff, " ")
@@ -45,10 +107,10 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) err
 		{Key: "comment", Value: comment},
 	})
 	if err != nil {
-		return fmt.Errorf("could not insert: %v", err)
+		return 0, fmt.Errorf("could not insert: %v", err)
 	}
 
-	return nil
+	return int(all + 1), nil
 }
 
 func getUnusedInIP(client *mongo.Client) string {

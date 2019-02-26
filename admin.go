@@ -90,10 +90,12 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		money, _ = strconv.Atoi(moneyStr)
 	}
 
-	err := addUserIntoMongo(name, login, tariff, phone, comment, money)
+	id, err := addUserIntoMongo(name, login, tariff, phone, comment, money)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	withdrawMoney(id)
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
@@ -110,5 +112,9 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	addMoneyToUser(id, money)
 
+	err := withdrawMoney(id)
+	if err != nil {
+		log.Fatal(err)
+	}
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
