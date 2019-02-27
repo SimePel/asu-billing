@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
@@ -38,6 +39,16 @@ func main() {
 	router.POST("/user-login", authUser)
 	router.POST("/add-user", adminAuthCheck(addNewUser))
 	router.POST("/pay", adminAuthCheck(pay))
+
+	go func() {
+		for {
+			time.Sleep(time.Hour * 12)
+			err := turnOffInactiveUsers()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}()
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {

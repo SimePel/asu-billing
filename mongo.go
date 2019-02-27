@@ -11,6 +11,35 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
+func turnOffInactiveUsers() error {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		return fmt.Errorf("could not connect to mongo: %v", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+	_, err = coll.UpdateMany(nil,
+		bson.D{
+			{Key: "payments_ends", Value: bson.D{
+				{Key: "$lte", Value: time.Now()},
+			}},
+		},
+		bson.D{
+			{Key: "$set", Value: bson.D{
+				{Key: "active", Value: false},
+			}},
+			{Key: "$unset", Value: bson.D{
+				{Key: "payments_ends", Value: nil},
+			}},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("could not turn off users: %v", err)
+	}
+
+	return nil
+}
+
 func withdrawMoney(id int) error {
 	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
 	if err != nil {
