@@ -77,6 +77,27 @@ func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	admT.ExecuteTemplate(w, "user-info", getUserDataByID(id))
 }
 
+func userEditForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	admT.ExecuteTemplate(w, "edit-user-form", getUserDataByID(id))
+}
+
+func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	name := r.FormValue("name")
+	login := r.FormValue("login")
+	tariff := r.FormValue("tariff")
+	phone := r.FormValue("phone")
+	comment := r.FormValue("comment")
+
+	err := updateUserData(id, name, login, tariff, phone, comment)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
+}
+
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	admT.ExecuteTemplate(w, "new-user-form", nil)
 }

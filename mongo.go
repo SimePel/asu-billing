@@ -102,6 +102,47 @@ func withdrawMoney(id int) error {
 	return nil
 }
 
+func updateUserData(id int, name, login, tariff, phone, comment string) error {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		return fmt.Errorf("could not connect to mongo: %v", err)
+	}
+
+	t := tarrifFromString(tariff)
+	coll := client.Database("billing").Collection("users")
+	_, err = coll.UpdateOne(nil,
+		bson.D{
+			{Key: "_id", Value: id},
+		},
+		bson.D{
+			{Key: "$set", Value: bson.D{
+				{Key: "name", Value: name},
+				{Key: "login", Value: login},
+				{Key: "tariff", Value: bson.D{
+					{Key: "id", Value: t.ID},
+					{Key: "name", Value: t.Name},
+					{Key: "price", Value: t.Price},
+				}},
+				{Key: "phone", Value: phone},
+				{Key: "comment", Value: comment},
+			}},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("could not update fields: %v", err)
+	}
+
+	return nil
+}
+
+func tarrifFromString(s string) (t Tariff) {
+	pieces := strings.Split(s, " ")
+	t.ID, _ = strconv.Atoi(pieces[0])
+	t.Name = pieces[1]
+	t.Price, _ = strconv.Atoi(pieces[2])
+	return t
+}
+
 func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
 	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
 	if err != nil {
@@ -115,18 +156,15 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (in
 		return 0, fmt.Errorf("could not count documents: %v", err)
 	}
 
-	pieces := strings.Split(tariff, " ")
-	tID, _ := strconv.Atoi(pieces[0])
-	tName := pieces[1]
-	tPrice, _ := strconv.Atoi(pieces[2])
+	t := tarrifFromString(tariff)
 	_, err = coll.InsertOne(nil, bson.D{
 		{Key: "_id", Value: int(all + 1)},
 		{Key: "name", Value: name},
 		{Key: "login", Value: login},
 		{Key: "tariff", Value: bson.D{
-			{Key: "id", Value: tID},
-			{Key: "name", Value: tName},
-			{Key: "price", Value: tPrice},
+			{Key: "id", Value: t.ID},
+			{Key: "name", Value: t.Name},
+			{Key: "price", Value: t.Price},
 		}},
 		{Key: "money", Value: money},
 		{Key: "active", Value: false},
