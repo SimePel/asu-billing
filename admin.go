@@ -57,8 +57,12 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var name string
 	t := r.FormValue("type")
-	admT.ExecuteTemplate(w, "index", getUsersByType(t))
+	if t == "name" {
+		name = r.FormValue("name")
+	}
+	admT.ExecuteTemplate(w, "index", getUsersByType(t, name))
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

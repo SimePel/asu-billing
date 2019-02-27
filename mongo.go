@@ -187,14 +187,8 @@ type CorrectedUsers struct {
 	Users []CorrectedUser
 }
 
-func getUsersByType(t string) CorrectedUsers {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
-	if err != nil {
-		log.Fatal("could not connect to mongo", err)
-	}
-
-	coll := client.Database("billing").Collection("users")
-	cur, err := getAppropriateCursor(coll, t)
+func getUsersByType(t, name string) CorrectedUsers {
+	cur, err := getAppropriateCursor(t, name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -230,7 +224,20 @@ func getUsersByType(t string) CorrectedUsers {
 	return correctedUsers
 }
 
-func getAppropriateCursor(coll *mongo.Collection, showType string) (*mongo.Cursor, error) {
+func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
+	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	if err != nil {
+		log.Fatal("could not connect to mongo", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+	if showType == "name" {
+		return coll.Find(nil, bson.D{
+			{Key: "$text", Value: bson.D{
+				{Key: "$search", Value: name},
+			}},
+		})
+	}
 	if showType == "wired" {
 		return coll.Find(nil, bson.D{
 			{Key: "tariff.id", Value: bson.D{
