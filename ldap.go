@@ -28,7 +28,7 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	}
 
 	if len(sr.Entries) != 1 {
-		return fmt.Errorf("Uncorrect login")
+		return fmt.Errorf("Неверный логин")
 	}
 
 	// Bind as the user to verify their password
@@ -36,7 +36,7 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	password := r.FormValue("password")
 	err = l.Bind(userdn, password)
 	if err != nil {
-		return fmt.Errorf("Uncorrect password: %v", err)
+		return fmt.Errorf("Неверный пароль")
 	}
 
 	return nil

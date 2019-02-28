@@ -46,8 +46,8 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	err := ldapAuth(w, r, searchRequest)
 	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/admin-login", http.StatusFound)
+		url := fmt.Sprint("/admin-login?err=", err.Error())
+		http.Redirect(w, r, url, http.StatusFound)
 		return
 	}
 

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -82,6 +81,9 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	login := r.FormValue("login")
 	pieces := strings.Split(login, "\\")
+	if len(pieces) == 1 {
+		pieces = []string{"stud", login}
+	}
 	searchRequest := ldap.NewSearchRequest(
 		fmt.Sprintf("dc=%s,dc=asu,dc=ru", pieces[0]),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -92,8 +94,8 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	err := ldapAuth(w, r, searchRequest)
 	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/user-login", http.StatusFound)
+		url := fmt.Sprint("/user-login?err=", err.Error())
+		http.Redirect(w, r, url, http.StatusFound)
 		return
 	}
 
