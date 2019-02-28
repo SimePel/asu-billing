@@ -26,12 +26,12 @@
           <div class="column is-one-quarter">
             <form action="/add-user" method="post">
               <div class="field">
-                <label class="label">ФИО</label>
+                <label class="label">ФИО<span class="has-text-danger"> *</span></label>
                 <div class="control">
                   <input class="input" name="name" type="text" placeholder="" required>
                 </div>
               </div>
-              <label class="label">Логин</label>
+              <label class="label">Логин<span class="has-text-danger"> *</span></label>
               <div class="field has-addons">
                 <div class="control">
                   <input class="input" name="login" type="text" placeholder="" required>
@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div class="field">
-                <label class="label">Тариф</label>
+                <label class="label">Тариф<span class="has-text-danger"> *</span></label>
                 <div class="control">
                   <div class="select">
                     <select name="tariff" required>

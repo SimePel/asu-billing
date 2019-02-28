@@ -27,19 +27,19 @@
             <form action="/edit-user" method="post">
               <input class="input" type="hidden" name="id" type="text" value="{{.ID}}" required>
               <div class="field">
-                <label class="label">ФИО</label>
+                <label class="label">ФИО<span class="has-text-danger"> *</span></label>
                 <div class="control">
                   <input class="input" name="name" type="text" value="{{.Name}}" required>
                 </div>
               </div>
               <div class="field">
-                <label class="label">Логин</label>
+                <label class="label">Логин<span class="has-text-danger"> *</span></label>
                 <div class="control">
                   <input class="input" name="login" type="text" value="{{.Login}}" required>
                 </div>
               </div>
               <div class="field">
-                <label class="label">Тариф</label>
+                <label class="label">Тариф<span class="has-text-danger"> *</span></label>
                 <div class="control">
                   <div class="select">
                     <select name="tariff" required>
