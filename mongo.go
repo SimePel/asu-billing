@@ -221,6 +221,7 @@ func addMoneyToUser(id, money int) {
 	}
 }
 
+// CorrectedUsers is slice of Users
 type CorrectedUsers struct {
 	Users []CorrectedUser
 }
