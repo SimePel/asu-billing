@@ -52,7 +52,7 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServe(":8080", router)
+	err := http.ListenAndServeTLS("billing-dev.asu.ru:443", "cert.pem", "privkey.pem", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
