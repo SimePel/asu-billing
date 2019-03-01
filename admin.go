@@ -120,7 +120,10 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		log.Fatal(err)
 	}
 
-	withdrawMoney(id)
+	err = withdrawMoney(id)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
@@ -141,5 +144,6 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
