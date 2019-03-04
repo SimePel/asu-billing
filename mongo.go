@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func turnOffInactiveUsers() error {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
@@ -41,7 +42,7 @@ func turnOffInactiveUsers() error {
 }
 
 func withdrawMoney(id int) error {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
@@ -103,7 +104,7 @@ func withdrawMoney(id int) error {
 }
 
 func updateUserData(id int, name, login, tariff, phone, comment string) error {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
@@ -144,7 +145,7 @@ func tarrifFromString(s string) (t Tariff) {
 }
 
 func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		return 0, fmt.Errorf("could not connect to mongo: %v", err)
 	}
@@ -200,7 +201,7 @@ func getUnusedInIP(client *mongo.Client) string {
 }
 
 func addMoneyToUser(id, money int) {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
 	}
@@ -264,7 +265,7 @@ func getUsersByType(t, name string) CorrectedUsers {
 }
 
 func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
 	}
@@ -303,7 +304,7 @@ func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
 }
 
 func getUserDataByID(id int) CorrectedUser {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
 	}
@@ -332,7 +333,7 @@ func getUserDataByID(id int) CorrectedUser {
 }
 
 func getUserDataByLogin(login string) CorrectedUser {
-	client, err := mongo.Connect(nil, "mongodb://localhost:27017")
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
 	}
