@@ -8,6 +8,10 @@ import (
 	ldap "gopkg.in/ldap.v3"
 )
 
+const (
+	ldapServer = "ads.mc.au.ru:3268"
+)
+
 func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.SearchRequest) error {
 	l, err := ldap.Dial("tcp", ldapServer)
 	if err != nil {

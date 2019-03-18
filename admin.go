@@ -11,10 +11,6 @@ import (
 	ldap "gopkg.in/ldap.v3"
 )
 
-const (
-	ldapServer = "ads.mc.asu.ru:3268"
-)
-
 var (
 	admT = template.Must(template.New("adm").ParseGlob("templates/adm/*.html"))
 )
