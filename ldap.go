@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -15,7 +16,8 @@ const (
 func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.SearchRequest) error {
 	l, err := ldap.Dial("tcp", ldapServer)
 	if err != nil {
-		return fmt.Errorf("could not connect to ldap server: %v", err)
+		log.Print(err)
+		return fmt.Errorf("Не удалось подключиться к ldap серверу")
 	}
 	defer l.Close()
 
@@ -23,23 +25,26 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	bindPassword := os.Getenv("LDAP_PASSWORD")
 	err = l.Bind(bindUsername, bindPassword)
 	if err != nil {
-		return fmt.Errorf("could not to bind: %v", err)
+		log.Print(err)
+		return fmt.Errorf("Не удалось подключиться read only пользователем")
 	}
 
 	sr, err := l.Search(searchRequest)
 	if err != nil {
-		return fmt.Errorf("could not to do ldap.Search: %v", err)
+		log.Print(err)
+		return fmt.Errorf("Не удалось выполнить поиск пользователя")
 	}
 
 	if len(sr.Entries) != 1 {
 		return fmt.Errorf("Неверный логин")
 	}
 
-	// Bind as the user to verify their password
+	// Подключаемся пользователем для проверки пароля
 	userdn := sr.Entries[0].DN
 	password := r.FormValue("password")
 	err = l.Bind(userdn, password)
 	if err != nil {
+		log.Print(err)
 		return fmt.Errorf("Неверный пароль")
 	}
 
