@@ -18,7 +18,7 @@
       <div class="level-item">
         <div class="field has-addons">
           <p class="control">
-            <input id="search" class="input" type="search" placeholder="Найти пользователя">
+            <input id="search" class="input" type="search" placeholder="Имя пользователя">
           </p>
           <p class="control">
             <button id="searchButton" class="button">
@@ -40,14 +40,15 @@
   </nav>
   <div class="container">
     <div class="columns">
-      <div class="column is-offset-1">
-        <table class="table is-hoverable">
+      <div class="column">
+        <table class="table is-hoverable is-fullwidth">
           <thead>
             <tr>
               <th>ФИО</th>
               <th>Логин</th>
               <th>Тариф</th>
-              <th>Остаток на счету</th>
+              <th>Баланс</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -79,6 +80,17 @@
                     </span>
                   </span>
                 </span>
+              </td>
+              <td>
+                {{if .Active}}
+                <span class="icon has-text-success">
+                  <i class="fas fa-user-check"></i>
+                </span>
+                {{else}}
+                <span class="icon has-text-danger">
+                  <i class="fas fa-user-times"></i>
+                </span>
+                {{end}}
               </td>
             </tr>
             {{end}}
