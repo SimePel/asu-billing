@@ -32,7 +32,7 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	sr, err := l.Search(searchRequest)
 	if err != nil {
 		log.Print(err)
-		return fmt.Errorf("Не удалось выполнить поиск пользователя")
+		return fmt.Errorf("Не удалось найти пользователя с таким логином")
 	}
 
 	if len(sr.Entries) != 1 {
