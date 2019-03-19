@@ -15,6 +15,18 @@ var (
 	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
 )
 
+// Payment type
+type Payment struct {
+	Amount int       `bson:"amount"`
+	Last   time.Time `bson:"last"`
+}
+
+// SPayment type
+type SPayment struct {
+	Amount int
+	Last   string
+}
+
 // Tariff type
 type Tariff struct {
 	ID    int    `bson:"id"`
@@ -32,6 +44,7 @@ type User struct {
 	InIP         string    `bson:"in_ip"`
 	ExtIP        string    `bson:"ext_ip"`
 	Tariff       Tariff    `bson:"tariff"`
+	Payments     []Payment `bson:"payments,omitempty"`
 	Phone        string    `bson:"phone,omitempty"`
 	Comment      string    `bson:"comment,omitempty"`
 	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
@@ -45,6 +58,7 @@ type CorrectedUser struct {
 	Name         string
 	Login        string
 	Tariff       Tariff
+	Payments     []SPayment
 	InIP         string
 	ExtIP        string
 	Phone        string

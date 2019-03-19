@@ -116,6 +116,13 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		log.Fatal(err)
 	}
 
+	if money != 0 {
+		err = addPaymentInfo(id, money)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	err = withdrawMoney(id)
 	if err != nil {
 		log.Fatal(err)
@@ -146,7 +153,12 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	addMoneyToUser(id, money)
 
-	err := withdrawMoney(id)
+	err := addPaymentInfo(id, money)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = withdrawMoney(id)
 	if err != nil {
 		log.Fatal(err)
 	}

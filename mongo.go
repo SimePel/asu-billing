@@ -103,6 +103,33 @@ func withdrawMoney(id int) error {
 	return nil
 }
 
+func addPaymentInfo(id, money int) error {
+	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		return fmt.Errorf("could not connect to mongo: %v", err)
+	}
+
+	coll := client.Database("billing").Collection("users")
+	_, err = coll.UpdateOne(nil,
+		bson.D{
+			{Key: "_id", Value: id},
+		},
+		bson.D{
+			{Key: "$push", Value: bson.D{
+				{Key: "payments", Value: bson.D{
+					{Key: "amount", Value: money},
+					{Key: "last", Value: time.Now()},
+				}},
+			}},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("could not add payment info: %v", err)
+	}
+
+	return nil
+}
+
 func deleteUserFromMongo(id int) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
@@ -197,6 +224,7 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (in
 			{Key: "name", Value: t.Name},
 			{Key: "price", Value: t.Price},
 		}},
+		{Key: "payments", Value: bson.A{}},
 		{Key: "money", Value: money},
 		{Key: "active", Value: false},
 		{Key: "in_ip", Value: getUnusedInIP(client)},
@@ -280,6 +308,7 @@ func getUsersByType(t, name string) CorrectedUsers {
 			ID:           user.ID,
 			Active:       user.Active,
 			Tariff:       user.Tariff,
+			Payments:     convertPaymentType(user.Payments),
 			Money:        user.Money,
 			Name:         user.Name,
 			Login:        user.Login,
@@ -351,6 +380,7 @@ func getUserDataByID(id int) CorrectedUser {
 		ID:           user.ID,
 		Active:       user.Active,
 		Tariff:       user.Tariff,
+		Payments:     convertPaymentType(user.Payments),
 		Money:        user.Money,
 		Name:         user.Name,
 		Login:        user.Login,
@@ -379,6 +409,7 @@ func getUserDataByLogin(login string) CorrectedUser {
 		ID:           user.ID,
 		Active:       user.Active,
 		Tariff:       user.Tariff,
+		Payments:     convertPaymentType(user.Payments),
 		Money:        user.Money,
 		Name:         user.Name,
 		Login:        user.Login,
@@ -388,6 +419,17 @@ func getUserDataByLogin(login string) CorrectedUser {
 		Comment:      user.Comment,
 		PaymentsEnds: formatTime(user.PaymentsEnds),
 	}
+}
+
+func convertPaymentType(pays []Payment) (res []SPayment) {
+	for _, p := range pays {
+		res = append(res, SPayment{
+			Amount: p.Amount,
+			Last:   formatTime(p.Last),
+		})
+	}
+
+	return res
 }
 
 func formatTime(t time.Time) string {

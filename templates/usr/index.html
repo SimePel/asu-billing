@@ -21,52 +21,79 @@
       </div>
     </div>
   </section>
-  <section class="section">
-    <div class="container">
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">ФИО: </span>
-        {{.Name}}
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Тариф: </span>
-        {{.Tariff.Name}} ({{.Tariff.Price}}р)
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Внутренний IP: </span>
-        {{.InIP}}
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Внешний IP: </span>
-        {{.ExtIP}}
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Логин: </span>
-        {{.Login}}
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Дата отключения: </span>
-        {{.PaymentsEnds}}
-      </p>
-      <p class="is-size-4 margin-17px">
-        <span class="has-text-weight-semibold">Остаток на счету: </span>
-        {{.Money}}
-        <span class="field">
-          <span class="control">
-            <a class="button is-success" href="/sberbank">
-              Пополнить
-            </a>
-          </span>
-        </span>
-      </p>
-      <div class="field">
-        <p class="control">
-          <a class="button is-warning" href="/user-logout">
-            Выйти
-          </a>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-6">
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">ФИО: </span>
+          {{.Name}}
         </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Тариф: </span>
+          {{.Tariff.Name}} ({{.Tariff.Price}}р)
+        </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Внутренний IP: </span>
+          {{.InIP}}
+        </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Внешний IP: </span>
+          {{.ExtIP}}
+        </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Логин: </span>
+          {{.Login}}
+        </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Дата отключения: </span>
+          {{.PaymentsEnds}}
+        </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Остаток на счету: </span>
+          {{.Money}}
+          <span class="field">
+            <span class="control">
+              <a class="button is-success" href="/sberbank">
+                Пополнить
+              </a>
+            </span>
+          </span>
+        </p>
+        <div class="field">
+          <p class="control">
+            <a class="button is-warning" href="/user-logout">
+              Выйти
+            </a>
+          </p>
+        </div>
+      </div>
+      <div class="column is-2">
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Платежи</span>
+        </p>
+        <table class="table is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .Payments}}
+            <tr>
+              <td>
+                {{.Last}}
+              </td>
+              <td>
+                {{.Amount}}р
+              </td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
       </div>
     </div>
-  </section>
+  </div>
 </body>
 
 </html>
