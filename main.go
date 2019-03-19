@@ -33,6 +33,7 @@ func main() {
 	router.GET("/add-user", adminAuthCheck(newUserForm))
 	router.GET("/user-info", adminAuthCheck(userInfo))
 	router.GET("/edit-user", adminAuthCheck(userEditForm))
+	router.GET("/delete-user", adminAuthCheck(deleteUser))
 	router.GET("/user", userIndex)
 	router.GET("/pay", adminAuthCheck(payForm))
 
@@ -52,7 +53,7 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServeTLS("billing-dev.asu.ru:443", "cert.pem", "privkey.pem", router)
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

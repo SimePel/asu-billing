@@ -124,6 +124,16 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
+func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	err := deleteUserFromMongo(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusFound)
+}
+
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
