@@ -2,86 +2,86 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Информация о клиенте</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
-    <script src="../../assets/js/awesome.min.js"></script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Информация о клиенте</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
+  <script src="../../assets/js/awesome.min.js"></script>
+</head>
 
-  <body>
-    <section class="hero is-light">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title">
-            Информация о клиенте
-          </h1>
-        </div>
-      </div>
-    </section>
-    <section class="section">
+<body>
+  <section class="hero is-light">
+    <div class="hero-body">
       <div class="container">
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">ФИО: </span>
-          {{.Name}}
-        </p>
-        {{if .Phone}}
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Телефон: </span>
-          {{.Phone}}
-        </p>
-        {{end}}
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Тариф: </span>
-          {{.Tariff.Name}} ({{.Tariff.Price}}р)
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Внутренний IP: </span>
-          {{.InIP}}
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Внешний IP: </span>
-          {{.ExtIP}}
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Логин: </span>
-          {{.Login}}
-        </p>
-        <p class="is-size-4 margin-17px">
-          {{if .PaymentsEnds}}
-          <span class="has-text-weight-semibold">Дата отключения: </span>
-          {{.PaymentsEnds}}
-          {{else}}
-          Оплата еще не производилась
-          {{end}}
-        </p>
-        {{if .Comment}}
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Комментарий: </span>
-          {{.Comment}}
-        </p>
-        {{end}}
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Остаток на счету: </span>
-          {{.Money}}
-          <span class="field">
-            <span class="control">
-              <a class="button is-warning" href="/pay?id={{.ID}}">
-                <span class="icon">
-                  <i class="fas fa-hand-holding-usd"></i>
-                </span>
-              </a>
-            </span>
-          </span>
-        </p>
-        <p class="is-size-4 margin-17px">
-          <a class="button is-link" href="/edit-user?id={{.ID}}">Изменить</a>  
-        </p>
+        <h1 class="title">
+          Информация о клиенте
+        </h1>
       </div>
-    </section>
-  </body>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">ФИО: </span>
+        {{.Name}}
+      </p>
+      {{if .Phone}}
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Телефон: </span>
+        {{.Phone}}
+      </p>
+      {{end}}
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Тариф: </span>
+        {{.Tariff.Name}} ({{.Tariff.Price}}р)
+      </p>
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Внутренний IP: </span>
+        {{.InIP}}
+      </p>
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Внешний IP: </span>
+        {{.ExtIP}}
+      </p>
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Логин: </span>
+        {{.Login}}
+      </p>
+      <p class="is-size-4 margin-17px">
+        {{if .PaymentsEnds}}
+        <span class="has-text-weight-semibold">Дата отключения: </span>
+        {{.PaymentsEnds}}
+        {{else}}
+        Оплата еще не производилась
+        {{end}}
+      </p>
+      {{if .Comment}}
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Комментарий: </span>
+        {{.Comment}}
+      </p>
+      {{end}}
+      <p class="is-size-4 margin-17px">
+        <span class="has-text-weight-semibold">Остаток на счету: </span>
+        {{.Money}}
+        <span class="field">
+          <span class="control">
+            <a class="button is-warning" href="/pay?id={{.ID}}">
+              <span class="icon">
+                <i class="fas fa-ruble-sign"></i>
+              </span>
+            </a>
+          </span>
+        </span>
+      </p>
+      <p class="is-size-4 margin-17px">
+        <a class="button is-link" href="/edit-user?id={{.ID}}">Изменить</a>
+      </p>
+    </div>
+  </section>
+</body>
 
 </html>
 {{ end }}

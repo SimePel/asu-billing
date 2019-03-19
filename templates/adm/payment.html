@@ -2,57 +2,57 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Оплата</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
-    <script src="../../assets/js/awesome.min.js"></script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Оплата</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
+  <script src="../../assets/js/awesome.min.js"></script>
+</head>
 
-  <body>
-    <section class="hero is-light">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title">
-            Оплата
-          </h1>
-        </div>
-      </div>
-    </section>
-    <section class="section">
+<body>
+  <section class="hero is-light">
+    <div class="hero-body">
       <div class="container">
-        <div class="columns">
-          <div class="column is-one-quarter">
-            <div class="field">
-              <label class="label">ФИО</label>
-              {{.Name}}
-            </div>
-            <form action="/pay?id={{.ID}}" method="post">
-              <div class="field">
-                <label class="label">Тариф</label>
-                {{.Tariff.Name}} ({{.Tariff.Price}}р)
-              </div>
-              <div class="field">
-                <label class="label">Сумма<span class="has-text-danger"> *</span></label>
-                <div class="control">
-                  <input class="input" name="money" type="number" placeholder="" required>
-                </div>
-              </div>
-              <div class="field">
-                <div class="control">
-                  <button class="button is-success">
-                    Оплатить
-                  </button>
-                </div>
-              </div>
-            </form>
+        <h1 class="title">
+          Оплата
+        </h1>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-one-quarter">
+          <div class="field">
+            <label class="label">ФИО</label>
+            {{.Name}}
           </div>
+          <form action="/pay?id={{.ID}}" method="post">
+            <div class="field">
+              <label class="label">Тариф</label>
+              {{.Tariff.Name}} ({{.Tariff.Price}}р)
+            </div>
+            <div class="field">
+              <label class="label">Сумма<span class="has-text-danger"> *</span></label>
+              <div class="control">
+                <input class="input" name="money" type="number" placeholder="" required>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <button class="button is-success">
+                  Оплатить
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    </section>
-  </body>
+    </div>
+  </section>
+</body>
 
 </html>
 {{ end }}

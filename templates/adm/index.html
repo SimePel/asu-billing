@@ -2,92 +2,92 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Панель администратора</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
-    <script src="../../assets/js/awesome.min.js"></script>
-    <script src="../../assets/js/admin.js"></script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Панель администратора</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
+  <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/admin.js"></script>
+</head>
 
-  <body>
-    <nav class="level is-spaced has-shadow">
-      <div class="level-left">
-        <div class="level-item">
-          <div class="field has-addons">
-            <p class="control">
-              <input id="search" class="input" type="search" placeholder="Найти пользователя">
-            </p>
-            <p class="control">
-              <button id="searchButton" class="button">
-                Найти
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="level-right">
-        <p id="all" class="level-item"><a href="/admin">Все</a></p>
-        <p id="wired" class="level-item"><a href="?type=wired">Проводные</a></p>
-        <p id="wireless" class="level-item"><a href="?type=wireless">Беспроводные</a></p>
-        <p id="active" class="level-item"><a href="?type=active">Включенные</a></p>
-        <p id="inactive" class="level-item"><a href="?type=inactive">Отключенные</a></p>
-        <p class="level-item"><a class="button is-success" href="/add-user">Добавить</a></p>
-        <p class="level-item"><a class="button is-warning" href="/admin-logout">Выйти</a></p>
-      </div>
-    </nav>
-    <div class="container">
-      <div class="columns">
-        <div class="column is-offset-1">
-          <table class="table is-hoverable">
-            <thead>
-              <tr>
-                <th>ФИО</th>
-                <th>Логин</th>
-                <th>Тариф</th>
-                <th>Остаток на счету</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{range .Users}}
-              <tr>
-                <td>
-                  <a href="/user-info?id={{.ID}}">{{.Name}}</a>
-                </td>
-                <td>
-                  {{.Login}}
-                </td>
-                <td>
-                  {{.Tariff.Name}}
-                </td>
-                <td>
-                  <span class="level">
-                    <span class="level-left">
-                      <span class="level-item">
-                        {{.Money}}
-                      </span>
-                    </span>
-                    <span class="level-right">
-                      <span class="level-item">
-                        <a class="button is-warning is-small" href="/pay?id={{.ID}}">
-                          <span class="icon is-small">
-                            <i class="fas fa-hand-holding-usd"></i>
-                          </span>
-                        </a>
-                      </span>
-                    </span>
-                  </span>
-                </td>
-              </tr>
-              {{end}}
-            </tbody>
-          </table>
+<body>
+  <nav class="level is-spaced has-shadow">
+    <div class="level-left">
+      <div class="level-item">
+        <div class="field has-addons">
+          <p class="control">
+            <input id="search" class="input" type="search" placeholder="Найти пользователя">
+          </p>
+          <p class="control">
+            <button id="searchButton" class="button">
+              Найти
+            </button>
+          </p>
         </div>
       </div>
     </div>
-  </body>
+    <div class="level-right">
+      <p id="all" class="level-item"><a href="/admin">Все</a></p>
+      <p id="wired" class="level-item"><a href="?type=wired">Проводные</a></p>
+      <p id="wireless" class="level-item"><a href="?type=wireless">Беспроводные</a></p>
+      <p id="active" class="level-item"><a href="?type=active">Включенные</a></p>
+      <p id="inactive" class="level-item"><a href="?type=inactive">Отключенные</a></p>
+      <p class="level-item"><a class="button is-success" href="/add-user">Добавить</a></p>
+      <p class="level-item"><a class="button is-warning" href="/admin-logout">Выйти</a></p>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-offset-1">
+        <table class="table is-hoverable">
+          <thead>
+            <tr>
+              <th>ФИО</th>
+              <th>Логин</th>
+              <th>Тариф</th>
+              <th>Остаток на счету</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .Users}}
+            <tr>
+              <td>
+                <a href="/user-info?id={{.ID}}">{{.Name}}</a>
+              </td>
+              <td>
+                {{.Login}}
+              </td>
+              <td>
+                {{.Tariff.Name}}
+              </td>
+              <td>
+                <span class="level">
+                  <span class="level-left">
+                    <span class="level-item">
+                      {{.Money}}
+                    </span>
+                  </span>
+                  <span class="level-right">
+                    <span class="level-item">
+                      <a class="button is-warning is-small" href="/pay?id={{.ID}}">
+                        <span class="icon is-small">
+                          <i class="fas fa-ruble-sign"></i>
+                        </span>
+                      </a>
+                    </span>
+                  </span>
+                </span>
+              </td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
 
 </html>
 {{ end }}
