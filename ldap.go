@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ldapServer = "ads.mc.au.ru:3268"
+	ldapServer = "ads.mc.asu.ru:3268"
 )
 
 func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.SearchRequest) error {
