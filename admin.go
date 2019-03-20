@@ -11,8 +11,16 @@ import (
 	ldap "gopkg.in/ldap.v3"
 )
 
+func newAdminTemplate() *template.Template {
+	funcMap := template.FuncMap{
+		"formatTime": formatTime,
+	}
+
+	return template.Must(template.New("adm").Funcs(funcMap).ParseGlob("templates/adm/*.html"))
+}
+
 var (
-	admT = template.Must(template.New("adm").ParseGlob("templates/adm/*.html"))
+	admT = newAdminTemplate()
 )
 
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -70,12 +78,12 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "user-info", getUserDataByID(id))
+	admT.ExecuteTemplate(w, "user-info", getUserByID(id))
 }
 
 func userEditForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "edit-user-form", getUserDataByID(id))
+	admT.ExecuteTemplate(w, "edit-user-form", getUserByID(id))
 }
 
 func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -143,7 +151,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "payment", getUserDataByID(id))
+	admT.ExecuteTemplate(w, "payment", getUserByID(id))
 }
 
 func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

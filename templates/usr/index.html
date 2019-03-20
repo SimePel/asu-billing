@@ -45,8 +45,12 @@
           {{.Login}}
         </p>
         <p class="is-size-4 margin-17px">
+          {{if formatTime .PaymentsEnds}}
           <span class="has-text-weight-semibold">Дата отключения: </span>
-          {{.PaymentsEnds}}
+          {{formatTime .PaymentsEnds}}
+          {{else}}
+          Вы не подключены
+          {{end}}
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Остаток на счету: </span>
@@ -82,7 +86,7 @@
             {{range .Payments}}
             <tr>
               <td>
-                {{.Last}}
+                {{formatTime .Last}}
               </td>
               <td>
                 {{.Amount}}р

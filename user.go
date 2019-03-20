@@ -11,20 +11,22 @@ import (
 	ldap "gopkg.in/ldap.v3"
 )
 
+func newUserTemplate() *template.Template {
+	funcMap := template.FuncMap{
+		"formatTime": formatTime,
+	}
+
+	return template.Must(template.New("usr").Funcs(funcMap).ParseGlob("templates/usr/*.html"))
+}
+
 var (
-	usrT = template.Must(template.New("usr").ParseGlob("templates/usr/*.html"))
+	usrT = newUserTemplate()
 )
 
 // Payment type
 type Payment struct {
 	Amount int       `bson:"amount"`
 	Last   time.Time `bson:"last"`
-}
-
-// SPayment type
-type SPayment struct {
-	Amount int
-	Last   string
 }
 
 // Tariff type
@@ -34,7 +36,7 @@ type Tariff struct {
 	Name  string `bson:"name"`
 }
 
-// User is an instance of users collection from mongodb
+// User is document in "users" mongodb collection
 type User struct {
 	ID           int       `bson:"_id"`
 	Money        int       `bson:"money"`
@@ -50,22 +52,6 @@ type User struct {
 	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
 }
 
-// CorrectedUser needs to print appropriate information about user
-type CorrectedUser struct {
-	ID           int
-	Money        int
-	Active       bool
-	Name         string
-	Login        string
-	Tariff       Tariff
-	Payments     []SPayment
-	InIP         string
-	ExtIP        string
-	Phone        string
-	Comment      string
-	PaymentsEnds string
-}
-
 func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "user")
 	if session.Values["user_logged"] == "false" || session.Values["user_logged"] == nil {
@@ -74,7 +60,7 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	flashes := session.Flashes()
-	usrT.ExecuteTemplate(w, "index", getUserDataByLogin(flashes[len(flashes)-1].(string)))
+	usrT.ExecuteTemplate(w, "index", getUserByLogin(flashes[len(flashes)-1].(string)))
 }
 
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

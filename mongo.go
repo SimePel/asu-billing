@@ -101,6 +101,30 @@ func removeUsersFromRouter(ips []string) error {
 	return nil
 }
 
+// func restoreInIPs(ips []string) error {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
+
+// 	coll := client.Database("billing").Collection("inIPs")
+
+// 	for _, ip := range ips {
+// 		_, err := coll.UpdateOne(nil,
+// 			bson.D{
+// 				{Key: "ip", Value: ip},
+// 			},
+// 			bson.D{
+// 				{Key: "$set", Value: bson.D{
+// 					{Key: "used", Value: false},
+// 				}},
+// 			},
+// 		)
+// 	}
+
+// 	return nil
+// }
+
 func withdrawMoney(id int) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
@@ -359,12 +383,7 @@ func addMoneyToUser(id, money int) {
 	}
 }
 
-// CorrectedUsers is slice of Users
-type CorrectedUsers struct {
-	Users []CorrectedUser
-}
-
-func getUsersByType(t, name string) CorrectedUsers {
+func getUsersByType(t, name string) []User {
 	cur, err := getAppropriateCursor(t, name)
 	if err != nil {
 		log.Fatal(err)
@@ -381,25 +400,7 @@ func getUsersByType(t, name string) CorrectedUsers {
 	}
 	cur.Close(nil)
 
-	var correctedUsers CorrectedUsers
-	for _, user := range users {
-		correctedUsers.Users = append(correctedUsers.Users, CorrectedUser{
-			ID:           user.ID,
-			Active:       user.Active,
-			Tariff:       user.Tariff,
-			Payments:     convertPaymentType(user.Payments),
-			Money:        user.Money,
-			Name:         user.Name,
-			Login:        user.Login,
-			InIP:         user.InIP,
-			ExtIP:        user.ExtIP,
-			Phone:        user.Phone,
-			Comment:      user.Comment,
-			PaymentsEnds: formatTime(user.PaymentsEnds),
-		})
-	}
-
-	return correctedUsers
+	return users
 }
 
 func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
@@ -441,7 +442,7 @@ func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
 	return coll.Find(nil, bson.D{})
 }
 
-func getUserDataByID(id int) CorrectedUser {
+func getUserByID(id int) User {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
@@ -455,23 +456,10 @@ func getUserDataByID(id int) CorrectedUser {
 		log.Fatal(err)
 	}
 
-	return CorrectedUser{
-		ID:           user.ID,
-		Active:       user.Active,
-		Tariff:       user.Tariff,
-		Payments:     convertPaymentType(user.Payments),
-		Money:        user.Money,
-		Name:         user.Name,
-		Login:        user.Login,
-		InIP:         user.InIP,
-		ExtIP:        user.ExtIP,
-		Phone:        user.Phone,
-		Comment:      user.Comment,
-		PaymentsEnds: formatTime(user.PaymentsEnds),
-	}
+	return user
 }
 
-func getUserDataByLogin(login string) CorrectedUser {
+func getUserByLogin(login string) User {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal("could not connect to mongo", err)
@@ -484,31 +472,7 @@ func getUserDataByLogin(login string) CorrectedUser {
 		log.Fatal(err)
 	}
 
-	return CorrectedUser{
-		ID:           user.ID,
-		Active:       user.Active,
-		Tariff:       user.Tariff,
-		Payments:     convertPaymentType(user.Payments),
-		Money:        user.Money,
-		Name:         user.Name,
-		Login:        user.Login,
-		InIP:         user.InIP,
-		ExtIP:        user.ExtIP,
-		Phone:        user.Phone,
-		Comment:      user.Comment,
-		PaymentsEnds: formatTime(user.PaymentsEnds),
-	}
-}
-
-func convertPaymentType(pays []Payment) (res []SPayment) {
-	for _, p := range pays {
-		res = append(res, SPayment{
-			Amount: p.Amount,
-			Last:   formatTime(p.Last),
-		})
-	}
-
-	return res
+	return user
 }
 
 func formatTime(t time.Time) string {
