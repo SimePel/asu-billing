@@ -9,6 +9,8 @@ window.onload = function () {
         document.getElementById("active").innerHTML = "<strong>Включенные</strong/";
     } else if (type === "inactive") {
         document.getElementById("inactive").innerHTML = "<strong>Отключенные</strong/";
+    } else if (type === "name") {
+        ;
     } else {
         document.getElementById("all").innerHTML = "<strong>Все</strong/";
     }
@@ -16,6 +18,6 @@ window.onload = function () {
     const searchButton = document.getElementById("searchButton")
 
     searchButton.addEventListener('click', function (event) {
-        window.location.href = "/admin?type=name&name=" + document.getElementById("search").value
+        window.location.replace("/admin?type=name&name=" + document.getElementById("search").value);
     });
 };
