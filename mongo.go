@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -17,25 +18,83 @@ func turnOffInactiveUsers() error {
 	if err != nil {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
-
 	coll := client.Database("billing").Collection("users")
-	_, err = coll.UpdateMany(nil,
-		bson.D{
-			{Key: "payments_ends", Value: bson.D{
-				{Key: "$lte", Value: time.Now()},
-			}},
-		},
-		bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "active", Value: false},
-			}},
-			{Key: "$unset", Value: bson.D{
-				{Key: "payments_ends", Value: nil},
-			}},
-		},
-	)
+
+	ips, err := getDebtUsersIPs(coll)
 	if err != nil {
-		return fmt.Errorf("could not turn off users: %v", err)
+		return err
+	}
+	if ips == nil {
+		return nil
+	}
+
+	err = disableUsers(coll, ips)
+	if err != nil {
+		return err
+	}
+
+	err = removeUsersFromRouter(ips)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getDebtUsersIPs(coll *mongo.Collection) ([]string, error) {
+	cur, err := coll.Find(nil, bson.D{
+		{Key: "payments_ends", Value: bson.D{
+			{Key: "$lte", Value: time.Now()},
+		}},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var user User
+	ips := make([]string, 0)
+	for cur.Next(nil) {
+		err := cur.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+		ips = append(ips, user.InIP)
+	}
+	cur.Close(nil)
+
+	return ips, nil
+}
+
+func disableUsers(coll *mongo.Collection, ips []string) error {
+	for _, ip := range ips {
+		_, err := coll.UpdateOne(nil,
+			bson.D{
+				{Key: "in_ip", Value: ip},
+			},
+			bson.D{
+				{Key: "$set", Value: bson.D{
+					{Key: "active", Value: false},
+				}},
+				{Key: "$unset", Value: bson.D{
+					{Key: "payments_ends", Value: nil},
+				}},
+			},
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func removeUsersFromRouter(ips []string) error {
+	for _, ip := range ips {
+		expectCMD := exec.Command("echo", ip)
+		err := expectCMD.Run()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
