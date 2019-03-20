@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os/exec"
@@ -138,6 +139,12 @@ func withdrawMoney(id int) error {
 		if err != nil {
 			return fmt.Errorf("could not update \"payments_ends\" field: %v", err)
 		}
+
+		err = addUserIPToRouter(user.InIP)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -159,6 +166,19 @@ func withdrawMoney(id int) error {
 		return fmt.Errorf("could not update \"payments_ends\" field: %v", err)
 	}
 
+	return nil
+}
+
+func addUserIPToRouter(ip string) error {
+	expectCMD := exec.Command("echo", "add "+ip)
+	var out bytes.Buffer
+	expectCMD.Stdout = &out
+	err := expectCMD.Run()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%q", out)
 	return nil
 }
 
