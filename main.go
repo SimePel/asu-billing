@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var (
+	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	prod  bool
+)
 
 func init() {
 	store.Options = &sessions.Options{
@@ -18,6 +22,7 @@ func init() {
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
+	flag.BoolVar(&prod, "prod", false, "Enable production mode")
 }
 
 func main() {
@@ -53,7 +58,13 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServe(":8080", router)
+	flag.Parse()
+	var err error
+	if prod {
+		err = http.ListenAndServeTLS("billing-dev.asu.ru:443", "cert.pem", "privkey.pem", router)
+	} else {
+		err = http.ListenAndServe(":8080", router)
+	}
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
