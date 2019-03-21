@@ -269,7 +269,7 @@ func updateUserData(id int, name, login, tariff, phone, comment string) error {
 		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
-	t := tarrifFromString(tariff)
+	t := tariffFromString(tariff)
 	coll := client.Database("billing").Collection("users")
 	_, err = coll.UpdateOne(nil,
 		bson.D{
@@ -296,7 +296,7 @@ func updateUserData(id int, name, login, tariff, phone, comment string) error {
 	return nil
 }
 
-func tarrifFromString(s string) (t Tariff) {
+func tariffFromString(s string) (t Tariff) {
 	pieces := strings.Split(s, " ")
 	t.ID, _ = strconv.Atoi(pieces[0])
 	t.Name = pieces[1]
@@ -317,7 +317,7 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (in
 		return 0, fmt.Errorf("could not count documents: %v", err)
 	}
 
-	t := tarrifFromString(tariff)
+	t := tariffFromString(tariff)
 	_, err = coll.InsertOne(nil, bson.D{
 		{Key: "_id", Value: int(all + 1)},
 		{Key: "name", Value: name},
