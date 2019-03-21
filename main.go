@@ -53,7 +53,7 @@ func main() {
 			time.Sleep(time.Hour * 12)
 			err := turnOffInactiveUsers()
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("could not turn off inactive users: %v", err)
 			}
 		}
 	}()

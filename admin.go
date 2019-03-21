@@ -66,7 +66,15 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if t == "name" {
 		name = r.FormValue("name")
 	}
-	admT.ExecuteTemplate(w, "index", getUsersByType(t, name))
+
+	users, err := getUsersByType(t, name)
+	if err != nil {
+		log.Printf("could not get users by type=%v: %v", t, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	admT.ExecuteTemplate(w, "index", users)
 }
 
 func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -78,12 +86,28 @@ func adminLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func userInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "user-info", getUserByID(id))
+
+	user, err := getUserByID(id)
+	if err != nil {
+		log.Printf("could not get user by id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	admT.ExecuteTemplate(w, "user-info", user)
 }
 
 func userEditForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "edit-user-form", getUserByID(id))
+
+	user, err := getUserByID(id)
+	if err != nil {
+		log.Printf("could not get user by id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	admT.ExecuteTemplate(w, "edit-user-form", user)
 }
 
 func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -96,7 +120,9 @@ func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	err := updateUserData(id, name, login, tariff, phone, comment)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not update user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
@@ -121,19 +147,25 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	id, err := addUserIntoMongo(name, login, tariff, phone, comment, money)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not add user into mongo with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	if money != 0 {
 		err = addPaymentInfo(id, money)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("could not add payment info about user with id=%v: %v", id, err)
+			http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+			return
 		}
 	}
 
 	err = withdrawMoney(id)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
@@ -143,7 +175,9 @@ func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	err := deleteUserFromMongo(id)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not delete user from mongo with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
@@ -151,7 +185,15 @@ func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	admT.ExecuteTemplate(w, "payment", getUserByID(id))
+
+	user, err := getUserByID(id)
+	if err != nil {
+		log.Printf("could not get user by id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	admT.ExecuteTemplate(w, "payment", user)
 }
 
 func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -159,16 +201,25 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	moneyStr := r.FormValue("money")
 	money, _ := strconv.Atoi(moneyStr)
 
-	addMoneyToUser(id, money)
-
-	err := addPaymentInfo(id, money)
+	err := addMoneyToUser(id, money)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not add money to user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	err = addPaymentInfo(id, money)
+	if err != nil {
+		log.Printf("could not add payment info about user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	err = withdrawMoney(id)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
 	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)

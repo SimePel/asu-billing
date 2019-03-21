@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -60,7 +61,15 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	flashes := session.Flashes()
-	usrT.ExecuteTemplate(w, "index", getUserByLogin(flashes[len(flashes)-1].(string)))
+	login := flashes[len(flashes)-1].(string)
+	user, err := getUserByLogin(login)
+	if err != nil {
+		log.Printf("could not get user by login=%v: %v", login, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	usrT.ExecuteTemplate(w, "index", user)
 }
 
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

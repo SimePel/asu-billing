@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ func turnOffInactiveUsers() error {
 
 	ips, err := getDebtUsersIPs(coll)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not get ips of debt users: %v", err)
 	}
 	if ips == nil {
 		return nil
@@ -31,12 +30,12 @@ func turnOffInactiveUsers() error {
 
 	err = disableUsers(coll, ips)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not disable users in mongo: %v", err)
 	}
 
 	err = removeUsersFromRouter(ips)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not block users ips on router: %v", err)
 	}
 
 	return nil
@@ -49,7 +48,7 @@ func getDebtUsersIPs(coll *mongo.Collection) ([]string, error) {
 		}},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not find cursor when payments_ends < current date: %v", err)
 	}
 
 	var user User
@@ -57,7 +56,7 @@ func getDebtUsersIPs(coll *mongo.Collection) ([]string, error) {
 	for cur.Next(nil) {
 		err := cur.Decode(&user)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 		}
 		ips = append(ips, user.InIP)
 	}
@@ -82,7 +81,7 @@ func disableUsers(coll *mongo.Collection, ips []string) error {
 			},
 		)
 		if err != nil {
-			return err
+			return fmt.Errorf("could not update user active status: %v", err)
 		}
 	}
 
@@ -94,7 +93,7 @@ func removeUsersFromRouter(ips []string) error {
 		expectCMD := exec.Command("echo", ip)
 		err := expectCMD.Run()
 		if err != nil {
-			return err
+			return fmt.Errorf("could not run remove-expect cmd: %v", err)
 		}
 	}
 
@@ -111,7 +110,7 @@ func withdrawMoney(id int) error {
 	user := User{}
 	err = coll.FindOne(nil, bson.D{{Key: "_id", Value: id}}).Decode(&user)
 	if err != nil {
-		return fmt.Errorf("could not find user by id: %v", err)
+		return fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 	}
 
 	if user.Money < user.Tariff.Price {
@@ -142,7 +141,7 @@ func withdrawMoney(id int) error {
 
 		err = addUserIPToRouter(user.InIP)
 		if err != nil {
-			return err
+			return fmt.Errorf("could not permit user's ip on router: %v", err)
 		}
 
 		return nil
@@ -175,7 +174,7 @@ func addUserIPToRouter(ip string) error {
 	expectCMD.Stdout = &out
 	err := expectCMD.Run()
 	if err != nil {
-		return err
+		return fmt.Errorf("could not run add-expect cmd: %v", err)
 	}
 
 	fmt.Printf("%q", out)
@@ -221,7 +220,7 @@ func deleteUserFromMongo(id int) error {
 	var user User
 	err = res.Decode(&user)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 	}
 
 	coll = client.Database("billing").Collection("inIPs")
@@ -235,8 +234,11 @@ func deleteUserFromMongo(id int) error {
 			}},
 		},
 	)
+	if err != nil {
+		return fmt.Errorf("could not update ip used status: %v", err)
+	}
 
-	return err
+	return nil
 }
 
 func updateUserData(id int, name, login, tariff, phone, comment string) error {
@@ -266,7 +268,7 @@ func updateUserData(id int, name, login, tariff, phone, comment string) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("could not update fields: %v", err)
+		return fmt.Errorf("could not update user fields: %v", err)
 	}
 
 	return nil
@@ -294,6 +296,10 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (in
 	}
 
 	t := tariffFromString(tariff)
+	inIP, err := getUnusedInIP(client)
+	if err != nil {
+		return 0, fmt.Errorf("could not get unused in_ip: %v", err)
+	}
 	_, err = coll.InsertOne(nil, bson.D{
 		{Key: "_id", Value: int(all + 1)},
 		{Key: "name", Value: name},
@@ -306,19 +312,19 @@ func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (in
 		{Key: "payments", Value: bson.A{}},
 		{Key: "money", Value: money},
 		{Key: "active", Value: false},
-		{Key: "in_ip", Value: getUnusedInIP(client)},
+		{Key: "in_ip", Value: inIP},
 		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
 		{Key: "phone", Value: phone},
 		{Key: "comment", Value: comment},
 	})
 	if err != nil {
-		return 0, fmt.Errorf("could not insert: %v", err)
+		return 0, fmt.Errorf("could not insert user data: %v", err)
 	}
 
 	return int(all + 1), nil
 }
 
-func getUnusedInIP(client *mongo.Client) string {
+func getUnusedInIP(client *mongo.Client) (string, error) {
 	coll := client.Database("billing").Collection("inIPs")
 
 	var ip struct {
@@ -331,16 +337,16 @@ func getUnusedInIP(client *mongo.Client) string {
 			{Key: "used", Value: true},
 		}}}).Decode(&ip)
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("could not decode data from mongo to ip struct: %v", err)
 	}
 
-	return ip.IP
+	return ip.IP, nil
 }
 
-func addMoneyToUser(id, money int) {
+func addMoneyToUser(id, money int) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatal("could not connect to mongo", err)
+		return fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
 	coll := client.Database("billing").Collection("users")
@@ -355,14 +361,16 @@ func addMoneyToUser(id, money int) {
 		},
 	)
 	if err != nil {
-		log.Fatal("could not update money field", err)
+		return fmt.Errorf("could not update money field: %v", err)
 	}
+
+	return nil
 }
 
-func getUsersByType(t, name string) []User {
+func getUsersByType(t, name string) ([]User, error) {
 	cur, err := getAppropriateCursor(t, name)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("could not get mongo.Cursor: %v", err)
 	}
 
 	users := make([]User, 0)
@@ -370,19 +378,19 @@ func getUsersByType(t, name string) []User {
 	for cur.Next(nil) {
 		err := cur.Decode(&user)
 		if err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 		}
 		users = append(users, user)
 	}
 	cur.Close(nil)
 
-	return users
+	return users, nil
 }
 
 func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatal("could not connect to mongo", err)
+		return nil, fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
 	coll := client.Database("billing").Collection("users")
@@ -415,13 +423,14 @@ func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
 			{Key: "active", Value: false},
 		})
 	}
+
 	return coll.Find(nil, bson.D{})
 }
 
-func getUserByID(id int) User {
+func getUserByID(id int) (User, error) {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatal("could not connect to mongo", err)
+		return User{}, fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
 	user := User{}
@@ -429,26 +438,26 @@ func getUserByID(id int) User {
 	coll := client.Database("billing").Collection("users")
 	err = coll.FindOne(nil, filter).Decode(&user)
 	if err != nil {
-		log.Fatal(err)
+		return User{}, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 	}
 
-	return user
+	return user, nil
 }
 
-func getUserByLogin(login string) User {
+func getUserByLogin(login string) (User, error) {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatal("could not connect to mongo", err)
+		return User{}, fmt.Errorf("could not connect to mongo: %v", err)
 	}
 
 	user := User{}
 	coll := client.Database("billing").Collection("users")
 	err = coll.FindOne(nil, bson.M{"login": login}).Decode(&user)
 	if err != nil {
-		log.Fatal(err)
+		return User{}, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
 	}
 
-	return user
+	return user, nil
 }
 
 func formatTime(t time.Time) string {
