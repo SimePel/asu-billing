@@ -66,7 +66,7 @@ func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "user")
 	if session.Values["user_logged"] == "true" {
-		http.Redirect(w, r, "/user", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 	usrT.ExecuteTemplate(w, "login", nil)
@@ -75,7 +75,7 @@ func userLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "user")
 	if session.Values["user_logged"] == "true" {
-		http.Redirect(w, r, "/user", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
@@ -102,7 +102,7 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session.Values["user_logged"] = "true"
 	session.AddFlash(pieces[1] + getRightPostfix(pieces[0]))
 	session.Save(r, w)
-	http.Redirect(w, r, "/user", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func getRightPostfix(domain string) string {
