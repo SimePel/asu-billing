@@ -101,30 +101,6 @@ func removeUsersFromRouter(ips []string) error {
 	return nil
 }
 
-// func restoreInIPs(ips []string) error {
-// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-// 	if err != nil {
-// 		return fmt.Errorf("could not connect to mongo: %v", err)
-// 	}
-
-// 	coll := client.Database("billing").Collection("inIPs")
-
-// 	for _, ip := range ips {
-// 		_, err := coll.UpdateOne(nil,
-// 			bson.D{
-// 				{Key: "ip", Value: ip},
-// 			},
-// 			bson.D{
-// 				{Key: "$set", Value: bson.D{
-// 					{Key: "used", Value: false},
-// 				}},
-// 			},
-// 		)
-// 	}
-
-// 	return nil
-// }
-
 func withdrawMoney(id int) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
