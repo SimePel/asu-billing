@@ -48,6 +48,26 @@ func getUserByID(id int) (User, error) {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
 	}
 
+	rows, err := db.Query(`SELECT Amount, Date FROM Payments WHERE User_ID= ?`, id)
+	if err != nil {
+		return user, fmt.Errorf("could not do query: %v", err)
+	}
+
+	var payment Payment
+	payments := make([]Payment, 0)
+	for rows.Next() {
+		err := rows.Scan(&payment.Amount, &payment.Last)
+		if err != nil {
+			return user, fmt.Errorf("could not scan from row: %v", err)
+		}
+		payments = append(payments, payment)
+	}
+	err = rows.Err()
+	if err != nil {
+		return user, fmt.Errorf("something happened with rows: %v", err)
+	}
+
 	user.ID = id
+	user.Payments = payments
 	return user, nil
 }
