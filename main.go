@@ -1,20 +1,37 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 )
 
 var (
+	dsn   = fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	db    = newDB()
 	prod  bool
 )
+
+func newDB() *sql.DB {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.SetConnMaxLifetime(2 * time.Minute)
+	db.SetMaxIdleConns(4)
+	db.SetMaxOpenConns(8)
+
+	return db
+}
 
 func init() {
 	store.Options = &sessions.Options{
