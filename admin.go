@@ -61,13 +61,13 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var name string
+	// var name string
 	t := r.FormValue("type")
-	if t == "name" {
-		name = r.FormValue("name")
-	}
+	// if t == "name" {
+	// 	name = r.FormValue("name")
+	// }
 
-	users, err := getUsersByType(t, name)
+	users, err := getUsersByType(t)
 	if err != nil {
 		log.Printf("could not get users by type=%v: %v", t, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)

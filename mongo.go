@@ -367,65 +367,65 @@ func addMoneyToUser(id, money int) error {
 	return nil
 }
 
-func getUsersByType(t, name string) ([]User, error) {
-	cur, err := getAppropriateCursor(t, name)
-	if err != nil {
-		return nil, fmt.Errorf("could not get mongo.Cursor: %v", err)
-	}
+// func getUsersByType(t, name string) ([]User, error) {
+// 	cur, err := getAppropriateCursor(t, name)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("could not get mongo.Cursor: %v", err)
+// 	}
 
-	users := make([]User, 0)
-	user := User{}
-	for cur.Next(nil) {
-		err := cur.Decode(&user)
-		if err != nil {
-			return nil, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
-		}
-		users = append(users, user)
-	}
-	cur.Close(nil)
+// 	users := make([]User, 0)
+// 	user := User{}
+// 	for cur.Next(nil) {
+// 		err := cur.Decode(&user)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
+// 		}
+// 		users = append(users, user)
+// 	}
+// 	cur.Close(nil)
 
-	return users, nil
-}
+// 	return users, nil
+// }
 
-func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return nil, fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func getAppropriateCursor(showType, name string) (*mongo.Cursor, error) {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return nil, fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	coll := client.Database("billing").Collection("users")
-	if showType == "name" {
-		return coll.Find(nil, bson.D{
-			{Key: "$text", Value: bson.D{
-				{Key: "$search", Value: name},
-			}},
-		})
-	}
-	if showType == "wired" {
-		return coll.Find(nil, bson.D{
-			{Key: "tariff.id", Value: bson.D{
-				{Key: "$in", Value: bson.A{1, 2}},
-			}},
-		})
-	}
-	if showType == "wireless" {
-		return coll.Find(nil, bson.D{
-			{Key: "tariff.id", Value: 3},
-		})
-	}
-	if showType == "active" {
-		return coll.Find(nil, bson.D{
-			{Key: "active", Value: true},
-		})
-	}
-	if showType == "inactive" {
-		return coll.Find(nil, bson.D{
-			{Key: "active", Value: false},
-		})
-	}
+// 	coll := client.Database("billing").Collection("users")
+// 	if showType == "name" {
+// 		return coll.Find(nil, bson.D{
+// 			{Key: "$text", Value: bson.D{
+// 				{Key: "$search", Value: name},
+// 			}},
+// 		})
+// 	}
+// 	if showType == "wired" {
+// 		return coll.Find(nil, bson.D{
+// 			{Key: "tariff.id", Value: bson.D{
+// 				{Key: "$in", Value: bson.A{1, 2}},
+// 			}},
+// 		})
+// 	}
+// 	if showType == "wireless" {
+// 		return coll.Find(nil, bson.D{
+// 			{Key: "tariff.id", Value: 3},
+// 		})
+// 	}
+// 	if showType == "active" {
+// 		return coll.Find(nil, bson.D{
+// 			{Key: "active", Value: true},
+// 		})
+// 	}
+// 	if showType == "inactive" {
+// 		return coll.Find(nil, bson.D{
+// 			{Key: "active", Value: false},
+// 		})
+// 	}
 
-	return coll.Find(nil, bson.D{})
-}
+// 	return coll.Find(nil, bson.D{})
+// }
 
 // func getUserByID(id int) (User, error) {
 // 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
