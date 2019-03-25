@@ -171,12 +171,12 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 	}
 
-	// err = withdrawMoney(id)
-	// if err != nil {
-	// 	log.Printf("could not withdraw money from user with id=%v: %v", id, err)
-	// 	http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
-	// 	return
-	// }
+	err = withdrawMoney(id)
+	if err != nil {
+		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }

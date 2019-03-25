@@ -15,6 +15,37 @@ func addPaymentInfo(id, money int) error {
 	return nil
 }
 
+func withdrawMoney(id int) error {
+	user, err := getUserByID(id)
+	if err != nil {
+		return fmt.Errorf("could not get user by id: %v", err)
+	}
+
+	if user.Money < user.Tariff.Price {
+		return nil
+	}
+
+	months := user.Money / user.Tariff.Price
+
+	paymentsEnds := user.PaymentsEnds.AddDate(0, months, 0)
+	if !user.Active {
+		paymentsEnds = time.Now().AddDate(0, months, 0)
+
+		err = addUserIPToRouter(user.InIP)
+		if err != nil {
+			return fmt.Errorf("could not permit user's ip on router: %v", err)
+		}
+	}
+
+	_, err = db.Exec(`UPDATE Users SET Payments_ends=?, Active=1, Money=? WHERE ID=?`,
+		paymentsEnds, user.Money-(user.Tariff.Price*months), id)
+	if err != nil {
+		return fmt.Errorf("could not update payments_ends: %v", err)
+	}
+
+	return nil
+}
+
 func addUserToDB(user User) (int, error) {
 	inIP, err := getUnusedInIP()
 	if err != nil {
