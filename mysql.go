@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+func addMoney(id, money int) error {
+	_, err := db.Exec(`UPDATE Users SET Money = Money + ? WHERE ID=?`, money, id)
+	if err != nil {
+		return fmt.Errorf("could not update money field: %v", err)
+	}
+
+	return nil
+}
+
 func addPaymentInfo(id, money int) error {
 	_, err := db.Exec(`INSERT INTO Payments (User_ID, Amount, Date)
 		VALUES (?,?,?)`, id, money, time.Now())

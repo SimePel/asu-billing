@@ -211,7 +211,7 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	moneyStr := r.FormValue("money")
 	money, _ := strconv.Atoi(moneyStr)
 
-	err := addMoneyToUser(id, money)
+	err := addMoney(id, money)
 	if err != nil {
 		log.Printf("could not add money to user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)

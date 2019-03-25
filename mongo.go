@@ -333,29 +333,29 @@ func updateUserData(id int, name, login, tariff, phone, comment string) error {
 // 	return ip.IP, nil
 // }
 
-func addMoneyToUser(id, money int) error {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func addMoneyToUser(id, money int) error {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	coll := client.Database("billing").Collection("users")
-	_, err = coll.UpdateOne(nil,
-		bson.D{
-			{Key: "_id", Value: id},
-		},
-		bson.D{
-			{Key: "$inc", Value: bson.D{
-				{Key: "money", Value: money},
-			}},
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("could not update money field: %v", err)
-	}
+// 	coll := client.Database("billing").Collection("users")
+// 	_, err = coll.UpdateOne(nil,
+// 		bson.D{
+// 			{Key: "_id", Value: id},
+// 		},
+// 		bson.D{
+// 			{Key: "$inc", Value: bson.D{
+// 				{Key: "money", Value: money},
+// 			}},
+// 		},
+// 	)
+// 	if err != nil {
+// 		return fmt.Errorf("could not update money field: %v", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // func getUsersByType(t, name string) ([]User, error) {
 // 	cur, err := getAppropriateCursor(t, name)
