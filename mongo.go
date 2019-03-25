@@ -179,32 +179,32 @@ func addUserIPToRouter(ip string) error {
 	return nil
 }
 
-func addPaymentInfo(id, money int) error {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func addPaymentInfo(id, money int) error {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	coll := client.Database("billing").Collection("users")
-	_, err = coll.UpdateOne(nil,
-		bson.D{
-			{Key: "_id", Value: id},
-		},
-		bson.D{
-			{Key: "$push", Value: bson.D{
-				{Key: "payments", Value: bson.D{
-					{Key: "amount", Value: money},
-					{Key: "last", Value: time.Now()},
-				}},
-			}},
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("could not add payment info: %v", err)
-	}
+// 	coll := client.Database("billing").Collection("users")
+// 	_, err = coll.UpdateOne(nil,
+// 		bson.D{
+// 			{Key: "_id", Value: id},
+// 		},
+// 		bson.D{
+// 			{Key: "$push", Value: bson.D{
+// 				{Key: "payments", Value: bson.D{
+// 					{Key: "amount", Value: money},
+// 					{Key: "last", Value: time.Now()},
+// 				}},
+// 			}},
+// 		},
+// 	)
+// 	if err != nil {
+// 		return fmt.Errorf("could not add payment info: %v", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // func deleteUserFromMongo(id int) error {
 // 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))

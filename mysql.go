@@ -2,7 +2,18 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
+
+func addPaymentInfo(id, money int) error {
+	_, err := db.Exec(`INSERT INTO Payments (User_ID, Amount, Date)
+		VALUES (?,?,?)`, id, money, time.Now())
+	if err != nil {
+		return fmt.Errorf("could not insert payment info: %v", err)
+	}
+
+	return nil
+}
 
 func addUserToDB(user User) (int, error) {
 	inIP, err := getUnusedInIP()

@@ -162,14 +162,14 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// if money != 0 {
-	// 	err = addPaymentInfo(id, money)
-	// 	if err != nil {
-	// 		log.Printf("could not add payment info about user with id=%v: %v", id, err)
-	// 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// }
+	if money != 0 {
+		err = addPaymentInfo(id, money)
+		if err != nil {
+			log.Printf("could not add payment info about user with id=%v: %v", id, err)
+			http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	// err = withdrawMoney(id)
 	// if err != nil {
