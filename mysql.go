@@ -4,6 +4,62 @@ import (
 	"fmt"
 )
 
+func addUserToDB(user User) (int, error) {
+	inIP, err := getUnusedInIP()
+	if err != nil {
+		return 0, fmt.Errorf("could not get unused inIP: %v", err)
+	}
+
+	err = setInIPAsUsed(inIP)
+	if err != nil {
+		return 0, fmt.Errorf("could not set InIP as used: %v", err)
+	}
+
+	var inIPID int
+	err = db.QueryRow(`SELECT ID FROM In_IPs WHERE IP=?`, inIP).Scan(&inIPID)
+	if err != nil {
+		return 0, fmt.Errorf("could not get inIPID: %v", err)
+	}
+
+	var extIPID int
+	err = db.QueryRow(`SELECT ID FROM Ext_IPs WHERE IP=?`, "82.200.46.10").Scan(&extIPID)
+	if err != nil {
+		return 0, fmt.Errorf("could not get extIPID: %v", err)
+	}
+
+	res, err := db.Exec(`INSERT INTO Users (In_IP_ID, Ext_IP_ID, Tariff_ID, Money, Name, Phone, Login, Comment)
+		VALUES (?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Phone, user.Login, user.Comment)
+	if err != nil {
+		return 0, fmt.Errorf("could not insert user: %v", err)
+	}
+
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("could not get lastInsertID: %v", err)
+	}
+
+	return int(lastID), nil
+}
+
+func getUnusedInIP() (string, error) {
+	var inIP string
+	err := db.QueryRow(`SELECT IP FROM In_IPs WHERE Used = 0`).Scan(&inIP)
+	if err != nil {
+		return "", fmt.Errorf("could not get unusedInIP: %v", err)
+	}
+
+	return inIP, nil
+}
+
+func setInIPAsUsed(inIP string) error {
+	_, err := db.Exec(`UPDATE In_IPs SET Used = 1 WHERE IP=?`, inIP)
+	if err != nil {
+		return fmt.Errorf("could not set true used state to InIP: %v", err)
+	}
+
+	return nil
+}
+
 func getUsersByType(t string) ([]User, error) {
 	rows, err := db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
@@ -111,7 +167,7 @@ func deleteUserByID(id int) error {
 		return fmt.Errorf("could not get inIPID by user id: %v", err)
 	}
 
-	_, err = db.Exec(`UPDATE In_IPs SET used = 0 WHERE ID=?`, inIPID)
+	_, err = db.Exec(`UPDATE In_IPs SET Used = 0 WHERE ID=?`, inIPID)
 	if err != nil {
 		return fmt.Errorf("could not set false used state to In_IP_ID: %v", err)
 	}

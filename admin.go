@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	ldap "gopkg.in/ldap.v3"
@@ -145,28 +146,37 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		money, _ = strconv.Atoi(moneyStr)
 	}
 
-	id, err := addUserIntoMongo(name, login, tariff, phone, comment, money)
+	user := User{
+		Name:    name,
+		Login:   login,
+		Tariff:  tariffFromString(tariff),
+		Phone:   phone,
+		Comment: comment,
+		Money:   money,
+	}
+
+	id, err := addUserToDB(user)
 	if err != nil {
 		log.Printf("could not add user into mongo with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
 	}
 
-	if money != 0 {
-		err = addPaymentInfo(id, money)
-		if err != nil {
-			log.Printf("could not add payment info about user with id=%v: %v", id, err)
-			http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
-			return
-		}
-	}
+	// if money != 0 {
+	// 	err = addPaymentInfo(id, money)
+	// 	if err != nil {
+	// 		log.Printf("could not add payment info about user with id=%v: %v", id, err)
+	// 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// }
 
-	err = withdrawMoney(id)
-	if err != nil {
-		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
-		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
-		return
-	}
+	// err = withdrawMoney(id)
+	// if err != nil {
+	// 	log.Printf("could not withdraw money from user with id=%v: %v", id, err)
+	// 	http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
 }
@@ -223,4 +233,12 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	http.Redirect(w, r, "/admin", http.StatusFound)
+}
+
+func tariffFromString(s string) (t Tariff) {
+	pieces := strings.Split(s, " ")
+	t.ID, _ = strconv.Atoi(pieces[0])
+	t.Name = pieces[1]
+	t.Price, _ = strconv.Atoi(pieces[2])
+	return t
 }

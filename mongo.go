@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
-	"strconv"
-	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -274,74 +272,66 @@ func updateUserData(id int, name, login, tariff, phone, comment string) error {
 	return nil
 }
 
-func tariffFromString(s string) (t Tariff) {
-	pieces := strings.Split(s, " ")
-	t.ID, _ = strconv.Atoi(pieces[0])
-	t.Name = pieces[1]
-	t.Price, _ = strconv.Atoi(pieces[2])
-	return t
-}
+// func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return 0, fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return 0, fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// 	coll := client.Database("billing").Collection("users")
 
-	coll := client.Database("billing").Collection("users")
+// 	all, err := coll.CountDocuments(nil, bson.D{{}})
+// 	if err != nil {
+// 		return 0, fmt.Errorf("could not count documents: %v", err)
+// 	}
 
-	all, err := coll.CountDocuments(nil, bson.D{{}})
-	if err != nil {
-		return 0, fmt.Errorf("could not count documents: %v", err)
-	}
+// 	t := tariffFromString(tariff)
+// 	inIP, err := getUnusedInIP(client)
+// 	if err != nil {
+// 		return 0, fmt.Errorf("could not get unused in_ip: %v", err)
+// 	}
+// 	_, err = coll.InsertOne(nil, bson.D{
+// 		{Key: "_id", Value: int(all + 1)},
+// 		{Key: "name", Value: name},
+// 		{Key: "login", Value: login},
+// 		{Key: "tariff", Value: bson.D{
+// 			{Key: "id", Value: t.ID},
+// 			{Key: "name", Value: t.Name},
+// 			{Key: "price", Value: t.Price},
+// 		}},
+// 		{Key: "payments", Value: bson.A{}},
+// 		{Key: "money", Value: money},
+// 		{Key: "active", Value: false},
+// 		{Key: "in_ip", Value: inIP},
+// 		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
+// 		{Key: "phone", Value: phone},
+// 		{Key: "comment", Value: comment},
+// 	})
+// 	if err != nil {
+// 		return 0, fmt.Errorf("could not insert user data: %v", err)
+// 	}
 
-	t := tariffFromString(tariff)
-	inIP, err := getUnusedInIP(client)
-	if err != nil {
-		return 0, fmt.Errorf("could not get unused in_ip: %v", err)
-	}
-	_, err = coll.InsertOne(nil, bson.D{
-		{Key: "_id", Value: int(all + 1)},
-		{Key: "name", Value: name},
-		{Key: "login", Value: login},
-		{Key: "tariff", Value: bson.D{
-			{Key: "id", Value: t.ID},
-			{Key: "name", Value: t.Name},
-			{Key: "price", Value: t.Price},
-		}},
-		{Key: "payments", Value: bson.A{}},
-		{Key: "money", Value: money},
-		{Key: "active", Value: false},
-		{Key: "in_ip", Value: inIP},
-		{Key: "ext_ip", Value: "82.200.46.10"}, // temporarily
-		{Key: "phone", Value: phone},
-		{Key: "comment", Value: comment},
-	})
-	if err != nil {
-		return 0, fmt.Errorf("could not insert user data: %v", err)
-	}
+// 	return int(all + 1), nil
+// }
 
-	return int(all + 1), nil
-}
+// func getUnusedInIP(client *mongo.Client) (string, error) {
+// 	coll := client.Database("billing").Collection("inIPs")
 
-func getUnusedInIP(client *mongo.Client) (string, error) {
-	coll := client.Database("billing").Collection("inIPs")
+// 	var ip struct {
+// 		IP   string `bson:"ip"`
+// 		Used bool   `bson:"used"`
+// 	}
+// 	err := coll.FindOneAndUpdate(nil,
+// 		bson.D{{Key: "used", Value: false}},
+// 		bson.D{{Key: "$set", Value: bson.D{
+// 			{Key: "used", Value: true},
+// 		}}}).Decode(&ip)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not decode data from mongo to ip struct: %v", err)
+// 	}
 
-	var ip struct {
-		IP   string `bson:"ip"`
-		Used bool   `bson:"used"`
-	}
-	err := coll.FindOneAndUpdate(nil,
-		bson.D{{Key: "used", Value: false}},
-		bson.D{{Key: "$set", Value: bson.D{
-			{Key: "used", Value: true},
-		}}}).Decode(&ip)
-	if err != nil {
-		return "", fmt.Errorf("could not decode data from mongo to ip struct: %v", err)
-	}
-
-	return ip.IP, nil
-}
+// 	return ip.IP, nil
+// }
 
 func addMoneyToUser(id, money int) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
