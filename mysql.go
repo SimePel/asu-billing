@@ -55,6 +55,16 @@ func withdrawMoney(id int) error {
 	return nil
 }
 
+func updateUser(user User) error {
+	_, err := db.Exec(`UPDATE Users SET Name=?, Login=?, Tariff_ID=?, Phone=?, Comment=? WHERE ID=?`,
+		user.Name, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ID)
+	if err != nil {
+		return fmt.Errorf("could not update user fields: %v", err)
+	}
+
+	return nil
+}
+
 func addUserToDB(user User) (int, error) {
 	inIP, err := getUnusedInIP()
 	if err != nil {

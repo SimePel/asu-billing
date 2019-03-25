@@ -239,38 +239,38 @@ func addUserIPToRouter(ip string) error {
 // 	return nil
 // }
 
-func updateUserData(id int, name, login, tariff, phone, comment string) error {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func updateUserData(id int, name, login, tariff, phone, comment string) error {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	t := tariffFromString(tariff)
-	coll := client.Database("billing").Collection("users")
-	_, err = coll.UpdateOne(nil,
-		bson.D{
-			{Key: "_id", Value: id},
-		},
-		bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "name", Value: name},
-				{Key: "login", Value: login},
-				{Key: "tariff", Value: bson.D{
-					{Key: "id", Value: t.ID},
-					{Key: "name", Value: t.Name},
-					{Key: "price", Value: t.Price},
-				}},
-				{Key: "phone", Value: phone},
-				{Key: "comment", Value: comment},
-			}},
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("could not update user fields: %v", err)
-	}
+// 	t := tariffFromString(tariff)
+// 	coll := client.Database("billing").Collection("users")
+// 	_, err = coll.UpdateOne(nil,
+// 		bson.D{
+// 			{Key: "_id", Value: id},
+// 		},
+// 		bson.D{
+// 			{Key: "$set", Value: bson.D{
+// 				{Key: "name", Value: name},
+// 				{Key: "login", Value: login},
+// 				{Key: "tariff", Value: bson.D{
+// 					{Key: "id", Value: t.ID},
+// 					{Key: "name", Value: t.Name},
+// 					{Key: "price", Value: t.Price},
+// 				}},
+// 				{Key: "phone", Value: phone},
+// 				{Key: "comment", Value: comment},
+// 			}},
+// 		},
+// 	)
+// 	if err != nil {
+// 		return fmt.Errorf("could not update user fields: %v", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // func addUserIntoMongo(name, login, tariff, phone, comment string, money int) (int, error) {
 // 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))

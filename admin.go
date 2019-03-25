@@ -119,7 +119,16 @@ func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	phone := r.FormValue("phone")
 	comment := r.FormValue("comment")
 
-	err := updateUserData(id, name, login, tariff, phone, comment)
+	user := User{
+		ID:      id,
+		Name:    name,
+		Login:   login,
+		Tariff:  tariffFromString(tariff),
+		Phone:   phone,
+		Comment: comment,
+	}
+
+	err := updateUser(user)
 	if err != nil {
 		log.Printf("could not update user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
