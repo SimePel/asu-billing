@@ -48,9 +48,20 @@ func getUserByID(id int) (User, error) {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
 	}
 
+	payments, err := getPaymentsByID(id)
+	if err != nil {
+		return user, fmt.Errorf("could not get payments with id=%v: %v", id, err)
+	}
+	user.ID = id
+	user.Payments = payments
+
+	return user, nil
+}
+
+func getPaymentsByID(id int) ([]Payment, error) {
 	rows, err := db.Query(`SELECT Amount, Date FROM Payments WHERE User_ID= ?`, id)
 	if err != nil {
-		return user, fmt.Errorf("could not do query: %v", err)
+		return nil, fmt.Errorf("could not get payments by id: %v", err)
 	}
 
 	var payment Payment
@@ -58,18 +69,16 @@ func getUserByID(id int) (User, error) {
 	for rows.Next() {
 		err := rows.Scan(&payment.Amount, &payment.Last)
 		if err != nil {
-			return user, fmt.Errorf("could not scan from row: %v", err)
+			return nil, fmt.Errorf("could not scan from row: %v", err)
 		}
 		payments = append(payments, payment)
 	}
 	err = rows.Err()
 	if err != nil {
-		return user, fmt.Errorf("something happened with rows: %v", err)
+		return nil, fmt.Errorf("something happened with rows: %v", err)
 	}
 
-	user.ID = id
-	user.Payments = payments
-	return user, nil
+	return payments, nil
 }
 
 func deleteUserByID(id int) error {
