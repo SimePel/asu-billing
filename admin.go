@@ -173,7 +173,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	err := deleteUserFromMongo(id)
+	err := deleteUserByID(id)
 	if err != nil {
 		log.Printf("could not delete user from mongo with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)

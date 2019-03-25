@@ -71,3 +71,23 @@ func getUserByID(id int) (User, error) {
 	user.Payments = payments
 	return user, nil
 }
+
+func deleteUserByID(id int) error {
+	var inIPID string
+	err := db.QueryRow(`SELECT In_IP_ID FROM Users WHERE ID = ?`, id).Scan(&inIPID)
+	if err != nil {
+		return fmt.Errorf("could not get inIPID by user id: %v", err)
+	}
+
+	_, err = db.Exec(`UPDATE In_IPs SET used = 0 WHERE ID=?`, inIPID)
+	if err != nil {
+		return fmt.Errorf("could not set false used state to In_IP_ID: %v", err)
+	}
+
+	_, err = db.Exec(`DELETE FROM Users WHERE ID = ?`, id)
+	if err != nil {
+		return fmt.Errorf("could not delete user: %v", err)
+	}
+
+	return nil
+}

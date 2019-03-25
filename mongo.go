@@ -208,38 +208,38 @@ func addPaymentInfo(id, money int) error {
 	return nil
 }
 
-func deleteUserFromMongo(id int) error {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func deleteUserFromMongo(id int) error {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	coll := client.Database("billing").Collection("users")
-	res := coll.FindOneAndDelete(nil, bson.D{{Key: "_id", Value: id}})
+// 	coll := client.Database("billing").Collection("users")
+// 	res := coll.FindOneAndDelete(nil, bson.D{{Key: "_id", Value: id}})
 
-	var user User
-	err = res.Decode(&user)
-	if err != nil {
-		return fmt.Errorf("could not decode data from mongo to user struct: %v", err)
-	}
+// 	var user User
+// 	err = res.Decode(&user)
+// 	if err != nil {
+// 		return fmt.Errorf("could not decode data from mongo to user struct: %v", err)
+// 	}
 
-	coll = client.Database("billing").Collection("inIPs")
-	_, err = coll.UpdateOne(nil,
-		bson.D{
-			{Key: "ip", Value: user.InIP},
-		},
-		bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "used", Value: false},
-			}},
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("could not update ip used status: %v", err)
-	}
+// 	coll = client.Database("billing").Collection("inIPs")
+// 	_, err = coll.UpdateOne(nil,
+// 		bson.D{
+// 			{Key: "ip", Value: user.InIP},
+// 		},
+// 		bson.D{
+// 			{Key: "$set", Value: bson.D{
+// 				{Key: "used", Value: false},
+// 			}},
+// 		},
+// 	)
+// 	if err != nil {
+// 		return fmt.Errorf("could not update ip used status: %v", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func updateUserData(id int, name, login, tariff, phone, comment string) error {
 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
