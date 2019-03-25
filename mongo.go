@@ -444,21 +444,21 @@ func addMoneyToUser(id, money int) error {
 // 	return user, nil
 // }
 
-func getUserByLogin(login string) (User, error) {
-	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		return User{}, fmt.Errorf("could not connect to mongo: %v", err)
-	}
+// func getUserByLogin(login string) (User, error) {
+// 	client, err := mongo.Connect(nil, options.Client().ApplyURI("mongodb://localhost:27017"))
+// 	if err != nil {
+// 		return User{}, fmt.Errorf("could not connect to mongo: %v", err)
+// 	}
 
-	user := User{}
-	coll := client.Database("billing").Collection("users")
-	err = coll.FindOne(nil, bson.M{"login": login}).Decode(&user)
-	if err != nil {
-		return User{}, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
-	}
+// 	user := User{}
+// 	coll := client.Database("billing").Collection("users")
+// 	err = coll.FindOne(nil, bson.M{"login": login}).Decode(&user)
+// 	if err != nil {
+// 		return User{}, fmt.Errorf("could not decode data from mongo to user struct: %v", err)
+// 	}
 
-	return user, nil
-}
+// 	return user, nil
+// }
 
 func formatTime(t time.Time) string {
 	if t.Unix() < 0 {
