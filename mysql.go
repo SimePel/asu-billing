@@ -219,5 +219,10 @@ func deleteUserByID(id int) error {
 		return fmt.Errorf("could not delete user: %v", err)
 	}
 
+	_, err = db.Exec(`DELETE FROM Payments WHERE User_ID = ?`, id)
+	if err != nil {
+		return fmt.Errorf("could not delete payments info: %v", err)
+	}
+
 	return nil
 }
