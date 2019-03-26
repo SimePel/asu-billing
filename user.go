@@ -26,31 +26,31 @@ var (
 
 // Payment type
 type Payment struct {
-	Amount int       `bson:"amount"`
-	Last   time.Time `bson:"last"`
+	Amount int
+	Last   time.Time
 }
 
 // Tariff type
 type Tariff struct {
-	ID    int    `bson:"id"`
-	Price int    `bson:"price"`
-	Name  string `bson:"name"`
+	ID    int
+	Price int
+	Name  string
 }
 
 // User is document in "users" mongodb collection
 type User struct {
-	ID           int       `bson:"_id"`
-	Money        int       `bson:"money"`
-	Active       bool      `bson:"active"`
-	Name         string    `bson:"name"`
-	Login        string    `bson:"login"`
-	InIP         string    `bson:"in_ip"`
-	ExtIP        string    `bson:"ext_ip"`
-	Tariff       Tariff    `bson:"tariff"`
-	Payments     []Payment `bson:"payments,omitempty"`
-	Phone        string    `bson:"phone,omitempty"`
-	Comment      string    `bson:"comment,omitempty"`
-	PaymentsEnds time.Time `bson:"payments_ends,omitempty"`
+	ID           int
+	Money        int
+	Active       bool
+	Name         string
+	Login        string
+	InIP         string
+	ExtIP        string
+	Tariff       Tariff
+	Payments     []Payment
+	Phone        string
+	Comment      string
+	PaymentsEnds time.Time
 }
 
 func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
