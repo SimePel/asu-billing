@@ -37,6 +37,6 @@ func accessLog(h httprouter.Handle) httprouter.Handle {
 			}
 		}
 
-		fmt.Fprintf(f, "Host: %v. Request: %v. Lead time: %v\n", r.RemoteAddr, r.RequestURI, time.Now().Sub(since))
+		fmt.Fprintf(f, "%v. Host: %v. Request: %v. Method: %v. Lead time: %v\n", time.Now().Format(time.UnixDate), r.RemoteAddr, r.RequestURI, r.Method, time.Now().Sub(since))
 	}
 }
