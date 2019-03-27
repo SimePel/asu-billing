@@ -1,79 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
 	"fmt"
-	"os/exec"
 	"time"
 )
-
-// Не возвращаю ip в состояние used=false специально
-func turnOffInactiveUsers() error {
-	ips, err := getOverdueIPs()
-	if err != nil {
-		return fmt.Errorf("could not get overdue ips: %v", err)
-	}
-	if ips == nil {
-		return nil
-	}
-
-	for _, ip := range ips {
-		_, err = db.Exec(`UPDATE Users INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID
-		 	SET Active=0, Payments_ends=0 WHERE IP=?`, ip)
-		if err != nil {
-			return fmt.Errorf("could not update user active status: %v", err)
-		}
-	}
-
-	err = removeUsersFromRouter(ips)
-	if err != nil {
-		return fmt.Errorf("could not block users ips on router: %v", err)
-	}
-
-	return nil
-}
-
-func getOverdueIPs() (ips []string, err error) {
-	rows, err := db.Query(`SELECT IP FROM (Users
-		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-	WHERE NOW() > Payments_ends AND Active=1`)
-	if err != nil {
-		return nil, fmt.Errorf("could not get overdue ips: %v", err)
-	}
-	defer rows.Close()
-
-	var ip string
-	for rows.Next() {
-		err := rows.Scan(&ip)
-		if err != nil {
-			return nil, fmt.Errorf("could not scan from row: %v", err)
-		}
-		ips = append(ips, ip)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, fmt.Errorf("something happened with rows: %v", err)
-	}
-
-	return ips, nil
-}
-
-func removeUsersFromRouter(ips []string) error {
-	for _, ip := range ips {
-		expectCMD := exec.Command("echo", ip)
-		var out bytes.Buffer
-		expectCMD.Stdout = &out
-		err := expectCMD.Run()
-		if err != nil {
-			return fmt.Errorf("could not run remove-expect cmd: %v", err)
-		}
-
-		fmt.Printf("%q", out)
-	}
-
-	return nil
-}
 
 func addMoney(id, money int) error {
 	_, err := db.Exec(`UPDATE Users SET Money = Money + ? WHERE ID=?`, money, id)
@@ -109,11 +40,6 @@ func withdrawMoney(id int) error {
 	paymentsEnds := user.PaymentsEnds.AddDate(0, months, 0)
 	if !user.Active {
 		paymentsEnds = time.Now().AddDate(0, months, 0)
-
-		err = addUserIPToRouter(user.InIP)
-		if err != nil {
-			return fmt.Errorf("could not permit user's ip on router: %v", err)
-		}
 	}
 
 	_, err = db.Exec(`UPDATE Users SET Payments_ends=?, Active=1, Money=? WHERE ID=?`,
@@ -122,19 +48,6 @@ func withdrawMoney(id int) error {
 		return fmt.Errorf("could not update payments_ends: %v", err)
 	}
 
-	return nil
-}
-
-func addUserIPToRouter(ip string) error {
-	expectCMD := exec.Command("echo", "add "+ip)
-	var out bytes.Buffer
-	expectCMD.Stdout = &out
-	err := expectCMD.Run()
-	if err != nil {
-		return fmt.Errorf("could not run add-expect cmd: %v", err)
-	}
-
-	fmt.Printf("%q", out)
 	return nil
 }
 

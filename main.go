@@ -65,16 +65,6 @@ func main() {
 	router.POST("/edit-user", accessLog(adminAuthCheck(editUser)))
 	router.POST("/pay", accessLog(adminAuthCheck(pay)))
 
-	go func() {
-		for {
-			time.Sleep(time.Hour * 12)
-			err := turnOffInactiveUsers()
-			if err != nil {
-				log.Printf("could not turn off inactive users: %v", err)
-			}
-		}
-	}()
-
 	flag.Parse()
 	var err error
 	if prod {
