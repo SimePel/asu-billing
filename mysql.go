@@ -139,8 +139,8 @@ func addUserIPToRouter(ip string) error {
 }
 
 func updateUser(user User) error {
-	_, err := db.Exec(`UPDATE Users SET Name=?, Login=?, Tariff_ID=?, Phone=?, Comment=? WHERE ID=?`,
-		user.Name, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ID)
+	_, err := db.Exec(`UPDATE Users SET Name=?, Agreement=?, Login=?, Tariff_ID=?, Phone=?, Comment=? WHERE ID=?`,
+		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ID)
 	if err != nil {
 		return fmt.Errorf("could not update user fields: %v", err)
 	}
@@ -171,8 +171,8 @@ func addUserToDB(user User) (int, error) {
 		return 0, fmt.Errorf("could not get extIPID: %v", err)
 	}
 
-	res, err := db.Exec(`INSERT INTO Users (In_IP_ID, Ext_IP_ID, Tariff_ID, Money, Name, Phone, Login, Comment)
-		VALUES (?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Phone, user.Login, user.Comment)
+	res, err := db.Exec(`INSERT INTO Users (In_IP_ID, Ext_IP_ID, Tariff_ID, Money, Name, Agreement, Phone, Login, Comment)
+		VALUES (?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Agreement, user.Phone, user.Login, user.Comment)
 	if err != nil {
 		return 0, fmt.Errorf("could not insert user: %v", err)
 	}
@@ -214,7 +214,7 @@ func getUsersByType(t string) ([]User, error) {
 	var user User
 	users := make([]User, 0)
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Name, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
+		err := rows.Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
 			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan from row: %v", err)
@@ -231,7 +231,7 @@ func getUsersByType(t string) ([]User, error) {
 
 func getRowsByType(t string) (*sql.Rows, error) {
 	if t == "wired" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 		FROM (((Users
 			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
@@ -240,7 +240,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		WHERE Tariff_ID = 1 OR Tariff_ID = 2`)
 	}
 	if t == "wireless" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 		FROM (((Users
 			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
@@ -249,7 +249,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		WHERE Tariff_ID = 3`)
 	}
 	if t == "active" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 		FROM (((Users
 			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
@@ -258,7 +258,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		WHERE Active = 1`)
 	}
 	if t == "inactive" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 		FROM (((Users
 			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
@@ -266,7 +266,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 			INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
 		WHERE Active = 0`)
 	}
-	return db.Query(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+	return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 	Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 	FROM (((Users
 		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
@@ -276,13 +276,13 @@ func getRowsByType(t string) (*sql.Rows, error) {
 
 func getUserByID(id int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+	err := db.QueryRow(`SELECT Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 	 	Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 	FROM (((Users
 		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
 		INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
 		INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-	WHERE Users.ID = ?`, id).Scan(&user.Name, &user.Login, &user.Money, &user.Active, &user.Phone,
+	WHERE Users.ID = ?`, id).Scan(&user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
 		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 	if err != nil {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
@@ -300,13 +300,13 @@ func getUserByID(id int) (User, error) {
 
 func getUserByLogin(login string) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT Users.ID, Users.Name, Users.Login, Users.Money, Users.Active, Users.Phone,
+	err := db.QueryRow(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
 		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
 	FROM (((Users
 		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
 		INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
 		INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Users.Login = ?`, login).Scan(&user.ID, &user.Name, &user.Login, &user.Money, &user.Active, &user.Phone,
+		WHERE Users.Login = ?`, login).Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
 		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 	if err != nil {
 		return user, fmt.Errorf("could not do queryRow: %v", err)

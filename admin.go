@@ -114,18 +114,20 @@ func userEditForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	name := r.FormValue("name")
+	agreement := r.FormValue("agreement")
 	login := r.FormValue("login")
 	tariff := r.FormValue("tariff")
 	phone := r.FormValue("phone")
 	comment := r.FormValue("comment")
 
 	user := User{
-		ID:      id,
-		Name:    name,
-		Login:   login,
-		Tariff:  tariffFromString(tariff),
-		Phone:   phone,
-		Comment: comment,
+		ID:        id,
+		Name:      name,
+		Agreement: agreement,
+		Login:     login,
+		Tariff:    tariffFromString(tariff),
+		Phone:     phone,
+		Comment:   comment,
 	}
 
 	err := updateUser(user)
@@ -144,6 +146,7 @@ func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	name := r.FormValue("name")
+	agreement := r.FormValue("agreement")
 	login := r.FormValue("login") + "@stud.asu.ru"
 	tariff := r.FormValue("tariff")
 	phone := r.FormValue("phone")
@@ -156,12 +159,13 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	user := User{
-		Name:    name,
-		Login:   login,
-		Tariff:  tariffFromString(tariff),
-		Phone:   phone,
-		Comment: comment,
-		Money:   money,
+		Name:      name,
+		Agreement: agreement,
+		Login:     login,
+		Tariff:    tariffFromString(tariff),
+		Phone:     phone,
+		Comment:   comment,
+		Money:     money,
 	}
 
 	id, err := addUserToDB(user)

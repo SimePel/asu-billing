@@ -42,6 +42,7 @@ type User struct {
 	ID           int
 	Money        int
 	Active       bool
+	Agreement    string
 	Name         string
 	Login        string
 	InIP         string
