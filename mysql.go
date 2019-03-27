@@ -7,17 +7,17 @@ import (
 )
 
 func addMoney(id, money int) error {
-	_, err := db.Exec(`UPDATE Users SET Money = Money + ? WHERE ID=?`, money, id)
+	_, err := db.Exec(`UPDATE bl_users SET balance = balance + ? WHERE id=?`, money, id)
 	if err != nil {
-		return fmt.Errorf("could not update money field: %v", err)
+		return fmt.Errorf("could not update balance field: %v", err)
 	}
 
 	return nil
 }
 
 func addPaymentInfo(id, money int) error {
-	_, err := db.Exec(`INSERT INTO Payments (User_ID, Amount, Date)
-		VALUES (?,?,?)`, id, money, time.Now())
+	_, err := db.Exec(`INSERT INTO bl_pays (userid, summa, pay_date, expired_date)
+		VALUES (?,?,?,?)`, id, money, time.Now(), time.Now().AddDate(0, 1, 0))
 	if err != nil {
 		return fmt.Errorf("could not insert payment info: %v", err)
 	}
@@ -42,17 +42,17 @@ func withdrawMoney(id int) error {
 		paymentsEnds = time.Now().AddDate(0, months, 0)
 	}
 
-	_, err = db.Exec(`UPDATE Users SET Payments_ends=?, Active=1, Money=? WHERE ID=?`,
+	_, err = db.Exec(`UPDATE bl_users SET expired_date=?, activity=1, balance=? WHERE id=?`,
 		paymentsEnds, user.Money-(user.Tariff.Price*months), id)
 	if err != nil {
-		return fmt.Errorf("could not update payments_ends: %v", err)
+		return fmt.Errorf("could not update expired_date: %v", err)
 	}
 
 	return nil
 }
 
 func updateUser(user User) error {
-	_, err := db.Exec(`UPDATE Users SET Name=?, Agreement=?, Login=?, Tariff_ID=?, Phone=?, Comment=? WHERE ID=?`,
+	_, err := db.Exec(`UPDATE bl_users SET name=?, account=?, auth=?, tariff=?, phone=?, comment=? WHERE id=?`,
 		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ID)
 	if err != nil {
 		return fmt.Errorf("could not update user fields: %v", err)
@@ -73,18 +73,18 @@ func addUserToDB(user User) (int, error) {
 	}
 
 	var inIPID int
-	err = db.QueryRow(`SELECT ID FROM In_IPs WHERE IP=?`, inIP).Scan(&inIPID)
+	err = db.QueryRow(`SELECT id FROM bl_ipaddr WHERE ipaddr=?`, inIP).Scan(&inIPID)
 	if err != nil {
 		return 0, fmt.Errorf("could not get inIPID: %v", err)
 	}
 
 	var extIPID int
-	err = db.QueryRow(`SELECT ID FROM Ext_IPs WHERE IP=?`, "82.200.46.10").Scan(&extIPID)
+	err = db.QueryRow(`SELECT ext_ip_id FROM bl_external_ip WHERE ext_ip=?`, "82.200.46.10").Scan(&extIPID)
 	if err != nil {
 		return 0, fmt.Errorf("could not get extIPID: %v", err)
 	}
 
-	res, err := db.Exec(`INSERT INTO Users (In_IP_ID, Ext_IP_ID, Tariff_ID, Money, Name, Agreement, Phone, Login, Comment)
+	res, err := db.Exec(`INSERT INTO bl_users (ip_id, ext_ip_id, tariff, balance, name, account, phone, auth, comment)
 		VALUES (?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Agreement, user.Phone, user.Login, user.Comment)
 	if err != nil {
 		return 0, fmt.Errorf("could not insert user: %v", err)
@@ -100,7 +100,7 @@ func addUserToDB(user User) (int, error) {
 
 func getUnusedInIP() (string, error) {
 	var inIP string
-	err := db.QueryRow(`SELECT IP FROM In_IPs WHERE Used = 0`).Scan(&inIP)
+	err := db.QueryRow(`SELECT ipaddr FROM bl_ipaddr WHERE used = 0`).Scan(&inIP)
 	if err != nil {
 		return "", fmt.Errorf("could not get unusedInIP: %v", err)
 	}
@@ -109,7 +109,7 @@ func getUnusedInIP() (string, error) {
 }
 
 func setInIPAsUsed(inIP string) error {
-	_, err := db.Exec(`UPDATE In_IPs SET Used = 1 WHERE IP=?`, inIP)
+	_, err := db.Exec(`UPDATE bl_ipaddr SET used = 1 WHERE ipaddr=?`, inIP)
 	if err != nil {
 		return fmt.Errorf("could not set true used state to InIP: %v", err)
 	}
@@ -144,58 +144,70 @@ func getUsersByType(t string) ([]User, error) {
 
 func getRowsByType(t string) (*sql.Rows, error) {
 	if t == "wired" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-		FROM (((Users
-			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-			INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-			INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Tariff_ID = 1 OR Tariff_ID = 2`)
+		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		FROM (((bl_users
+			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+			INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+		WHERE tariff = 1 OR tariff = 2`)
 	}
 	if t == "wireless" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-		FROM (((Users
-			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-			INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-			INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Tariff_ID = 3`)
+		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		FROM (((bl_users
+			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+			INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+		WHERE tariff = 3`)
 	}
 	if t == "active" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-		FROM (((Users
-			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-			INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-			INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Active = 1`)
+		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		FROM (((bl_users
+			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+			INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+		WHERE activity = 1`)
 	}
 	if t == "inactive" {
-		return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-		FROM (((Users
-			INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-			INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-			INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Active = 0`)
+		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		FROM (((bl_users
+			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+			INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+		WHERE activity = 0`)
 	}
-	return db.Query(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-	Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-	FROM (((Users
-		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-		INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-		INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)`)
+	return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+	FROM (((bl_users
+		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)`)
 }
 
 func getUserByID(id int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-	 	Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-	FROM (((Users
-		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-		INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-		INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-	WHERE Users.ID = ?`, id).Scan(&user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
+	err := db.QueryRow(`SELECT bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
+		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.expired_date,
+		bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id, bl_tariffs.tariff_name,
+		bl_tariffs.tariff_summa
+	FROM (((bl_users
+		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+	WHERE bl_users.id = ?`, id).Scan(&user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
 		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 	if err != nil {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
@@ -213,13 +225,15 @@ func getUserByID(id int) (User, error) {
 
 func getUserByLogin(login string) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT Users.ID, Users.Name, Users.Agreement, Users.Login, Users.Money, Users.Active, Users.Phone,
-		Users.Comment, Users.Payments_ends, In_IPs.IP, Ext_IPs.IP, Tariffs.ID, Tariffs.Name, Tariffs.Price
-	FROM (((Users
-		INNER JOIN In_IPs ON Users.In_IP_ID = In_IPs.ID)
-		INNER JOIN Ext_IPs ON Users.Ext_IP_ID = Ext_IPs.ID)
-		INNER JOIN Tariffs ON Users.Tariff_ID = Tariffs.ID)
-		WHERE Users.Login = ?`, login).Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
+	err := db.QueryRow(`SELECT bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
+		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.expired_date,
+		bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id, bl_tariffs.tariff_name,
+		bl_tariffs.tariff_summa
+	FROM (((bl_users
+		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+	WHERE bl_users.auth = ?`, login).Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
 		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 	if err != nil {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
@@ -235,7 +249,7 @@ func getUserByLogin(login string) (User, error) {
 }
 
 func getPaymentsByID(id int) ([]Payment, error) {
-	rows, err := db.Query(`SELECT Amount, Date FROM Payments WHERE User_ID= ?`, id)
+	rows, err := db.Query(`SELECT summa, pay_date FROM bl_pays WHERE userid= ?`, id)
 	if err != nil {
 		return nil, fmt.Errorf("could not get payments by id: %v", err)
 	}
@@ -259,22 +273,22 @@ func getPaymentsByID(id int) ([]Payment, error) {
 
 func deleteUserByID(id int) error {
 	var inIPID string
-	err := db.QueryRow(`SELECT In_IP_ID FROM Users WHERE ID = ?`, id).Scan(&inIPID)
+	err := db.QueryRow(`SELECT ip_id FROM bl_users WHERE id = ?`, id).Scan(&inIPID)
 	if err != nil {
 		return fmt.Errorf("could not get inIPID by user id: %v", err)
 	}
 
-	_, err = db.Exec(`UPDATE In_IPs SET Used = 0 WHERE ID=?`, inIPID)
+	_, err = db.Exec(`UPDATE bl_ipaddr SET Used = 0 WHERE id=?`, inIPID)
 	if err != nil {
-		return fmt.Errorf("could not set false used state to In_IP_ID: %v", err)
+		return fmt.Errorf("could not set false used state to ip_id: %v", err)
 	}
 
-	_, err = db.Exec(`DELETE FROM Users WHERE ID = ?`, id)
+	_, err = db.Exec(`DELETE FROM bl_users WHERE id = ?`, id)
 	if err != nil {
 		return fmt.Errorf("could not delete user: %v", err)
 	}
 
-	_, err = db.Exec(`DELETE FROM Payments WHERE User_ID = ?`, id)
+	_, err = db.Exec(`DELETE FROM bl_pays WHERE userid = ?`, id)
 	if err != nil {
 		return fmt.Errorf("could not delete payments info: %v", err)
 	}
