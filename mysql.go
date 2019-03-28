@@ -25,7 +25,7 @@ func addPaymentInfo(id, money int) error {
 	return nil
 }
 
-func withdrawMoney(id int) error {
+func withdrawMoney(id int, callFromWeb bool) error {
 	user, err := getUserByID(id)
 	if err != nil {
 		return fmt.Errorf("could not get user by id: %v", err)
@@ -35,17 +35,18 @@ func withdrawMoney(id int) error {
 		return nil
 	}
 
-	months := user.Money / user.Tariff.Price
+	if (callFromWeb && !user.Active) || (!callFromWeb) {
+		t := time.Now().Add(time.Second * 12)
+		_, err = db.Exec(`UPDATE bl_users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
+			t, user.Tariff.Price, id)
+		if err != nil {
+			return fmt.Errorf("could not update expired_date: %v", err)
+		}
 
-	paymentsEnds := user.PaymentsEnds.AddDate(0, months, 0)
-	if !user.Active {
-		paymentsEnds = time.Now().AddDate(0, months, 0)
-	}
-
-	_, err = db.Exec(`UPDATE bl_users SET expired_date=?, activity=1, balance=? WHERE id=?`,
-		paymentsEnds, user.Money-(user.Tariff.Price*months), id)
-	if err != nil {
-		return fmt.Errorf("could not update expired_date: %v", err)
+		go func() {
+			time.Sleep(time.Until(t))
+			withdrawMoney(id, false)
+		}()
 	}
 
 	return nil

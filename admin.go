@@ -184,7 +184,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 	}
 
-	err = withdrawMoney(id)
+	err = withdrawMoney(id, true)
 	if err != nil {
 		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
@@ -238,7 +238,7 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	err = withdrawMoney(id)
+	err = withdrawMoney(id, true)
 	if err != nil {
 		log.Printf("could not withdraw money from user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
