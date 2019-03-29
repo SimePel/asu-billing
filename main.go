@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	dsn   = fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn   = fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	db    = newDB()
 	prod  bool
@@ -68,7 +68,7 @@ func main() {
 	flag.Parse()
 	var err error
 	if prod {
-		err = http.ListenAndServeTLS("billing-dev.asu.ru:443", "cert.pem", "privkey.pem", router)
+		err = http.ListenAndServeTLS("billing.asu.ru:443", "cert.pem", "privkey.pem", router)
 	} else {
 		err = http.ListenAndServe(":8080", router)
 	}
