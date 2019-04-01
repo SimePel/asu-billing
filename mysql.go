@@ -3,8 +3,25 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
 	"time"
 )
+
+var db = newDB()
+
+func newDB() *sql.DB {
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.SetConnMaxLifetime(2 * time.Minute)
+	db.SetMaxIdleConns(4)
+	db.SetMaxOpenConns(8)
+
+	return db
+}
 
 func addMoney(id, money int) error {
 	_, err := db.Exec(`UPDATE bl_users SET balance = balance + ? WHERE id=?`, money, id)
