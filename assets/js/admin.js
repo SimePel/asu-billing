@@ -18,6 +18,6 @@ window.onload = function () {
     const searchButton = document.getElementById("searchButton")
 
     searchButton.addEventListener('click', function (event) {
-        window.location.replace("/admin?type=name&name=" + document.getElementById("search").value);
+        window.location.replace("/adm?type=name&name=" + document.getElementById("search").value);
     });
 };

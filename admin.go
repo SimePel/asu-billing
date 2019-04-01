@@ -27,7 +27,7 @@ var (
 func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
-		http.Redirect(w, r, "/admin", http.StatusFound)
+		http.Redirect(w, r, "/adm", http.StatusFound)
 		return
 	}
 	admT.ExecuteTemplate(w, "login", nil)
@@ -36,7 +36,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "admin")
 	if session.Values["admin_logged"] == "true" {
-		http.Redirect(w, r, "/admin", http.StatusFound)
+		http.Redirect(w, r, "/adm", http.StatusFound)
 		return
 	}
 
@@ -58,7 +58,7 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	session.Values["admin_logged"] = "true"
 	session.Save(r, w)
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/adm", http.StatusFound)
 }
 
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -137,7 +137,7 @@ func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/adm", http.StatusFound)
 }
 
 func newUserForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -191,7 +191,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/adm", http.StatusFound)
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -203,7 +203,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/adm", http.StatusFound)
 }
 
 func payForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -245,7 +245,7 @@ func pay(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	http.Redirect(w, r, "/admin", http.StatusFound)
+	http.Redirect(w, r, "/adm", http.StatusFound)
 }
 
 func tariffFromString(s string) (t Tariff) {

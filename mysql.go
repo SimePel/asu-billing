@@ -36,7 +36,7 @@ func withdrawMoney(id int, callFromWeb bool) error {
 	}
 
 	if (callFromWeb && !user.Active) || (!callFromWeb) {
-		t := time.Now().Add(time.Hour * 24 * 30)
+		t := time.Now().AddDate(0, 1, 0)
 		_, err = db.Exec(`UPDATE bl_users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
 			t, user.Tariff.Price, id)
 		if err != nil {

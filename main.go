@@ -48,7 +48,7 @@ func main() {
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	router.GET("/admin-login", accessLog(adminLogin))
-	router.GET("/admin", accessLog(adminAuthCheck(adminIndex)))
+	router.GET("/adm", accessLog(adminAuthCheck(adminIndex)))
 	router.GET("/admin-logout", accessLog(adminLogout))
 	router.GET("/user-logout", accessLog(userLogout))
 	router.GET("/user-login", accessLog(userLogin))
