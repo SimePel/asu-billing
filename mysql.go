@@ -10,15 +10,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db = newDB(prod)
+var db = newDB()
 
-func newDB(prod bool) *sql.DB {
-	dbName := "billingdev"
-	if prod {
-		dbName = "billing"
-	}
-
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/%v?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"), dbName)
+func newDB() *sql.DB {
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -143,7 +138,7 @@ func setInIPAsUsed(inIP string) error {
 }
 
 func getUsersByName(name string) ([]User, error) {
-	rows, err := db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+	sqlQuery := fmt.Sprintf(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
 		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
@@ -151,7 +146,8 @@ func getUsersByName(name string) ([]User, error) {
 		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
 		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
-	WHERE name LIKE ?`, fmt.Sprint("'%", name, "%'"))
+	WHERE name LIKE '%%%v%%'`, name)
+	rows, err := db.Query(sqlQuery)
 	if err != nil {
 		return nil, fmt.Errorf("could not do query: %v", err)
 	}
