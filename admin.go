@@ -128,15 +128,17 @@ func editUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	tariff := r.FormValue("tariff")
 	phone := r.FormValue("phone")
 	comment := r.FormValue("comment")
+	connectionPlace := r.FormValue("connectionPlace")
 
 	user := User{
-		ID:        id,
-		Name:      name,
-		Agreement: agreement,
-		Login:     login,
-		Tariff:    tariffFromString(tariff),
-		Phone:     phone,
-		Comment:   comment,
+		ID:              id,
+		Name:            name,
+		Agreement:       agreement,
+		Login:           login,
+		Tariff:          tariffFromString(tariff),
+		Phone:           phone,
+		Comment:         comment,
+		ConnectionPlace: connectionPlace,
 	}
 
 	err := updateUser(user)
@@ -160,6 +162,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	tariff := r.FormValue("tariff")
 	phone := r.FormValue("phone")
 	comment := r.FormValue("comment")
+	connectionPlace := r.FormValue("connectionPlace")
 
 	moneyStr := r.FormValue("money")
 	money := 0
@@ -168,13 +171,14 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	user := User{
-		Name:      name,
-		Agreement: agreement,
-		Login:     login,
-		Tariff:    tariffFromString(tariff),
-		Phone:     phone,
-		Comment:   comment,
-		Money:     money,
+		Name:            name,
+		Agreement:       agreement,
+		Login:           login,
+		Tariff:          tariffFromString(tariff),
+		Phone:           phone,
+		Comment:         comment,
+		ConnectionPlace: connectionPlace,
+		Money:           money,
 	}
 
 	id, err := addUserToDB(user)

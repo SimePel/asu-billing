@@ -13,7 +13,7 @@ import (
 var db = newDB()
 
 func newDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -96,8 +96,8 @@ func updateUser(user User) error {
 		typeConnect = wireless
 	}
 
-	_, err := db.Exec(`UPDATE bl_users SET name=?, account=?, auth=?, tariff=?, phone=?, comment=?, type_connect_id=? WHERE id=?`,
-		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, typeConnect, user.ID)
+	_, err := db.Exec(`UPDATE bl_users SET name=?, account=?, auth=?, tariff=?, phone=?, comment=?, connection_place=?, type_connect_id=? WHERE id=?`,
+		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ConnectionPlace, typeConnect, user.ID)
 	if err != nil {
 		return fmt.Errorf("could not update user fields: %v", err)
 	}
@@ -133,8 +133,10 @@ func addUserToDB(user User) (int, error) {
 		typeConnect = wireless
 	}
 
-	res, err := db.Exec(`INSERT INTO bl_users (ip_id, ext_ip_id, tariff, balance, name, account, phone, auth, comment, type_connect_id)
-		VALUES (?,?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Agreement, user.Phone, user.Login, user.Comment, typeConnect)
+	res, err := db.Exec(`INSERT INTO bl_users (ip_id, ext_ip_id, tariff, balance, name, account,
+		phone, auth, comment, connection_place, type_connect_id)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name,
+		user.Agreement, user.Phone, user.Login, user.Comment, user.ConnectionPlace, typeConnect)
 	if err != nil {
 		return 0, fmt.Errorf("could not insert user: %v", err)
 	}
@@ -283,7 +285,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 func getUserByID(id int) (User, error) {
 	var user User
 	err := db.QueryRow(`SELECT bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
-		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.expired_date,
+		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.connection_place, bl_users.expired_date,
 		bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id, bl_tariffs.tariff_name,
 		bl_tariffs.tariff_summa
 	FROM (((bl_users
@@ -291,7 +293,7 @@ func getUserByID(id int) (User, error) {
 		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
 		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
 	WHERE bl_users.id = ?`, id).Scan(&user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
-		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+		&user.Comment, &user.ConnectionPlace, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
 	if err != nil {
 		return user, fmt.Errorf("could not do queryRow: %v", err)
 	}

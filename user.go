@@ -38,19 +38,20 @@ type Tariff struct {
 
 // User is document in "users" mongodb collection
 type User struct {
-	ID           int
-	Money        int
-	Active       bool
-	Agreement    string
-	Name         string
-	Login        string
-	InIP         string
-	ExtIP        string
-	Tariff       Tariff
-	Payments     []Payment
-	Phone        string
-	Comment      string
-	PaymentsEnds time.Time
+	ID              int
+	Money           int
+	Active          bool
+	Agreement       string
+	Name            string
+	Login           string
+	InIP            string
+	ExtIP           string
+	Tariff          Tariff
+	Payments        []Payment
+	ConnectionPlace string
+	Phone           string
+	Comment         string
+	PaymentsEnds    time.Time
 }
 
 func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

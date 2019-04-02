@@ -33,12 +33,6 @@
           <span class="has-text-weight-semibold">Договор: </span>
           {{.Agreement}}
         </p>
-        {{if .Phone}}
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Телефон: </span>
-          {{.Phone}}
-        </p>
-        {{end}}
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Тариф: </span>
           {{.Tariff.Name}} ({{.Tariff.Price}}р)
@@ -63,6 +57,16 @@
           Пользователь не подключен
           {{end}}
         </p>
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Точка подключения: </span>
+          {{.ConnectionPlace}}
+        </p>
+        {{if .Phone}}
+        <p class="is-size-4 margin-17px">
+          <span class="has-text-weight-semibold">Телефон: </span>
+          {{.Phone}}
+        </p>
+        {{end}}
         {{if .Comment}}
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Комментарий: </span>
