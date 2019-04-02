@@ -337,8 +337,6 @@ func getPaymentsByID(id int) ([]Payment, error) {
 		return nil, fmt.Errorf("something happened with rows: %v", err)
 	}
 
-	fmt.Println(payments[0].Last)
-
 	return payments, nil
 }
 
