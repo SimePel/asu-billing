@@ -71,9 +71,19 @@ func withdrawMoney(id int, callFromWeb bool) error {
 	return nil
 }
 
+const (
+	wired = iota + 1
+	wireless
+)
+
 func updateUser(user User) error {
-	_, err := db.Exec(`UPDATE bl_users SET name=?, account=?, auth=?, tariff=?, phone=?, comment=? WHERE id=?`,
-		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ID)
+	typeConnect := wired
+	if user.Tariff.ID == 3 {
+		typeConnect = wireless
+	}
+
+	_, err := db.Exec(`UPDATE bl_users SET name=?, account=?, auth=?, tariff=?, phone=?, comment=?, type_connect_id=? WHERE id=?`,
+		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, typeConnect, user.ID)
 	if err != nil {
 		return fmt.Errorf("could not update user fields: %v", err)
 	}
@@ -104,8 +114,13 @@ func addUserToDB(user User) (int, error) {
 		return 0, fmt.Errorf("could not get extIPID: %v", err)
 	}
 
-	res, err := db.Exec(`INSERT INTO bl_users (ip_id, ext_ip_id, tariff, balance, name, account, phone, auth, comment)
-		VALUES (?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Agreement, user.Phone, user.Login, user.Comment)
+	typeConnect := wired
+	if user.Tariff.ID == 3 {
+		typeConnect = wireless
+	}
+
+	res, err := db.Exec(`INSERT INTO bl_users (ip_id, ext_ip_id, tariff, balance, name, account, phone, auth, comment, type_connect_id)
+		VALUES (?,?,?,?,?,?,?,?,?,?)`, inIPID, extIPID, user.Tariff.ID, user.Money, user.Name, user.Agreement, user.Phone, user.Login, user.Comment, typeConnect)
 	if err != nil {
 		return 0, fmt.Errorf("could not insert user: %v", err)
 	}
