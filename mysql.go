@@ -25,6 +25,20 @@ func newDB() *sql.DB {
 	return db
 }
 
+func userExistInDB(login string) bool {
+	var num int
+	err := db.QueryRow(`SELECT COUNT(*) FROM bl_users WHERE auth=?`, login).Scan(&num)
+	if err != nil {
+		return false
+	}
+
+	if num == 0 {
+		return false
+	}
+
+	return true
+}
+
 func addMoney(id, money int) error {
 	_, err := db.Exec(`UPDATE bl_users SET balance = balance + ? WHERE id=?`, money, id)
 	if err != nil {

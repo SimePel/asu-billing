@@ -105,8 +105,16 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	login += "@stud.asu.ru"
+
+	if !userExistInDB(login) {
+		url := fmt.Sprint("/user-login?err=2")
+		http.Redirect(w, r, url, http.StatusFound)
+		return
+	}
+
 	session.Values["user_logged"] = "true"
-	session.AddFlash(login + "@stud.asu.ru")
+	session.AddFlash(login)
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
