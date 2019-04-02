@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -16,7 +15,6 @@ const (
 func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.SearchRequest) error {
 	l, err := ldap.Dial("tcp", ldapServer)
 	if err != nil {
-		log.Print(err)
 		return fmt.Errorf("Не удалось подключиться к ldap серверу")
 	}
 	defer l.Close()
@@ -25,13 +23,11 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	bindPassword := os.Getenv("LDAP_PASSWORD")
 	err = l.Bind(bindUsername, bindPassword)
 	if err != nil {
-		log.Print(err)
 		return fmt.Errorf("Не удалось подключиться read only пользователем")
 	}
 
 	sr, err := l.Search(searchRequest)
 	if err != nil {
-		log.Print(err)
 		return fmt.Errorf("Не удалось найти пользователя с таким логином")
 	}
 
@@ -44,7 +40,6 @@ func ldapAuth(w http.ResponseWriter, r *http.Request, searchRequest *ldap.Search
 	password := r.FormValue("password")
 	err = l.Bind(userdn, password)
 	if err != nil {
-		log.Print(err)
 		return fmt.Errorf("Неверный пароль")
 	}
 

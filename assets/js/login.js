@@ -1,7 +1,7 @@
 window.onload = function () {
     url = new URL(window.location.href);
     err = url.searchParams.get("err");
-    if (err !== "") {
-        document.getElementById("errorHere").innerText = err;
+    if (err !== null) {
+        document.getElementById("errorHere").innerText = "Неверный логин или пароль";
     }
 };
