@@ -10,7 +10,7 @@ window.onload = function () {
         document.getElementById("active").innerHTML = "<strong>Включенные</strong/";
     } else if (type === "inactive") {
         document.getElementById("inactive").innerHTML = "<strong>Отключенные</strong/";
-    } else if (name !== "") {
+    } else if (name !== 'null') {
         ;
     } else {
         document.getElementById("all").innerHTML = "<strong>Все</strong/";
