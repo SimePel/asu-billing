@@ -8,6 +8,7 @@
   <title>Изменение клиента</title>
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
   <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/goBack.js"></script>
 </head>
 
 <body>
@@ -72,9 +73,9 @@
             </div>
             <div class="field is-grouped">
               <div class="control">
-                <a class="button" href="/user-info?id={{.ID}}">
+                <button class="button" onclick="goBack()">
                   Отменить
-                </a>
+                </button>
               </div>
               <div class="control">
                 <button class="button is-info">

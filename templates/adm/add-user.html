@@ -8,6 +8,7 @@
   <title>Добавление клиента</title>
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
   <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/goBack.js"></script>
 </head>
 
 <body>
@@ -78,7 +79,12 @@
                 <input class="input" name="money" type="number" placeholder="">
               </div>
             </div>
-            <div class="field">
+            <div class="field is-grouped">
+              <div class="control">
+                <button class="button" onclick="goBack()">
+                  Вернуться
+                </button>
+              </div>
               <div class="control">
                 <button class="button is-success">
                   Добавить

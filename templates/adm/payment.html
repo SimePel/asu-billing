@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
   <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/goBack.js"></script>
 </head>
 
 <body>
@@ -40,7 +41,12 @@
                 <input class="input" name="money" type="number" placeholder="" required>
               </div>
             </div>
-            <div class="field">
+            <div class="field is-grouped">
+              <div class="control">
+                <button class="button" onclick="goBack()">
+                  Вернуться
+                </button>
+              </div>
               <div class="control">
                 <button class="button is-success">
                   Оплатить

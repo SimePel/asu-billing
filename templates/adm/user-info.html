@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
   <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/goBack.js"></script>
 </head>
 
 <body>
@@ -83,7 +84,7 @@
         </p>
         <div class="field">
           <p class="control margin-17px">
-            <a class="button" href="/adm">Вернуться</a>
+            <button class="button" onclick="goBack()">Вернуться</button>
           </p>
           <p class="control margin-17px">
             <a class="button is-info" href="/edit-user?id={{.ID}}">Изменить</a>
