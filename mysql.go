@@ -6,12 +6,19 @@ import (
 	"log"
 	"os"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-var db = newDB()
+var db = newDB(prod)
 
-func newDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+func newDB(prod bool) *sql.DB {
+	dbName := "billingdev"
+	if prod {
+		dbName = "billing"
+	}
+
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/%v?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"), dbName)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
