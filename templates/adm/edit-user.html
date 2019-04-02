@@ -70,9 +70,14 @@
                 <input class="input" name="comment" type="text" value="{{.Comment}}">
               </div>
             </div>
-            <div class="field">
+            <div class="field is-grouped">
               <div class="control">
-                <button class="button is-success">
+                <a class="button" href="/user-info?id={{.ID}}">
+                  Отменить
+                </a>
+              </div>
+              <div class="control">
+                <button class="button is-info">
                   Изменить
                 </button>
               </div>
