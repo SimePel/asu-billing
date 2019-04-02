@@ -15,9 +15,20 @@
   <section class="hero is-light">
     <div class="hero-body">
       <div class="container">
-        <h1 class="title">
-          Информация о вас
-        </h1>
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <h1 class="title">
+                Информация о вас
+              </h1>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <a class="button is-warning" href="/user-logout">Выйти</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -60,13 +71,6 @@
           <span class="has-text-weight-semibold">Остаток на счету: </span>
           {{.Money}}
         </p>
-        <div class="field">
-          <p class="control">
-            <a class="button is-warning" href="/user-logout">
-              Выйти
-            </a>
-          </p>
-        </div>
       </div>
       <div class="column is-2">
         <p class="is-size-4 margin-17px">
