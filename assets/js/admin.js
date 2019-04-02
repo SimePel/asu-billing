@@ -1,6 +1,7 @@
 window.onload = function () {
     url = new URL(window.location.href);
     type = url.searchParams.get("type");
+    name = url.searchParams.get("name");
     if (type === "wired") {
         document.getElementById("wired").innerHTML = "<strong>Проводные</strong/";
     } else if (type === "wireless") {
@@ -9,7 +10,7 @@ window.onload = function () {
         document.getElementById("active").innerHTML = "<strong>Включенные</strong/";
     } else if (type === "inactive") {
         document.getElementById("inactive").innerHTML = "<strong>Отключенные</strong/";
-    } else if (type === "name") {
+    } else if (name !== "") {
         ;
     } else {
         document.getElementById("all").innerHTML = "<strong>Все</strong/";
@@ -18,6 +19,6 @@ window.onload = function () {
     const searchButton = document.getElementById("searchButton")
 
     searchButton.addEventListener('click', function (event) {
-        window.location.replace("/adm?type=name&name=" + document.getElementById("search").value);
+        window.location.replace("/adm?name=" + document.getElementById("search").value);
     });
 };
