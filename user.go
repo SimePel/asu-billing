@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -90,14 +89,10 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	login := r.FormValue("login")
-	pieces := strings.Split(login, "\\")
-	if len(pieces) == 1 {
-		pieces = []string{"stud", login}
-	}
 	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("dc=%s,dc=asu,dc=ru", pieces[0]),
+		"dc=stud,dc=asu,dc=ru",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(samAccountName=%s)", pieces[1]),
+		fmt.Sprintf("(samAccountName=%s)", login),
 		[]string{"dn"},
 		nil,
 	)
@@ -110,19 +105,9 @@ func authUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	session.Values["user_logged"] = "true"
-	session.AddFlash(pieces[1] + getRightPostfix(pieces[0]))
+	session.AddFlash(login + "@stud.asu.ru")
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusFound)
-}
-
-func getRightPostfix(domain string) string {
-	if domain == "stud" {
-		return "@stud.asu.ru"
-	}
-	if domain == "mc" {
-		return "@mc.asu.ru"
-	}
-	return "Неизвестный домен"
 }
 
 func userLogout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

@@ -26,14 +26,18 @@
       <div class="columns">
         <div class="column is-one-quarter">
           <form action="/user-login" method="post">
-            <div class="field">
-              <p class="control has-icons-left">
-                <input class="input" name="login" type="text" placeholder="домен\логин" pattern="(^mc|^stud)\\.+\S"
-                  required>
+            <div class="field has-addons">
+              <div class="control has-icons-left">
+                <input class="input" name="login" type="text" placeholder="Логин" required>
                 <span class="icon is-small is-left">
                   <i class="fas fa-user"></i>
                 </span>
-              </p>
+              </div>
+              <div class="control">
+                <a class="button is-static">
+                  @stud.asu.ru
+                </a>
+              </div>
             </div>
             <div class="field">
               <p class="control has-icons-left">
