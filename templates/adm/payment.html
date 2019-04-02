@@ -22,42 +22,40 @@
       </div>
     </div>
   </section>
-  <section class="section">
-    <div class="container">
-      <div class="columns">
-        <div class="column is-one-quarter">
-          <div class="field">
-            <label class="label">ФИО</label>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-4">
+        <form action="/pay?id={{.ID}}" method="post">
+          <p class="is-size-4 margin-17px">
+            <span class="has-text-weight-semibold">ФИО: </span>
             {{.Name}}
+          </p>
+          <p class="is-size-4 margin-17px">
+            <span class="has-text-weight-semibold">Тариф: </span>
+            {{.Tariff.Name}} ({{.Tariff.Price}}р)
+          </p>
+          <p class="is-size-4 margin-17px">
+            <span class="has-text-weight-semibold">Сумма: </span>
+            <span class="control">
+              <input class="input" name="money" type="number" placeholder="" style="width: 47%" required>
+            </span>
+          </p>
+          <div class="field is-grouped">
+            <div class="control">
+              <button type="button" class="button" onclick="goBack()">
+                Вернуться
+              </button>
+            </div>
+            <div class="control">
+              <button class="button is-success">
+                Оплатить
+              </button>
+            </div>
           </div>
-          <form action="/pay?id={{.ID}}" method="post">
-            <div class="field">
-              <label class="label">Тариф</label>
-              {{.Tariff.Name}} ({{.Tariff.Price}}р)
-            </div>
-            <div class="field">
-              <label class="label">Сумма<span class="has-text-danger"> *</span></label>
-              <div class="control">
-                <input class="input" name="money" type="number" placeholder="" required>
-              </div>
-            </div>
-            <div class="field is-grouped">
-              <div class="control">
-                <button class="button" onclick="goBack()">
-                  Вернуться
-                </button>
-              </div>
-              <div class="control">
-                <button class="button is-success">
-                  Оплатить
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
     </div>
-  </section>
+  </div>
 </body>
 
 </html>
