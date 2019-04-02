@@ -13,7 +13,7 @@ import (
 var db = newDB()
 
 func newDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +36,7 @@ func addMoney(id, money int) error {
 
 func addPaymentInfo(id, money int) error {
 	_, err := db.Exec(`INSERT INTO bl_pays (userid, summa, pay_date, expired_date)
-		VALUES (?,?,?,?)`, id, money, time.Now(), time.Now().AddDate(0, 1, 0))
+		VALUES (?,?,?,?)`, id, money, time.Now().Add(time.Hour*7), time.Now().AddDate(0, 1, 0).Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("could not insert payment info: %v", err)
 	}
@@ -55,7 +55,7 @@ func withdrawMoney(id int, callFromWeb bool) error {
 	}
 
 	if (callFromWeb && !user.Active) || (!callFromWeb) {
-		t := time.Now().AddDate(0, 1, 0)
+		t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
 		_, err = db.Exec(`UPDATE bl_users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
 			t, user.Tariff.Price, id)
 		if err != nil {
@@ -336,6 +336,8 @@ func getPaymentsByID(id int) ([]Payment, error) {
 	if err != nil {
 		return nil, fmt.Errorf("something happened with rows: %v", err)
 	}
+
+	fmt.Println(payments[0].Last)
 
 	return payments, nil
 }
