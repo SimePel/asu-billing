@@ -283,7 +283,7 @@ func getUserByID(id int) (User, error) {
 
 func getUserByLogin(login string) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
+	err := db.QueryRow(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
 		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.expired_date,
 		bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id, bl_tariffs.tariff_name,
 		bl_tariffs.tariff_summa
