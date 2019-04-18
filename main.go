@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +11,6 @@ import (
 
 var (
 	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
-	prod  bool
 )
 
 func init() {
@@ -21,7 +19,6 @@ func init() {
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
-	flag.BoolVar(&prod, "prod", false, "Enable production mode")
 }
 
 func main() {
@@ -47,13 +44,7 @@ func main() {
 	router.POST("/edit-user", accessLog(adminAuthCheck(editUser)))
 	router.POST("/pay", accessLog(adminAuthCheck(pay)))
 
-	flag.Parse()
-	var err error
-	if prod {
-		err = http.ListenAndServeTLS("billing.asu.ru:443", "cert.pem", "privkey.pem", router)
-	} else {
-		err = http.ListenAndServe(":8080", router)
-	}
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
