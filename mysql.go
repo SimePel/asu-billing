@@ -202,6 +202,40 @@ func getUsersByName(name string) ([]User, error) {
 	return users, nil
 }
 
+func getUsersByAccount(account string) ([]User, error) {
+	sqlQuery := fmt.Sprintf(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
+		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
+		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
+		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+	FROM (((bl_users
+		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
+		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
+		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
+	WHERE account LIKE '%%%v%%'`, account)
+	rows, err := db.Query(sqlQuery)
+	if err != nil {
+		return nil, fmt.Errorf("could not do query: %v", err)
+	}
+	defer rows.Close()
+
+	var user User
+	users := make([]User, 0)
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
+			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan from row: %v", err)
+		}
+		users = append(users, user)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return users, nil
+}
+
 func getUsersByType(t string) ([]User, error) {
 	rows, err := getRowsByType(t)
 	if err != nil {

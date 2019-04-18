@@ -65,6 +65,7 @@ func authAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	t := r.FormValue("type")
 	name := r.FormValue("name")
+	account := r.FormValue("account")
 
 	var users []User
 	var err error
@@ -72,6 +73,11 @@ func adminIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		users, err = getUsersByName(name)
 		if err != nil {
 			log.Printf("could not get users by name=%v: %v", name, err)
+		}
+	} else if account != "" {
+		users, err = getUsersByAccount(account)
+		if err != nil {
+			log.Printf("could not get users by account=%v: %v", account, err)
 		}
 	} else {
 		users, err = getUsersByType(t)

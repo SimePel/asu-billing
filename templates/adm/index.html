@@ -18,7 +18,15 @@
       <div class="level-item">
         <div class="field has-addons">
           <p class="control">
-            <input id="search" class="input" type="search" placeholder="Имя пользователя">
+            <span class="select">
+              <select id="select">
+                <option value="name">По имени</option>
+                <option value="account">По договору</option>
+              </select>
+            </span>
+          </p>
+          <p class="control">
+            <input id="search" class="input" type="search">
           </p>
           <p class="control">
             <button id="searchButton" class="button">
