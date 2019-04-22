@@ -13,7 +13,7 @@ import (
 var db = newDB()
 
 func newDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -172,7 +172,7 @@ func getUsersByName(name string) ([]User, error) {
 	sqlQuery := fmt.Sprintf(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 	FROM (((bl_users
 		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -188,7 +188,7 @@ func getUsersByName(name string) ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
-			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.ConnectionPlace)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan from row: %v", err)
 		}
@@ -206,7 +206,7 @@ func getUsersByAccount(account string) ([]User, error) {
 	sqlQuery := fmt.Sprintf(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 	FROM (((bl_users
 		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -222,7 +222,7 @@ func getUsersByAccount(account string) ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
-			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.ConnectionPlace)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan from row: %v", err)
 		}
@@ -247,7 +247,7 @@ func getUsersByType(t string) ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone, &user.Comment,
-			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+			&user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.ConnectionPlace)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan from row: %v", err)
 		}
@@ -266,7 +266,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 		FROM (((bl_users
 			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -277,7 +277,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 		FROM (((bl_users
 			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -288,7 +288,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 		FROM (((bl_users
 			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -299,7 +299,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 		return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 			bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 			bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-			bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+			bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 		FROM (((bl_users
 			INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 			INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
@@ -309,7 +309,7 @@ func getRowsByType(t string) (*sql.Rows, error) {
 	return db.Query(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth,
 		bl_users.balance, bl_users.activity, bl_users.phone, bl_users.comment,
 		bl_users.expired_date, bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id,
-		bl_tariffs.tariff_name, bl_tariffs.tariff_summa
+		bl_tariffs.tariff_name, bl_tariffs.tariff_summa, bl_users.connection_place
 	FROM (((bl_users
 		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
 		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
