@@ -45,6 +45,14 @@ window.onload = function () {
         }
     });
 
+    searchByName.addEventListener('click', function (event) {
+        searchInput.setAttribute("placeholder", "любая часть ФИО");
+    })
+
+    searchByAgreement.addEventListener('click', function (event) {
+        searchInput.setAttribute("placeholder", "номер договора");
+    })
+
     const dropdownTrigger = document.getElementById("dropdownTrigger");
 
     dropdownTrigger.addEventListener('click', function (event) {
