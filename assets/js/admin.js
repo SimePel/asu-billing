@@ -60,7 +60,6 @@ window.onload = function () {
         document.getElementById("dropdown").classList.toggle('is-active');
     })
 
-    const nameBox = document.getElementById("nameBox");
     const agreementBox = document.getElementById("agreementBox");
     const loginBox = document.getElementById("loginBox");
     const expiredDateBox = document.getElementById("expiredDateBox");
@@ -71,24 +70,6 @@ window.onload = function () {
     const connectionPlaceBox = document.getElementById("connectionPlaceBox");
     const balanceBox = document.getElementById("balanceBox");
     const activeBox = document.getElementById("activeBox");
-
-    nameBox.addEventListener('click', function (event) {
-        let currentTable = JSON.parse(localStorage.getItem('elems'));
-        if (nameBox.checked) {
-            document.querySelectorAll('.name').forEach(function (td) {
-                td.classList.remove("invisible");
-            });
-            currentTable.push('name');
-        } else {
-            document.querySelectorAll('.name').forEach(function (td) {
-                td.classList.add("invisible");
-            });
-            currentTable = currentTable.filter(function (value, index, arr) {
-                return value !== 'name';
-            });
-        }
-        localStorage.setItem('elems', JSON.stringify(currentTable));
-    })
 
     agreementBox.addEventListener('click', function (event) {
         let currentTable = JSON.parse(localStorage.getItem('elems'));
