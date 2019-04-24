@@ -36,7 +36,7 @@ type Tariff struct {
 	Name  string
 }
 
-// User is document in "users" mongodb collection
+// User is table in mysql
 type User struct {
 	ID              int
 	Money           int
@@ -56,11 +56,6 @@ type User struct {
 
 func userIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session, _ := store.Get(r, "user")
-	if session.Values["user_logged"] == "false" || session.Values["user_logged"] == nil {
-		http.Redirect(w, r, "/user-login", http.StatusFound)
-		return
-	}
-
 	flashes := session.Flashes()
 	login := flashes[len(flashes)-1].(string)
 	user, err := getUserByLogin(login)

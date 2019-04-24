@@ -10,6 +10,17 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func userAuthCheck(h httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		session, _ := store.Get(r, "user")
+		if session.Values["user_logged"] == "false" || session.Values["user_logged"] == nil {
+			http.Redirect(w, r, "/user-login", http.StatusFound)
+			return
+		}
+		h(w, r, ps)
+	}
+}
+
 func adminAuthCheck(h httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		session, _ := store.Get(r, "admin")

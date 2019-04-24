@@ -35,7 +35,7 @@ func main() {
 	router.GET("/user-info", accessLog(adminAuthCheck(userInfo)))
 	router.GET("/edit-user", accessLog(adminAuthCheck(userEditForm)))
 	router.GET("/delete-user", accessLog(adminAuthCheck(deleteUser)))
-	router.GET("/", accessLog(userIndex))
+	router.GET("/", accessLog(userAuthCheck(userIndex)))
 	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
 
 	router.POST("/admin-login", accessLog(authAdmin))
