@@ -25,6 +25,16 @@ func newDB() *sql.DB {
 	return db
 }
 
+func getUserIDByLogin(login string) (int, error) {
+	var id int
+	err := db.QueryRow(`SELECT id FROM bl_users WHERE auth=?`, login).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("Cannot get id from db: %v", err)
+	}
+
+	return id, nil
+}
+
 func userExistInDB(login string) bool {
 	var num int
 	err := db.QueryRow(`SELECT COUNT(*) FROM bl_users WHERE auth=?`, login).Scan(&num)
@@ -100,6 +110,15 @@ func updateUser(user User) error {
 		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Comment, user.ConnectionPlace, typeConnect, user.ID)
 	if err != nil {
 		return fmt.Errorf("could not update user fields: %v", err)
+	}
+
+	return nil
+}
+
+func updateUserSettings(settings Settings) error {
+	_, err := db.Exec(`UPDATE bl_users SET email=? WHERE id=?`, settings.Email, settings.ID)
+	if err != nil {
+		return fmt.Errorf("could not update settings of user: %v", err)
 	}
 
 	return nil
@@ -342,29 +361,15 @@ func getUserByID(id int) (User, error) {
 	return user, nil
 }
 
-func getUserByLogin(login string) (User, error) {
-	var user User
-	err := db.QueryRow(`SELECT bl_users.id, bl_users.name, bl_users.account, bl_users.auth, bl_users.balance,
-		bl_users.activity, bl_users.phone, bl_users.comment, bl_users.expired_date,
-		bl_ipaddr.ipaddr, bl_external_ip.ext_ip, bl_tariffs.tariff_id, bl_tariffs.tariff_name,
-		bl_tariffs.tariff_summa
-	FROM (((bl_users
-		INNER JOIN bl_ipaddr ON bl_users.ip_id = bl_ipaddr.id)
-		INNER JOIN bl_external_ip ON bl_users.ext_ip_id = bl_external_ip.ext_ip_id)
-		INNER JOIN bl_tariffs ON bl_users.tariff = bl_tariffs.tariff_id)
-	WHERE bl_users.auth = ?`, login).Scan(&user.ID, &user.Name, &user.Agreement, &user.Login, &user.Money, &user.Active, &user.Phone,
-		&user.Comment, &user.PaymentsEnds, &user.InIP, &user.ExtIP, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price)
+func getUserSettingsByID(id int) (Settings, error) {
+	var settings Settings
+	err := db.QueryRow(`SELECT email FROM bl_users WHERE id = ?`, id).Scan(&settings.Email)
 	if err != nil {
-		return user, fmt.Errorf("could not do queryRow: %v", err)
+		return settings, fmt.Errorf("could not do queryRow: %v", err)
 	}
 
-	payments, err := getPaymentsByID(user.ID)
-	if err != nil {
-		return user, fmt.Errorf("could not get payments with id=%v: %v", user.ID, err)
-	}
-	user.Payments = payments
-
-	return user, nil
+	settings.ID = id
+	return settings, nil
 }
 
 func getPaymentsByID(id int) ([]Payment, error) {

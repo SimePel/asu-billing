@@ -37,12 +37,15 @@ func main() {
 	router.GET("/delete-user", accessLog(adminAuthCheck(deleteUser)))
 	router.GET("/", accessLog(userAuthCheck(userIndex)))
 	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
+	router.GET("/settings", accessLog(userAuthCheck(userSettings)))
+	router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
 
 	router.POST("/admin-login", accessLog(authAdmin))
 	router.POST("/user-login", accessLog(authUser))
 	router.POST("/add-user", accessLog(adminAuthCheck(addNewUser)))
 	router.POST("/edit-user", accessLog(adminAuthCheck(editUser)))
 	router.POST("/pay", accessLog(adminAuthCheck(pay)))
+	router.POST("/settings", accessLog(userAuthCheck(editUserSettings)))
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {

@@ -1,0 +1,79 @@
+{{ define "settings" }}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Настройки клиента</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
+  <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/settings.js"></script>
+</head>
+
+<body>
+  <section class="hero is-light">
+    <div class="hero-body">
+      <div class="container">
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <h1 class="title">
+                Настройки
+              </h1>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <a class="button" href="/">Назад</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-6">
+        <div id="emailBox">
+          {{if .Email}}
+          <p class="margin-17px">
+            Ваш email адрес уже подтвержден.
+          </p>
+          <div class="field has-addons">
+            <div class="control">
+              <input id="email" class="input" name="email" type="email" value="{{.Email}}" required>
+            </div>
+            <div class="control">
+              <button id="sendEmail" class="button is-warning">
+                Изменить
+              </button>
+            </div>
+          </div>
+          {{else}}
+          <p class="margin-17px">
+            Укажите email адрес на который будут оправляться уведомления об оплате.
+          </p>
+          <div class="field has-addons">
+            <div class="control">
+              <input id="email" class="input" name="email" type="email" placeholder="Ваш email" required>
+            </div>
+            <div class="control">
+              <button id="sendEmail" class="button is-success">
+                Добавить
+              </button>
+            </div>
+          </div>
+          {{end}}
+        </div>
+        <p id="emailNotification" class="margin-17px invisible">
+          На вашу почту было отправлено сообщение для подтверждения email адреса.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+{{ end }}
