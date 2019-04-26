@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
@@ -47,7 +48,27 @@ func main() {
 	router.POST("/pay", accessLog(adminAuthCheck(pay)))
 	router.POST("/settings", accessLog(userAuthCheck(editUserSettings)))
 
-	err := http.ListenAndServe(":8080", router)
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			users, err := checkPaymentNeed()
+			if err != nil {
+				log.Println("Cannot check payment need.", err)
+				continue
+			}
+
+			if len(users) == 0 {
+				continue
+			}
+
+			err = sendPaymentNotification(users)
+			if err != nil {
+				log.Println("Cannot send payment notification.", err)
+			}
+		}
+	}()
+
+	err := http.ListenAndServe(":8081", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

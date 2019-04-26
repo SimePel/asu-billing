@@ -46,6 +46,7 @@ type User struct {
 	Agreement       string
 	Name            string
 	Login           string
+	Email           string
 	InIP            string
 	ExtIP           string
 	Tariff          Tariff

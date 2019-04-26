@@ -23,7 +23,7 @@ func createConfirmationLink(settings Settings) (string, error) {
 		return "", fmt.Errorf("Cannot encrypt data: %v", err)
 	}
 
-	return "http://localhost:8080/confirm-settings?d=" + url.QueryEscape(cipherData), nil
+	return "http://localhost:8081/confirm-settings?d=" + url.QueryEscape(cipherData), nil
 }
 
 func encrypt(text []byte) (string, error) {

@@ -49,6 +49,35 @@ func userExistInDB(login string) bool {
 	return true
 }
 
+func checkPaymentNeed() ([]User, error) {
+	rows, err := db.Query(`SELECT id, name, email, expired_date
+		FROM bl_users
+		WHERE expired_date BETWEEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 3 DAY), INTERVAL 30 SECOND)
+		 	AND DATE_ADD(DATE_ADD(NOW(), INTERVAL 3 DAY), INTERVAL 30 SECOND);`)
+	if err != nil {
+		return nil, fmt.Errorf("could not do query: %v", err)
+	}
+	defer rows.Close()
+
+	var user User
+	users := make([]User, 0)
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PaymentsEnds)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan from row: %v", err)
+		}
+		if user.Email != "" {
+			users = append(users, user)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return users, nil
+}
+
 func addMoney(id, money int) error {
 	_, err := db.Exec(`UPDATE bl_users SET balance = balance + ? WHERE id=?`, money, id)
 	if err != nil {
