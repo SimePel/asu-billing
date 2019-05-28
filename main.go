@@ -10,6 +10,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+const (
+	timeoutForNotification = 6 * time.Hour
+	timeoutForWithdraw     = 1 * time.Minute
+)
+
 var (
 	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 )
@@ -38,26 +43,30 @@ func main() {
 	router.GET("/delete-user", accessLog(adminAuthCheck(deleteUser)))
 	router.GET("/", accessLog(userAuthCheck(userIndex)))
 	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
-	router.GET("/settings", accessLog(userAuthCheck(userSettings)))
-	router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
+	// router.GET("/settings", accessLog(userAuthCheck(userSettings)))
+	// router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
 
 	router.POST("/admin-login", accessLog(authAdmin))
 	router.POST("/user-login", accessLog(authUser))
 	router.POST("/add-user", accessLog(adminAuthCheck(addNewUser)))
 	router.POST("/edit-user", accessLog(adminAuthCheck(editUser)))
 	router.POST("/pay", accessLog(adminAuthCheck(pay)))
-	router.POST("/settings", accessLog(userAuthCheck(editUserSettings)))
+	// router.POST("/settings", accessLog(userAuthCheck(editUserSettings)))
 
 	go func() {
 		for {
-			time.Sleep(1 * time.Minute)
-			users, err := checkPaymentNeed()
+			time.Sleep(timeoutForNotification)
+			stmt, err := db.Prepare(`SELECT id, account, phone, balance FROM bl_users
+				WHERE activity=1 AND expired_date BETWEEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR)
+					AND DATE_ADD(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR);`)
 			if err != nil {
-				log.Println("Cannot check payment need.", err)
+				log.Println("Cannot prepare sql statement.", err)
 				continue
 			}
 
-			if len(users) == 0 {
+			users, err := checkPaymentNeed(stmt)
+			if err != nil {
+				log.Println("Cannot check payment need.", err)
 				continue
 			}
 
@@ -68,7 +77,31 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServe(":8081", router)
+	go func() {
+		for {
+			time.Sleep(timeoutForWithdraw)
+			stmt, err := db.Prepare(`SELECT id, account, phone, balance FROM bl_users
+				WHERE expired_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 60 SECOND);`)
+			if err != nil {
+				log.Println("Cannot prepare sql statement.", err)
+				continue
+			}
+
+			users, err := checkPaymentNeed(stmt)
+			if err != nil {
+				log.Println("Cannot check payment need.", err)
+			}
+
+			for _, u := range users {
+				err = withdrawMoney(u.ID)
+				if err != nil {
+					log.Println("Cannot withdraw money from user with id= ", u.ID, err)
+				}
+			}
+		}
+	}()
+
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

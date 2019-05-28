@@ -2,25 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/smtp"
 )
 
 func confirmEmail(recipient, url string) error {
 	return sendEmail(recipient, "Подтверждение email адреса",
 		"Перейдите по данной ссылке, чтобы подтвердить ваш email.\r\n"+url)
-}
-
-func sendPaymentNotification(users []User) error {
-	for _, user := range users {
-		err := sendEmail(user.Email, "Уведомление об оплате",
-			fmt.Sprintf("%v, %v у вас заканчивается срок действия вашего интернет соединения.\r\nДля продолжения использования, оплатите установленную сумму в кассе М корпуса и принесите квитанцию об оплате в 103 кабинет Л корпуса.", user.Name, user.PaymentsEnds.Format("2.01 в 15:04")))
-		if err != nil {
-			log.Println("Cannot send email.", err)
-		}
-	}
-
-	return nil
 }
 
 func sendEmail(recipient, subject, message string) error {

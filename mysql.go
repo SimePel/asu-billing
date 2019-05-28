@@ -13,7 +13,7 @@ import (
 var db = newDB()
 
 func newDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billing?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -49,26 +49,21 @@ func userExistInDB(login string) bool {
 	return true
 }
 
-func checkPaymentNeed() ([]User, error) {
-	rows, err := db.Query(`SELECT id, name, email, expired_date
-		FROM bl_users
-		WHERE expired_date BETWEEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 3 DAY), INTERVAL 30 SECOND)
-		 	AND DATE_ADD(DATE_ADD(NOW(), INTERVAL 3 DAY), INTERVAL 30 SECOND);`)
+func checkPaymentNeed(stmt *sql.Stmt) ([]User, error) {
+	rows, err := stmt.Query()
 	if err != nil {
-		return nil, fmt.Errorf("could not do query: %v", err)
+		return nil, fmt.Errorf("cannot do query: %v", err)
 	}
 	defer rows.Close()
 
 	var user User
 	users := make([]User, 0)
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PaymentsEnds)
+		err := rows.Scan(&user.ID, &user.Agreement, &user.Phone, &user.Money)
 		if err != nil {
 			return nil, fmt.Errorf("could not scan from row: %v", err)
 		}
-		if user.Email != "" {
-			users = append(users, user)
-		}
+		users = append(users, user)
 	}
 	err = rows.Err()
 	if err != nil {
