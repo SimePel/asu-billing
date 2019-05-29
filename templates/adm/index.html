@@ -173,7 +173,7 @@
                 {{.Login}}
               </td>
               <td class="expiredDate invisible">
-                {{if formatTime .PaymentsEnds}}
+                {{if .Active}}
                 {{formatTime .PaymentsEnds}}
                 {{else}}
                 Клиент не подключен

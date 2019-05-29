@@ -50,7 +50,7 @@
           {{.Login}}
         </p>
         <p class="is-size-4 margin-17px">
-          {{if formatTime .PaymentsEnds}}
+          {{if .Active}}
           <span class="has-text-weight-semibold">Дата следующей оплаты: </span>
           {{formatTime .PaymentsEnds}}
           {{else}}
