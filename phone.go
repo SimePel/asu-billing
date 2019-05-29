@@ -6,7 +6,22 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
+
+var smsNotificationStatus = true
+
+func smsStatus(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	change := r.FormValue("change")
+	if change == "" {
+		w.Write([]byte(strconv.FormatBool(smsNotificationStatus)))
+		return
+	}
+	smsNotificationStatus = !smsNotificationStatus
+	w.Write([]byte(strconv.FormatBool(smsNotificationStatus)))
+}
 
 func sendSMS(phone, message string) error {
 	user := os.Getenv("BEELINE_USER")

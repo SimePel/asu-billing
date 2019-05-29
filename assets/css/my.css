@@ -16,3 +16,7 @@
 .invisible {
     display: none;
 }
+
+.margin-4px-right {
+    margin-right: 4px;
+}

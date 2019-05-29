@@ -43,6 +43,7 @@ func main() {
 	router.GET("/delete-user", accessLog(adminAuthCheck(deleteUser)))
 	router.GET("/", accessLog(userAuthCheck(userIndex)))
 	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
+	router.GET("/sms-status", accessLog(adminAuthCheck(smsStatus)))
 	// router.GET("/settings", accessLog(userAuthCheck(userSettings)))
 	// router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
 
@@ -56,6 +57,9 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(timeoutForNotification)
+			if !smsNotificationStatus {
+				continue
+			}
 			stmt, err := db.Prepare(`SELECT id, account, phone, balance FROM bl_users
 				WHERE activity=1 AND expired_date BETWEEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR)
 					AND DATE_ADD(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR);`)

@@ -26,8 +26,36 @@ function search() {
     }
 }
 
+function changeSMSstatus(b) {
+    let sms = document.getElementById("sms");
+    console.log(b);
+    if (b === "true") {
+        sms.classList.remove("is-danger");
+        sms.classList.add("is-success");
+        sms.childNodes[1].childNodes[1].classList.remove("fa-times");
+        sms.childNodes[1].childNodes[1].classList.add("fa-check");
+    } else {
+        sms.classList.remove("is-success");
+        sms.classList.add("is-danger");
+        sms.childNodes[1].childNodes[1].classList.remove("fa-check");
+        sms.childNodes[1].childNodes[1].classList.add("fa-times");
+    }
+}
+
 window.onload = function () {
     displayTable();
+
+    // SMS section
+    fetch('/sms-status').then(res => res.text()).then(b => {
+        changeSMSstatus(b);
+    });
+    document.getElementById("sms").addEventListener('click', () => {
+        fetch('/sms-status?change=1').then(res => res.text()).then(b => {
+            changeSMSstatus(b);
+        });
+    });
+
+    // Table content section
     let url = new URL(window.location.href);
     let type = url.searchParams.get("type");
     let name = url.searchParams.get("name");
