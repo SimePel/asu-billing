@@ -15,6 +15,17 @@ function displayTable() {
     }
 }
 
+function search() {
+    var s = document.getElementById("select").value;
+    if (s === "name") {
+        window.location.replace("/adm?name=" + document.getElementById("search").value);
+    } else if (s === "account") {
+        window.location.replace("/adm?account=" + document.getElementById("search").value);
+    } else {
+        alert("Неопознанный тип поиска");
+    }
+}
+
 window.onload = function () {
     displayTable();
     let url = new URL(window.location.href);
@@ -34,27 +45,24 @@ window.onload = function () {
         document.getElementById("all").innerHTML = "<strong>Все</strong/";
     }
 
+    // Search section
     const searchButton = document.getElementById("searchButton");
     const searchInput = document.getElementById("search");
-
     searchButton.addEventListener('click', search);
-
     searchInput.addEventListener('keyup', function (event) {
         if (event.keyCode === 13) {
             search();
         }
     });
-
     searchByName.addEventListener('click', function (event) {
         searchInput.setAttribute("placeholder", "любая часть ФИО");
     })
-
     searchByAgreement.addEventListener('click', function (event) {
         searchInput.setAttribute("placeholder", "номер договора");
     })
 
+    // Table content chooser section
     const dropdownTrigger = document.getElementById("dropdownTrigger");
-
     dropdownTrigger.addEventListener('click', function (event) {
         event.stopPropagation();
         document.getElementById("dropdown").classList.toggle('is-active');
@@ -255,14 +263,3 @@ window.onload = function () {
     document.getElementById("inactiveUsers").innerText = document.getElementsByClassName("inactiveUsers").length;
 
 };
-
-function search() {
-    var s = document.getElementById("select").value;
-    if (s === "name") {
-        window.location.replace("/adm?name=" + document.getElementById("search").value);
-    } else if (s === "account") {
-        window.location.replace("/adm?account=" + document.getElementById("search").value);
-    } else {
-        alert("Неопознанный тип поиска");
-    }
-}
