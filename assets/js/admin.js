@@ -28,7 +28,6 @@ function search() {
 
 function changeSMSstatus(b) {
     let sms = document.getElementById("sms");
-    console.log(b);
     if (b === "true") {
         sms.classList.remove("is-danger");
         sms.classList.add("is-success");
