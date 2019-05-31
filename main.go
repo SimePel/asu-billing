@@ -1,112 +1,53 @@
 package main
 
 import (
-	"log"
+	"html/template"
 	"net/http"
 	"os"
-	"time"
+	"path/filepath"
+	"strings"
 
-	"github.com/gorilla/sessions"
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi"
 )
-
-const (
-	timeoutForNotification = 6 * time.Hour
-	timeoutForWithdraw     = 1 * time.Minute
-)
-
-var (
-	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
-)
-
-func init() {
-	store.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 7,
-		HttpOnly: true,
-	}
-}
 
 func main() {
-	router := httprouter.New()
+	r := chi.NewRouter()
 
-	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+	t := template.Must(template.New("user").ParseFiles("templates/usr/index.html"))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		t.ExecuteTemplate(w, "index", nil)
+	})
 
-	router.GET("/admin-login", accessLog(adminLogin))
-	router.GET("/adm", accessLog(adminAuthCheck(adminIndex)))
-	router.GET("/admin-logout", accessLog(adminLogout))
-	router.GET("/user-logout", accessLog(userLogout))
-	router.GET("/user-login", accessLog(userLogin))
-	router.GET("/add-user", accessLog(adminAuthCheck(newUserForm)))
-	router.GET("/user-info", accessLog(adminAuthCheck(userInfo)))
-	router.GET("/edit-user", accessLog(adminAuthCheck(userEditForm)))
-	router.GET("/delete-user", accessLog(adminAuthCheck(deleteUser)))
-	router.GET("/", accessLog(userAuthCheck(userIndex)))
-	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
-	router.GET("/sms-status", accessLog(adminAuthCheck(smsStatus)))
-	// router.GET("/settings", accessLog(userAuthCheck(userSettings)))
-	// router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
+	r.Route("/users", func(r chi.Router) {
+		r.Route("/{userID}", func(r chi.Router) {
+			r.Use(userCtx)
+			r.Get("/", getUser)
+		})
+	})
 
-	router.POST("/admin-login", accessLog(authAdmin))
-	router.POST("/user-login", accessLog(authUser))
-	router.POST("/add-user", accessLog(adminAuthCheck(addNewUser)))
-	router.POST("/edit-user", accessLog(adminAuthCheck(editUser)))
-	router.POST("/pay", accessLog(adminAuthCheck(pay)))
-	// router.POST("/settings", accessLog(userAuthCheck(editUserSettings)))
+	workDir, _ := os.Getwd()
+	filesDir := filepath.Join(workDir, "assets")
+	fileServer(r, "/assets", http.Dir(filesDir))
 
-	go func() {
-		for {
-			time.Sleep(timeoutForNotification)
-			if !smsNotificationStatus {
-				continue
-			}
-			stmt, err := db.Prepare(`SELECT id, account, phone, balance FROM bl_users
-				WHERE activity=1 AND expired_date BETWEEN DATE_SUB(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR)
-					AND DATE_ADD(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 3 HOUR);`)
-			if err != nil {
-				log.Println("Cannot prepare sql statement.", err)
-				continue
-			}
+	http.ListenAndServe(":8080", r)
+}
 
-			users, err := checkPaymentNeed(stmt)
-			if err != nil {
-				log.Println("Cannot check payment need.", err)
-				continue
-			}
-
-			err = sendPaymentNotification(users)
-			if err != nil {
-				log.Println("Cannot send payment notification.", err)
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			time.Sleep(timeoutForWithdraw)
-			stmt, err := db.Prepare(`SELECT id, account, phone, balance FROM bl_users
-				WHERE expired_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 60 SECOND);`)
-			if err != nil {
-				log.Println("Cannot prepare sql statement.", err)
-				continue
-			}
-
-			users, err := checkPaymentNeed(stmt)
-			if err != nil {
-				log.Println("Cannot check payment need.", err)
-			}
-
-			for _, u := range users {
-				err = withdrawMoney(u.ID)
-				if err != nil {
-					log.Println("Cannot withdraw money from user with id= ", u.ID, err)
-				}
-			}
-		}
-	}()
-
-	err := http.ListenAndServe(":8080", router)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+// fileServer conveniently sets up a http.FileServer handler to serve
+// static files from a http.FileSystem.
+func fileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit URL parameters.")
 	}
+
+	fs := http.StripPrefix(path, http.FileServer(root))
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }

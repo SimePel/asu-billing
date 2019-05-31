@@ -8,7 +8,7 @@
   <title>Панель клиента</title>
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../../assets/css/my.css" />
-  <script src="../../assets/js/awesome.min.js"></script>
+  <script src="../../assets/js/user.js"></script>
 </head>
 
 <body>
@@ -37,65 +37,28 @@
       <div class="column is-6">
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">ФИО: </span>
-          {{.Name}}
+          <span id="name"></span>
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Договор: </span>
-          {{.Agreement}}
+          <span id="agreement"></span>
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Тариф: </span>
-          {{.Tariff.Name}} ({{.Tariff.Price}}р)
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Внутренний IP: </span>
-          {{.InIP}}
-        </p>
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Внешний IP: </span>
-          {{.ExtIP}}
+          <span id="tariff"></span>
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Логин: </span>
-          {{.Login}}
+          <span id="login"></span>
         </p>
         <p class="is-size-4 margin-17px">
-          {{if formatTime .PaymentsEnds}}
           <span class="has-text-weight-semibold">Дата следующей оплаты: </span>
-          {{formatTime .PaymentsEnds}}
-          {{else}}
-          Вы не подключены
-          {{end}}
+          <span id="expired_date"></span>
         </p>
         <p class="is-size-4 margin-17px">
           <span class="has-text-weight-semibold">Остаток на счету: </span>
-          {{.Money}} р.
+          <span id="balance"></span>р.
         </p>
-      </div>
-      <div class="column is-2">
-        <p class="is-size-4 margin-17px">
-          <span class="has-text-weight-semibold">Платежи</span>
-        </p>
-        <table class="table is-hoverable is-fullwidth">
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th>Сумма</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{range .Payments}}
-            <tr>
-              <td>
-                {{formatTime .Last}}
-              </td>
-              <td>
-                {{.Amount}}р
-              </td>
-            </tr>
-            {{end}}
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
