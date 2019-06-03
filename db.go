@@ -34,10 +34,10 @@ type User struct {
 	ConnectionPlace string `db:"connection_place" json:"connection_place"`
 }
 
-func dbGetUser(userID string) *User {
+func dbGetUser(userID string) (*User, error) {
 	sess, err := mysql.Open(settings)
 	if err != nil {
-		log.Fatal("cannot open mysql session, ", err)
+		return nil, fmt.Errorf("cannot open mysql session: %v", err)
 	}
 	defer sess.Close()
 
@@ -45,8 +45,8 @@ func dbGetUser(userID string) *User {
 	usersColl := sess.Collection("users")
 	err = usersColl.Find().Where("id", userID).One(&user)
 	if err != nil {
-		log.Fatal("cannot get user, ", err)
+		return nil, fmt.Errorf("cannot get user by id: %v", err)
 	}
 
-	return &user
+	return &user, nil
 }
