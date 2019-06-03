@@ -23,13 +23,13 @@ func newSettings() mysql.ConnectionURL {
 // User struct
 type User struct {
 	ID        uint   `db:"id,omitempty" json:"id"`
+	Balance   int    `db:"balance" json:"balance"`
 	Activity  bool   `db:"activity" json:"activity"`
 	Name      string `db:"name" json:"name"`
-	Agreement string `db:"agreement" json:"agreement"`
-	Phone     string `db:"phone" json:"phone"`
-	Login     string `db:"login" json:"login"`
 	Room      string `db:"room" json:"room"`
-	Balance   string `db:"balance" json:"balance"`
+	Login     string `db:"login" json:"login"`
+	Phone     string `db:"phone" json:"phone"`
+	Agreement string `db:"agreement" json:"agreement"`
 	// separate for a more beautiful view
 	ConnectionPlace string `db:"connection_place" json:"connection_place"`
 }
