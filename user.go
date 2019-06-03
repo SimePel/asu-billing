@@ -18,7 +18,11 @@ func userCtx(next http.Handler) http.Handler {
 			return
 		}
 
-		user := dbGetUser(userID)
+		user, err := dbGetUser(userID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
 		ctx := context.WithValue(r.Context(), userCtxKey("user"), user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
