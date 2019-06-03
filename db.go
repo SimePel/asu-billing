@@ -43,7 +43,7 @@ func dbGetUser(userID string) *User {
 
 	var user User
 	usersColl := sess.Collection("users")
-	err = usersColl.Find(userID).One(&user)
+	err = usersColl.Find().Where("id", userID).One(&user)
 	if err != nil {
 		log.Fatal("cannot get user, ", err)
 	}
