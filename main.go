@@ -19,6 +19,7 @@ func main() {
 
 	r.Route("/users", func(r chi.Router) {
 		r.Route("/{userID}", func(r chi.Router) {
+			r.Use(jsonContentType)
 			r.Use(userCtx)
 			r.Get("/", getUser)
 		})
