@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -20,6 +21,7 @@ func userCtx(next http.Handler) http.Handler {
 
 		user, err := dbGetUser(userID)
 		if err != nil {
+			log.Println(err)
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}
