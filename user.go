@@ -32,5 +32,9 @@ func userCtx(next http.Handler) http.Handler {
 
 func getUser(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(userCtxKey("user")).(*User)
-	json.NewEncoder(w).Encode(user)
+	err := json.NewEncoder(w).Encode(user)
+	if err != nil {
+		log.Println("cannot encode json. ", err)
+		w.Write([]byte("{}"))
+	}
 }
