@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 )
@@ -52,6 +54,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := ldapAuth(L.Login, L.Password)
 	if err != nil {
+		log.Println(err)
 		J.Answer = "bad"
 		switch err.(type) {
 		case *loginLDAPerror:
@@ -63,6 +66,22 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := createJWTtoken(L.Login)
+	if err != nil {
+		log.Println(err)
+		J.Answer = "bad"
+		J.Error = "Проблемы с jwt токеном."
+		json.NewEncoder(w).Encode(J)
+		return
+	}
+	c := http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		HttpOnly: true,
+		Expires:  time.Now().AddDate(0, 1, 0),
+		SameSite: 2,
+	}
+	http.SetCookie(w, &c)
 	J.Answer = "ok"
 	json.NewEncoder(w).Encode(J)
 }
