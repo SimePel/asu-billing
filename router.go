@@ -57,7 +57,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		case *loginLDAPerror:
 			J.Error = "Неверный логин или пароль."
 		default:
-			J.Error = "Проблемы на стороне сервера. Попробуйте через несколько минут."
+			J.Error = "Проблемы на стороне сервера. Повторите попытку через несколько минут."
 		}
 		json.NewEncoder(w).Encode(J)
 		return
