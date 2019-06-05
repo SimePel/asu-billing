@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -64,9 +65,19 @@ func TestLoginPostHandler(t *testing.T) {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&J)
 	require.Nil(t, err)
+	resp.Body.Close()
 	assert.Equal(t, "ok", J.Answer)
 	assert.Empty(t, J.Error)
-	resp.Body.Close()
+
+	c := resp.Cookies()[0]
+	assert.NotEmpty(t, c)
+	assert.Equal(t, "jwt", c.Name)
+	token, _ := jwt.Parse(c.Value, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_KEY")), nil
+	})
+	claims := token.Claims.(jwt.MapClaims)
+	assert.Equal(t, true, token.Valid)
+	assert.Equal(t, L.Login, claims["login"])
 
 	L.Password = "bad password"
 	b, err = json.Marshal(&L)
