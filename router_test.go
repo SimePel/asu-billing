@@ -69,14 +69,10 @@ func TestLoginPostHandler(t *testing.T) {
 	assert.Equal(t, "ok", J.Answer)
 	assert.Empty(t, J.Error)
 
-	c := resp.Cookies()[0]
-	assert.NotEmpty(t, c)
-	assert.Equal(t, "jwt", c.Name)
-	token, _ := jwt.Parse(c.Value, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_KEY")), nil
-	})
+	token, err := getJWTtokenFromCookies(resp.Cookies())
+	require.Nil(t, err)
 	claims := token.Claims.(jwt.MapClaims)
-	assert.Equal(t, true, token.Valid)
+	assert.True(t, token.Valid)
 	assert.Equal(t, L.Login, claims["login"])
 
 	L.Password = "bad password"
