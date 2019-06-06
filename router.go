@@ -66,7 +66,16 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := createJWTtoken(L.Login)
+	id, err := dbGetIDbyLogin(L.Login)
+	if err != nil {
+		log.Println(err)
+		J.Answer = "bad"
+		J.Error = "Проблемы с базой данных."
+		json.NewEncoder(w).Encode(J)
+		return
+	}
+
+	token, err := createJWTtoken(id)
 	if err != nil {
 		log.Println(err)
 		J.Answer = "bad"
