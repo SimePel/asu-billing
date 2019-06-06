@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"upper.io/db.v3/mysql"
 )
@@ -31,7 +32,8 @@ type User struct {
 	Phone     string `db:"phone" json:"phone"`
 	Agreement string `db:"agreement" json:"agreement"`
 	// separate for a more beautiful view
-	ConnectionPlace string `db:"connection_place" json:"connection_place"`
+	ExpiredDate     time.Time `db:"expired_date" json:"expired_date"`
+	ConnectionPlace string    `db:"connection_place" json:"connection_place"`
 }
 
 func dbGetUser(userID string) (*User, error) {

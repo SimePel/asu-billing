@@ -6,6 +6,9 @@
         document.getElementById("login").innerHTML = data.login;
         document.getElementById("balance").innerHTML = data.balance;
         document.getElementById("agreement").innerHTML = data.agreement;
+        let expiredDate = new Date(Date.parse(data.expired_date));
+        document.getElementById("expired_date").innerHTML = expiredDate.getDate() + "." + (expiredDate.getMonth() + 1) + "." + expiredDate.getFullYear();
+
     })
 }
 
