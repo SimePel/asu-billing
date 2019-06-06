@@ -13,7 +13,7 @@ import (
 func newRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/", indexHandler)
+	r.With(jwtToken).Get("/", indexHandler)
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
 
