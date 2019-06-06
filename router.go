@@ -86,7 +86,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	c := http.Cookie{
 		Name:     "jwt",
 		Value:    token,
-		HttpOnly: true,
+		HttpOnly: false, // for js interaction
 		Expires:  time.Now().AddDate(0, 1, 0),
 		SameSite: 3,
 	}
