@@ -10,7 +10,7 @@ import (
 )
 
 func TestCreateJWTtoken(t *testing.T) {
-	tokenString, err := createJWTtoken("login")
+	tokenString, err := createJWTtoken(100)
 	require.Nil(t, err)
 	token, err := parseJWTtoken(tokenString)
 	require.Nil(t, err)
@@ -18,11 +18,11 @@ func TestCreateJWTtoken(t *testing.T) {
 	assert.Equal(t, tokenString, token.Raw)
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
-	assert.Equal(t, claims["login"], "login")
+	assert.Equal(t, claims["id"], 100.)
 }
 
 func TestGetJWTtokenFromCookies(t *testing.T) {
-	expectedToken, err := createJWTtoken("login")
+	expectedToken, err := createJWTtoken(100)
 	require.Nil(t, err)
 	cookies := []*http.Cookie{
 		{

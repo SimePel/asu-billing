@@ -50,3 +50,21 @@ func dbGetUser(userID string) (*User, error) {
 
 	return &user, nil
 }
+
+func dbGetIDbyLogin(login string) (uint, error) {
+	sess, err := mysql.Open(settings)
+	if err != nil {
+		return 0, fmt.Errorf("cannot open mysql session: %v", err)
+	}
+	defer sess.Close()
+
+	var user struct {
+		ID uint `db:"id" json:"id"`
+	}
+	err = sess.Collection("users").Find().Where("login", login).One(&user)
+	if err != nil {
+		return 0, fmt.Errorf("cannot get user id by login: %v", err)
+	}
+
+	return user.ID, nil
+}

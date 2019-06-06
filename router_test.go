@@ -73,7 +73,7 @@ func TestLoginPostHandler(t *testing.T) {
 	require.Nil(t, err)
 	claims := token.Claims.(jwt.MapClaims)
 	assert.True(t, token.Valid)
-	assert.Equal(t, L.Login, claims["login"])
+	assert.NotEmpty(t, claims["id"])
 
 	L.Password = "bad password"
 	b, err = json.Marshal(&L)
