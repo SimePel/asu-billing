@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,4 +28,24 @@ func TestJSONContentType(t *testing.T) {
 
 	assert.Equal(t, "{\"id\": 1}", string(b))
 	assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
+}
+
+func TestJWTtoken(t *testing.T) {
+	r := chi.NewRouter()
+	r.With(jwtToken).Get("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "secret page")
+	})
+	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "login page")
+	})
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/")
+	require.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	b, err := ioutil.ReadAll(resp.Body)
+	require.Nil(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, "login page", string(b))
 }
