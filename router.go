@@ -79,7 +79,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		HttpOnly: true,
 		Expires:  time.Now().AddDate(0, 1, 0),
-		SameSite: 2,
+		SameSite: 3,
 	}
 	http.SetCookie(w, &c)
 	J.Answer = "ok"
