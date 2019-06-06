@@ -36,7 +36,7 @@ func TestDBGetUser(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, expectedUser, actualUser)
 
-	_, err = sess.DeleteFrom("users").Where("id", 100).Exec()
+	_, err = sess.DeleteFrom("users").Where("id", expectedUser.ID).Exec()
 	require.NoError(t, err)
 }
 
@@ -66,6 +66,6 @@ func TestDBgetIDbyLogin(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, uploadUser.ID, id)
 
-	_, err = sess.DeleteFrom("users").Where("id", 100).Exec()
+	_, err = sess.DeleteFrom("users").Where("id", uploadUser.ID).Exec()
 	require.NoError(t, err)
 }
