@@ -44,6 +44,7 @@ func main() {
 	router.GET("/", accessLog(userAuthCheck(userIndex)))
 	router.GET("/pay", accessLog(adminAuthCheck(payForm)))
 	router.GET("/sms-status", accessLog(adminAuthCheck(smsStatus)))
+	router.GET("/stats", accessLog(adminAuthCheck(usersStatistics)))
 	// router.GET("/settings", accessLog(userAuthCheck(userSettings)))
 	// router.GET("/confirm-settings", accessLog(userAuthCheck(confirmSettings)))
 

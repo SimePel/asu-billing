@@ -88,6 +88,20 @@ window.onload = function () {
         searchInput.setAttribute("placeholder", "номер договора");
     })
 
+    // Statistics dropdown
+    const dropdownTrigger2 = document.getElementById("dropdownTrigger2");
+    dropdownTrigger2.addEventListener('click', function (event) {
+        event.stopPropagation();
+        document.getElementById("dropdown2").classList.toggle('is-active');
+    })
+
+    fetch("/stats").then((res) => { return res.json(); }).then((data) => {
+        document.getElementById("allUsers").innerHTML = data.active_users_count + data.inactive_users_count;
+        document.getElementById("activeUsers").innerHTML = data.active_users_count;
+        document.getElementById("inactiveUsers").innerHTML = data.inactive_users_count;
+        document.getElementById("allMoney").innerHTML = data.all_money;
+    })
+
     // Table content chooser section
     const dropdownTrigger = document.getElementById("dropdownTrigger");
     dropdownTrigger.addEventListener('click', function (event) {
@@ -285,8 +299,4 @@ window.onload = function () {
         }
         localStorage.setItem('elems', JSON.stringify(currentTable));
     })
-
-    document.getElementById("activeUsers").innerText = document.getElementsByClassName("activeUsers").length;
-    document.getElementById("inactiveUsers").innerText = document.getElementsByClassName("inactiveUsers").length;
-
 };

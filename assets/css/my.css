@@ -20,3 +20,7 @@
 .margin-4px-right {
     margin-right: 4px;
 }
+
+#dropdown-menu2 {
+    min-width: 22rem;
+}

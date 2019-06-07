@@ -416,6 +416,36 @@ func getPaymentsByID(id int) ([]Payment, error) {
 	return payments, nil
 }
 
+func getCountOfActiveUsers() (int, error) {
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM bl_users WHERE activity=true`).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("could not do queryRow: %v", err)
+	}
+
+	return count, nil
+}
+
+func getCountOfInactiveUsers() (int, error) {
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM bl_users WHERE activity=false`).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("could not do queryRow: %v", err)
+	}
+
+	return count, nil
+}
+
+func getAllMoneyWeHave() (int, error) {
+	var sum int
+	err := db.QueryRow(`SELECT SUM(summa) FROM bl_pays`).Scan(&sum)
+	if err != nil {
+		return 0, fmt.Errorf("could not do queryRow: %v", err)
+	}
+
+	return sum, nil
+}
+
 func deleteUserByID(id int) error {
 	var inIPID string
 	err := db.QueryRow(`SELECT ip_id FROM bl_users WHERE id = ?`, id).Scan(&inIPID)

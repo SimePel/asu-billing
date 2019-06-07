@@ -143,6 +143,28 @@
           </div>
         </div>
       </div>
+      <div class="level-item">
+        <div class="dropdown" id="dropdown2">
+          <div class="dropdown-trigger" id="dropdownTrigger2">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu2">
+              <span>Статистика</span>
+              <span class="icon is-small">
+                <i class="fas fa-angle-down" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+          <div class="dropdown-menu" id="dropdown-menu2" role="menu">
+            <div class="dropdown-content">
+              <div class="dropdown-item">
+                <p>Всего пользователей: <span id="allUsers"></span></p>
+                <p>Из них <span id="activeUsers"></span> подключенных и <span id="inactiveUsers"></span> неподключенных.
+                </p>
+                <p>Общая сумма полученных средств: <span id="allMoney"></span> рублей</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="level-right">
       <p id="all" class="level-item"><a href="/adm">Все</a></p>
@@ -168,8 +190,7 @@
               <th class="tariff invisible">Тариф</th>
               <th class="connectionPlace invisible">Точка подключения</th>
               <th class="balance invisible">Баланс</th>
-              <th class="active invisible">Статус(<span id="activeUsers" class="has-text-success"></span>;<span
-                  id="inactiveUsers" class="has-text-danger"></span>)</th>
+              <th class="active invisible">Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -224,11 +245,11 @@
               </td>
               <td class="active invisible">
                 {{if .Active}}
-                <span class="icon has-text-success activeUsers">
+                <span class="icon has-text-success">
                   <i class="fas fa-user-check"></i>
                 </span>
                 {{else}}
-                <span class="icon has-text-danger inactiveUsers">
+                <span class="icon has-text-danger">
                   <i class="fas fa-user-times"></i>
                 </span>
                 {{end}}

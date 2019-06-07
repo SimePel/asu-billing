@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -211,6 +212,40 @@ func addNewUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	http.Redirect(w, r, "/adm", http.StatusFound)
+}
+
+func usersStatistics(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	activeUsersCount, err := getCountOfActiveUsers()
+	if err != nil {
+		log.Printf("could not get count of active users: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	inactiveUsersCount, err := getCountOfInactiveUsers()
+	if err != nil {
+		log.Printf("could not get count of inactive users: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	allMoney, err := getAllMoneyWeHave()
+	if err != nil {
+		log.Printf("could not get sum of all money we have: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	J := struct {
+		ActiveUsersCount   int `json:"active_users_count"`
+		InactiveUsersCount int `json:"inactive_users_count"`
+		AllMoney           int `json:"all_money"`
+	}{
+		ActiveUsersCount:   activeUsersCount,
+		InactiveUsersCount: inactiveUsersCount,
+		AllMoney:           allMoney,
+	}
+	json.NewEncoder(w).Encode(&J)
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
