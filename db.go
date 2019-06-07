@@ -21,6 +21,19 @@ func newSettings() mysql.ConnectionURL {
 	return settings
 }
 
+// Payment struct
+type Payment struct {
+	Amount int       `db:"amount" json:"amount"`
+	Date   time.Time `db:"date" json:"date"`
+}
+
+// Tariff struct
+type Tariff struct {
+	ID    uint   `db:"id" json:"id"`
+	Name  string `db:"name" json:"name"`
+	Price int    `db:"price" json:"price"`
+}
+
 // User struct
 type User struct {
 	ID        uint   `db:"id,omitempty" json:"id"`
@@ -34,6 +47,13 @@ type User struct {
 	// separate for a more beautiful view
 	ExpiredDate     time.Time `db:"expired_date" json:"expired_date"`
 	ConnectionPlace string    `db:"connection_place" json:"connection_place"`
+}
+
+// UserPaymentTariff is a union of three structs
+type UserPaymentTariff struct {
+	User    `db:",inline"`
+	Payment `db:",inline"`
+	Tariff  `db:",inline"`
 }
 
 func dbGetUser(userID string) (*User, error) {
