@@ -66,7 +66,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := dbGetIDbyLogin(L.Login)
+	id, err := GetUserIDbyLogin(L.Login)
 	if err != nil {
 		log.Println(err)
 		J.Answer = "bad"

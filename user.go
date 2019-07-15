@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 )
@@ -19,7 +20,8 @@ func userCtx(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := dbGetUser(userID)
+		id, _ := strconv.Atoi(userID)
+		user, err := GetUserByID(id)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, http.StatusText(500), 500)
@@ -31,6 +33,7 @@ func userCtx(next http.Handler) http.Handler {
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
+	// тут нужно проверить, что в контексте юзер ест, а если нет, то упасть красиво
 	user := r.Context().Value(userCtxKey("user")).(*User)
 	err := json.NewEncoder(w).Encode(user)
 	if err != nil {
