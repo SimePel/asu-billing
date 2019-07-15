@@ -1,24 +1,15 @@
 package main
 
 import (
-	"log"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
-
 	"github.com/stretchr/testify/require"
-	"upper.io/db.v3/mysql"
 )
 
-func TestDBGetUser(t *testing.T) {
-	sess, err := mysql.Open(settings)
-	if err != nil {
-		log.Fatal("cannot open mysql session, ", err)
-	}
-	defer sess.Close()
-
-	expectedUser := &User{
-		ID:              100,
+func TestGetUserByID(t *testing.T) {
+	expectedUser := User{
 		Activity:        false,
 		Name:            "Тест",
 		Agreement:       "П-777",
@@ -27,45 +18,56 @@ func TestDBGetUser(t *testing.T) {
 		Login:           "blabla.123",
 		Balance:         0,
 		ConnectionPlace: "Не важно",
+		ExpiredDate:     time.Now().Add(time.Minute),
+		Tariff: Tariff{
+			ID: 1,
+		},
 	}
-
-	_, err = sess.InsertInto("users").Values(expectedUser).Exec()
+	id, err := AddUserToDB(expectedUser)
 	require.NoError(t, err)
 
-	actualUser, err := dbGetUser("100")
+	actualUser, err := GetUserByID(id)
 	require.NoError(t, err)
-	assert.Equal(t, expectedUser, actualUser)
+	assert.Equal(t, expectedUser.Activity, actualUser.Activity)
+	assert.Equal(t, expectedUser.Name, actualUser.Name)
+	assert.Equal(t, expectedUser.Agreement, actualUser.Agreement)
+	assert.Equal(t, expectedUser.Room, actualUser.Room)
+	assert.Equal(t, expectedUser.Phone, actualUser.Phone)
+	assert.Equal(t, expectedUser.Login, actualUser.Login)
+	assert.Equal(t, expectedUser.Balance, actualUser.Balance)
+	assert.Equal(t, expectedUser.ConnectionPlace, actualUser.ConnectionPlace)
+	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
+	assert.NotEmpty(t, actualUser.InnerIP)
+	assert.NotEmpty(t, actualUser.ExtIP)
+	assert.NotEmpty(t, actualUser.Tariff.Name)
+	assert.NotEmpty(t, actualUser.Tariff.Price)
 
-	_, err = sess.DeleteFrom("users").Where("id", expectedUser.ID).Exec()
+	err = DeleteUserByID(id)
 	require.NoError(t, err)
 }
 
 func TestDBgetIDbyLogin(t *testing.T) {
-	sess, err := mysql.Open(settings)
-	if err != nil {
-		log.Fatal("cannot open mysql session, ", err)
-	}
-	defer sess.Close()
-
-	uploadUser := &User{
-		ID:              101,
+	user := User{
 		Activity:        false,
 		Name:            "Тест",
 		Agreement:       "П-777",
 		Room:            "502",
 		Phone:           "88005553550",
-		Login:           "blabla.321",
+		Login:           "blabla.123",
 		Balance:         0,
 		ConnectionPlace: "Не важно",
+		ExpiredDate:     time.Now().Add(time.Minute),
+		Tariff: Tariff{
+			ID: 1,
+		},
 	}
-
-	_, err = sess.InsertInto("users").Values(uploadUser).Exec()
+	expectedID, err := AddUserToDB(user)
 	require.NoError(t, err)
 
-	id, err := dbGetIDbyLogin(uploadUser.Login)
+	actualID, err := GetUserIDbyLogin(user.Login)
 	require.NoError(t, err)
-	assert.Equal(t, uploadUser.ID, id)
+	assert.Equal(t, expectedID, int(actualID))
 
-	_, err = sess.DeleteFrom("users").Where("id", uploadUser.ID).Exec()
+	err = DeleteUserByID(expectedID)
 	require.NoError(t, err)
 }
