@@ -25,7 +25,7 @@ func userCtx(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}
-		ctx := context.WithValue(r.Context(), userCtxKey("user"), user)
+		ctx := context.WithValue(r.Context(), userCtxKey("user"), &user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
