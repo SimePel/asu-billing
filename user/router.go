@@ -31,12 +31,12 @@ func newRouter() *chi.Mux {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	b, _ := ioutil.ReadFile("templates/usr/index.html")
+	b, _ := ioutil.ReadFile("templates/index.html")
 	w.Write(b)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	b, _ := ioutil.ReadFile("templates/usr/login.html")
+	b, _ := ioutil.ReadFile("templates/login.html")
 	w.Write(b)
 }
 
