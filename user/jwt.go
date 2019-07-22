@@ -31,7 +31,7 @@ func getJWTtokenFromCookies(cookies []*http.Cookie) (*jwt.Token, error) {
 		}
 	}
 	if jwtCookie == nil {
-		return nil, fmt.Errorf("jwt token not found in cookies.")
+		return nil, fmt.Errorf("jwt token was not found in cookies.")
 	}
 
 	return parseJWTtoken(jwtCookie.Value)
@@ -44,7 +44,7 @@ func parseJWTtoken(token string) (*jwt.Token, error) {
 		}
 		jwtKey := os.Getenv("JWT_KEY")
 		if jwtKey == "" {
-			return nil, fmt.Errorf("JWT_KEY not found in env")
+			return nil, fmt.Errorf("JWT_KEY was not found in env")
 		}
 		return []byte(jwtKey), nil
 	})

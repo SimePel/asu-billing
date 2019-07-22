@@ -42,5 +42,5 @@ func TestGetJWTtokenFromCookies(t *testing.T) {
 
 	cookies = []*http.Cookie{}
 	_, err = getJWTtokenFromCookies(cookies)
-	require.EqualError(t, err, "jwt token not found in cookies.")
+	require.EqualError(t, err, "jwt token was not found in cookies.")
 }
