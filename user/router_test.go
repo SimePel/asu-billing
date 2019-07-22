@@ -50,8 +50,8 @@ func TestLoginPostHandler(t *testing.T) {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
-	L.Login = os.Getenv("LDAP_TEST_LOGIN")
-	L.Password = os.Getenv("LDAP_TEST_PASSWORD")
+	L.Login = os.Getenv("LDAP_STUD_TEST_LOGIN")
+	L.Password = os.Getenv("LDAP_STUD_TEST_PASSWORD")
 
 	b, err := json.Marshal(&L)
 	require.Nil(t, err)
