@@ -1,0 +1,47 @@
+html, body {
+    height: 100%;
+}
+
+body { 
+    display:flex; 
+    flex-direction:column; 
+}
+
+footer {
+    margin-top:auto;
+}
+
+.is-spaced {
+    padding: .5rem .75rem;
+}
+
+.has-light-background {
+    box-shadow: 0 2px 0 0 #dbdbdb;
+    background-color: #f5f5f5;
+    color: #363636;
+}
+
+.margin-17px {
+    margin-top: 17px;
+    margin-bottom: 17px; 
+}
+
+.invisible {
+    display: none;
+}
+
+.margin-4px-right {
+    margin-right: 4px;
+}
+
+.menu {
+    padding: 1rem;
+    border: 2px solid #dbdbdb;
+    border-top: none;
+    border-left: none;
+    border-radius: 6px;
+}
+
+.is-active {
+    background-color: #33FF33;
+}
