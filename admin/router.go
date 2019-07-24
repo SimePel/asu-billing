@@ -43,17 +43,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	var L struct {
+	var Auth struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
-	json.NewDecoder(r.Body).Decode(&L)
-
 	var J struct {
 		Answer string `json:"answer"`
 		Error  string `json:"error,omitempty"`
 	}
-	err := ldapAuth(L.Login, L.Password)
+
+	err := json.NewDecoder(r.Body).Decode(&Auth)
+	if err != nil {
+		log.Println(err)
+		J.Answer = "bad"
+		J.Error = "Ошибка парсинга json."
+		json.NewEncoder(w).Encode(J)
+		return
+	}
+
+	err = ldapAuth(Auth.Login, Auth.Password)
 	if err != nil {
 		log.Println(err)
 		J.Answer = "bad"
@@ -67,7 +75,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := createJWTtoken(L.Login)
+	token, err := createJWTtoken(Auth.Login)
 	if err != nil {
 		log.Println(err)
 		J.Answer = "bad"
