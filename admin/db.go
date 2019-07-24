@@ -59,7 +59,7 @@ type User struct {
 func GetUserByID(id int) (User, error) {
 	var user User
 	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-	 	connection_place, activity, room, phone, tariffs.id, tariffs.name, price, ips.ip, ext_ip  
+			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.ip, ext_ip  
 		FROM (( users
 			INNER JOIN ips ON users.ip_id = ips.id)
 			INNER JOIN tariffs ON users.tariff = tariffs.id)
@@ -67,7 +67,7 @@ func GetUserByID(id int) (User, error) {
 		&user.Agreement, &user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Room,
 		&user.Phone, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
-		return user, fmt.Errorf("cannot do query row: %v", err)
+		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
 
 	return user, nil
