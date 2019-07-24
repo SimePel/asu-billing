@@ -7,9 +7,35 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestUserCtx(t *testing.T) {
+	r := chi.NewRouter()
+	r.Route("/users", func(r chi.Router) {
+		r.Route("/{userID}", func(r chi.Router) {
+			r.Use(jsonContentType)
+			r.Use(userCtx)
+			r.Get("/", getUser)
+		})
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	// Да - бред, но пока не понял, почему если добавлять юзера в самом тесте, то функция его не находит
+	res, err := http.Get(ts.URL + "/users/1")
+	require.NoError(t, err)
+	assert.Equal(t, 200, res.StatusCode)
+
+	var actualUser *User
+	err = json.NewDecoder(res.Body).Decode(&actualUser)
+	require.NoError(t, err)
+	assert.Equal(t, 1, int(actualUser.ID))
+}
 
 func TestGetUser(t *testing.T) {
 	req, err := http.NewRequest("GET", "/users/userID", nil)
