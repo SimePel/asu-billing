@@ -9,7 +9,7 @@ func jsonContentType(next http.Handler) http.Handler {
 	})
 }
 
-func jwtToken(next http.Handler) http.Handler {
+func checkJWTtoken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := getJWTtokenFromCookies(r.Cookies())
 		if err != nil {

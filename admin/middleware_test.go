@@ -30,9 +30,9 @@ func TestJSONContentType(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", resp.Header.Get("Content-Type"))
 }
 
-func TestJWTtoken(t *testing.T) {
+func TestCheckJWTtoken(t *testing.T) {
 	r := chi.NewRouter()
-	r.With(jwtToken).Get("/", func(w http.ResponseWriter, r *http.Request) {
+	r.With(checkJWTtoken).Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "secret page")
 	})
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
