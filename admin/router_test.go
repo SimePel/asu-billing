@@ -16,6 +16,22 @@ import (
 func TestNewRouter(t *testing.T) {
 	ts := httptest.NewServer(newRouter())
 	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/login")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	resp, err = http.Post(ts.URL+"/login", "application/json; charset=utf-8", bytes.NewBuffer([]byte("{}")))
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	resp, err = http.Get(ts.URL + "/")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	resp, err = http.Get(ts.URL + "/users/1")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestIndexHandler(t *testing.T) {
