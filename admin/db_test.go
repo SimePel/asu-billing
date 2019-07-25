@@ -4,70 +4,66 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetUserByID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
 	expectedUser := User{
+		ID:              1,
 		Activity:        false,
 		Name:            "Тест",
 		Agreement:       "П-777",
 		Room:            "502",
 		Phone:           "88005553550",
 		Login:           "blabla.123",
+		InnerIP:         "10.80.80.1",
+		ExtIP:           "82.200.46.10",
 		Balance:         0,
 		ConnectionPlace: "Не важно",
 		ExpiredDate:     time.Now().Add(time.Minute),
 		Tariff: Tariff{
-			ID: 1,
+			ID:    1,
+			Name:  "Проводной",
+			Price: 200,
 		},
 	}
-	id, err := AddUserToDB(expectedUser)
-	require.NoError(t, err)
 
-	actualUser, err := GetUserByID(id)
-	require.NoError(t, err)
-	assert.Equal(t, expectedUser.Activity, actualUser.Activity)
-	assert.Equal(t, expectedUser.Name, actualUser.Name)
-	assert.Equal(t, expectedUser.Agreement, actualUser.Agreement)
-	assert.Equal(t, expectedUser.Room, actualUser.Room)
-	assert.Equal(t, expectedUser.Phone, actualUser.Phone)
-	assert.Equal(t, expectedUser.Login, actualUser.Login)
-	assert.Equal(t, expectedUser.Balance, actualUser.Balance)
-	assert.Equal(t, expectedUser.ConnectionPlace, actualUser.ConnectionPlace)
-	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
-	assert.NotEmpty(t, actualUser.InnerIP)
-	assert.NotEmpty(t, actualUser.ExtIP)
-	assert.NotEmpty(t, actualUser.Tariff.Name)
-	assert.NotEmpty(t, actualUser.Tariff.Price)
+	rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement", "expired_date",
+		"connection_place", "activity", "room", "phone", "tariff_id", "tariff_name", "price", "ip", "ext_ip"}).
+		AddRow(expectedUser.ID, expectedUser.Balance, expectedUser.Name, expectedUser.Login,
+			expectedUser.Agreement, expectedUser.ExpiredDate, expectedUser.ConnectionPlace,
+			expectedUser.Activity, expectedUser.Room, expectedUser.Phone, expectedUser.Tariff.ID,
+			expectedUser.Tariff.Name, expectedUser.Tariff.Price, expectedUser.InnerIP, expectedUser.ExtIP)
 
-	err = DeleteUserByID(id)
+	mock.ExpectQuery("SELECT (.+) FROM (.+) WHERE users.id = ").WithArgs(expectedUser.ID).WillReturnRows(rows)
+
+	actualUser, err := GetUserByID(db, int(expectedUser.ID))
 	require.NoError(t, err)
+	assert.Equal(t, expectedUser, actualUser)
 }
 
 func TestDBgetIDbyLogin(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
 	user := User{
-		Activity:        false,
-		Name:            "Тест",
-		Agreement:       "П-777",
-		Room:            "502",
-		Phone:           "88005553550",
-		Login:           "blabla.123",
-		Balance:         0,
-		ConnectionPlace: "Не важно",
-		ExpiredDate:     time.Now().Add(time.Minute),
-		Tariff: Tariff{
-			ID: 1,
-		},
+		ID:    1,
+		Login: "blabla.123",
 	}
-	expectedID, err := AddUserToDB(user)
-	require.NoError(t, err)
 
-	actualID, err := GetUserIDbyLogin(user.Login)
-	require.NoError(t, err)
-	assert.Equal(t, expectedID, int(actualID))
+	rows := sqlmock.NewRows([]string{"id"}).
+		AddRow(user.ID)
 
-	err = DeleteUserByID(expectedID)
+	mock.ExpectQuery("SELECT id FROM users WHERE login = ").WithArgs(user.Login).WillReturnRows(rows)
+
+	actualID, err := GetUserIDbyLogin(db, user.Login)
 	require.NoError(t, err)
+	assert.Equal(t, user.ID, actualID)
 }

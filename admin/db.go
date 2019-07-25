@@ -10,8 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db = initializeDB()
-
 func initializeDB() *sql.DB {
 	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
@@ -56,10 +54,11 @@ type User struct {
 }
 
 // GetUserByID returns user from db
-func GetUserByID(id int) (User, error) {
+func GetUserByID(db *sql.DB, id int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.ip, ext_ip  
+	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement,
+			expired_date, connection_place, activity, room, phone, tariffs.id AS tariff_id,
+			tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 		FROM (( users
 			INNER JOIN ips ON users.ip_id = ips.id)
 			INNER JOIN tariffs ON users.tariff = tariffs.id)
@@ -74,7 +73,7 @@ func GetUserByID(id int) (User, error) {
 }
 
 // GetUserIDbyLogin returns user id from db
-func GetUserIDbyLogin(login string) (uint, error) {
+func GetUserIDbyLogin(db *sql.DB, login string) (uint, error) {
 	var id uint
 	err := db.QueryRow(`SELECT id FROM users WHERE login = ?`, login).Scan(&id)
 	if err != nil {
@@ -84,8 +83,8 @@ func GetUserIDbyLogin(login string) (uint, error) {
 	return id, nil
 }
 
-func AddUserToDB(user User) (int, error) {
-	innerIPid, err := getUnusedInnerIPid()
+func AddUserToDB(db *sql.DB, user User) (int, error) {
+	innerIPid, err := getUnusedInnerIPid(db)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get unused id of inner ip: %v", err)
 	}
@@ -106,7 +105,7 @@ func AddUserToDB(user User) (int, error) {
 	return int(id), nil
 }
 
-func getUnusedInnerIPid() (int, error) {
+func getUnusedInnerIPid(db *sql.DB) (int, error) {
 	var innerIPid int
 	err := db.QueryRow(`SELECT id FROM ips WHERE used = 0`).Scan(&innerIPid)
 	if err != nil {
@@ -121,7 +120,7 @@ func getUnusedInnerIPid() (int, error) {
 	return innerIPid, nil
 }
 
-func DeleteUserByID(id int) error {
+func DeleteUserByID(db *sql.DB, id int) error {
 	var innerIPid int
 	err := db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
 	if err != nil {

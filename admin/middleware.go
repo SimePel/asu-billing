@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 func jsonContentType(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -17,5 +20,15 @@ func checkJWTtoken(next http.Handler) http.Handler {
 			return
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+type dbCtxKey string
+
+func setDBtoCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		db := initializeDB()
+		ctx := context.WithValue(r.Context(), dbCtxKey("db"), &db)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
