@@ -28,10 +28,6 @@ func TestNewRouter(t *testing.T) {
 	resp, err = http.Get(ts.URL + "/")
 	require.NoError(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
-
-	resp, err = http.Get(ts.URL + "/users/1")
-	require.NoError(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestIndexHandler(t *testing.T) {

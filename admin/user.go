@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -21,7 +22,8 @@ func userCtx(next http.Handler) http.Handler {
 		}
 
 		id, _ := strconv.Atoi(userID)
-		user, err := GetUserByID(id)
+		db := r.Context().Value(dbCtxKey("db")).(*sql.DB)
+		user, err := GetUserByID(db, id)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, http.StatusText(500), 500)
