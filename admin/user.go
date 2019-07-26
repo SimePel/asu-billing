@@ -11,6 +11,21 @@ import (
 	"github.com/go-chi/chi"
 )
 
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
+	db := r.Context().Value(dbCtxKey("db")).(*sql.DB)
+	users, err := GetAllUsers(db)
+	if err != nil {
+		log.Print(err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	err = json.NewEncoder(w).Encode(users)
+	if err != nil {
+		log.Println("cannot encode json. ", err)
+		w.Write([]byte("{}"))
+	}
+}
+
 type userCtxKey string
 
 func userCtx(next http.Handler) http.Handler {
