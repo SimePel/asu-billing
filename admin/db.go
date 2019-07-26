@@ -53,6 +53,37 @@ type User struct {
 	ConnectionPlace string    `json:"connection_place"`
 }
 
+// GetAllUsers returns all users from db
+func GetAllUsers(db *sql.DB) ([]User, error) {
+	rows, err := db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
+			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.i>
+	FROM (( users
+			INNER JOIN ips ON users.ip_id = ips.id)
+			INNER JOIN tariffs ON users.tariff = tariffs.id)`)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get all users: %v", err)
+	}
+	defer rows.Close()
+
+	var user User
+	users := make([]User, 0)
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement,
+			&user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Room, &user.Phone,
+			&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get one row: %v", err)
+		}
+		users = append(users, user)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return users, nil
+}
+
 // GetUserByID returns user from db
 func GetUserByID(db *sql.DB, id int) (User, error) {
 	var user User

@@ -20,12 +20,13 @@ func newRouter() *chi.Mux {
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
 	r.Route("/users", func(r chi.Router) {
+		r.Use(jsonContentType)
+		r.Use(setDBtoCtx)
 		r.Route("/{userID}", func(r chi.Router) {
-			r.Use(jsonContentType)
-			r.Use(setDBtoCtx)
 			r.Use(userCtx)
 			r.Get("/", getUser)
 		})
+		r.Get("/", getAllUsers)
 	})
 
 	return r
