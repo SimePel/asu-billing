@@ -11,14 +11,20 @@ footer {
     margin-top:auto;
 }
 
+.table td, .table th {
+    border: 1px solid #f3f3f3;
+}
+
 .is-spaced {
     padding: .5rem .75rem;
 }
 
-.has-light-background {
-    box-shadow: 0 2px 0 0 #dbdbdb;
-    background-color: #f5f5f5;
-    color: #363636;
+.has-bottom-shadow {
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
+}
+
+.has-border-top {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .margin-17px {
@@ -36,7 +42,7 @@ footer {
 
 .menu {
     padding: 1rem;
-    border: 2px solid #dbdbdb;
+    border: 2px solid #f3f3f3;
     border-top: none;
     border-left: none;
     border-radius: 6px;
