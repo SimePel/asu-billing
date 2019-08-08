@@ -25,6 +25,7 @@ func TestUserCtx(t *testing.T) {
 				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					db, mock, err := sqlmock.New()
 					require.NoError(t, err)
+					defer db.Close()
 
 					user := User{
 						ID:              expectedID,
