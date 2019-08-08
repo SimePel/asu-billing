@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -29,6 +30,9 @@ func newRouter() *chi.Mux {
 		r.Get("/", getAllUsers)
 	})
 
+	r.Get("/add-user", addUserHandler)
+	r.With(jsonContentType).Post("/add-user", addUserPostHandler)
+
 	return r
 }
 
@@ -39,6 +43,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadFile("templates/login.html")
+	w.Write(b)
+}
+
+func addUserHandler(w http.ResponseWriter, r *http.Request) {
+	b, _ := ioutil.ReadFile("templates/add-user.html")
 	w.Write(b)
 }
 
@@ -94,4 +103,40 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &c)
 	J.Answer = "ok"
 	json.NewEncoder(w).Encode(J)
+}
+
+func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	agreement := r.FormValue("agreement")
+	login := r.FormValue("login")
+	phone := r.FormValue("phone")
+	room := r.FormValue("room")
+	connectionPlace := r.FormValue("connectionPlace")
+	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
+	balanceStr := r.FormValue("balance")
+	balance := 0
+	if balanceStr != "" {
+		balance, _ = strconv.Atoi(balanceStr)
+	}
+
+	user := User{
+		Name:            name,
+		Agreement:       agreement,
+		Login:           login,
+		Tariff:          Tariff{ID: tariff},
+		Phone:           phone,
+		Room:            room,
+		ConnectionPlace: connectionPlace,
+		Balance:         balance,
+	}
+
+	db := initializeDB()
+	id, err := AddUserToDB(db, user)
+	if err != nil {
+		log.Printf("could not add user to db with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
