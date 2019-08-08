@@ -16,7 +16,6 @@ func initializeDB() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.SetConnMaxLifetime(1 * time.Minute)
 
 	return db
 }
@@ -151,27 +150,27 @@ func getUnusedInnerIPid(db *sql.DB) (int, error) {
 	return innerIPid, nil
 }
 
-func DeleteUserByID(db *sql.DB, id int) error {
-	var innerIPid int
-	err := db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
-	if err != nil {
-		return fmt.Errorf("could not scan ip_id from users table to variable: %v", err)
-	}
+// func DeleteUserByID(db *sql.DB, id int) error {
+// 	var innerIPid int
+// 	err := db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
+// 	if err != nil {
+// 		return fmt.Errorf("could not scan ip_id from users table to variable: %v", err)
+// 	}
 
-	_, err = db.Exec(`UPDATE ips SET used = 0 WHERE id=?`, innerIPid)
-	if err != nil {
-		return fmt.Errorf("could not set false used state to ip_id: %v", err)
-	}
+// 	_, err = db.Exec(`UPDATE ips SET used = 0 WHERE id=?`, innerIPid)
+// 	if err != nil {
+// 		return fmt.Errorf("could not set false used state to ip_id: %v", err)
+// 	}
 
-	_, err = db.Exec(`DELETE FROM users WHERE id = ?`, id)
-	if err != nil {
-		return fmt.Errorf("could not delete user with id=%v: %v", id, err)
-	}
+// 	_, err = db.Exec(`DELETE FROM users WHERE id = ?`, id)
+// 	if err != nil {
+// 		return fmt.Errorf("could not delete user with id=%v: %v", id, err)
+// 	}
 
-	_, err = db.Exec(`DELETE FROM payments WHERE user_id = ?`, id)
-	if err != nil {
-		return fmt.Errorf("could not delete payments info about user with id=%v: %v", id, err)
-	}
+// 	_, err = db.Exec(`DELETE FROM payments WHERE user_id = ?`, id)
+// 	if err != nil {
+// 		return fmt.Errorf("could not delete payments info about user with id=%v: %v", id, err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
