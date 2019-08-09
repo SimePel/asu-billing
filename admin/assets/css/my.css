@@ -51,3 +51,28 @@ footer {
 .is-active {
     background-color: #33FF33;
 }
+
+.settings-panel.settings-panel.settings-panel {
+    background-color: white;
+    position: fixed;
+    top: 52px;
+    right: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transform: translateX(100%);
+}
+
+.open:checked ~ .settings-panel {
+    transform: translateX(0);
+    transition: 0.35s
+}
+
+.open:not(:checked) ~ .settings-panel {
+    transition: 0.35s
+}
+
+/* .settings-content {
+    position: relative;
+    padding: 1em;
+    margin: 0 auto;
+} */
