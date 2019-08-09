@@ -8,6 +8,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
   <script src="../assets/js/user.js"></script>
+  <script src="../assets/js/awesome.min.js"></script>
 </head>
 
 <body>
@@ -27,21 +28,45 @@
           </div>
         </div>
         <div class="navbar-item">
-          <p class="margin-4px-right">
-            СМС Уведомления:
-          </p>
-          <p class="control">
-            <a id="sms" class="button is-small is-success">
-              <span class="icon is-small">
-                <i class="fas fa-check"></i>
-              </span>
-            </a>
-          </p>
+          <a class="button is-success" href="/add-user">Добавить пользователя</a>
         </div>
       </div>
       <div class="navbar-end">
         <div class="navbar-item">
-          <a class="button is-success" href="/add-user">Добавить</a>
+          <input class="open" id="settings" type="checkbox" hidden>
+          <button class="button is-light">
+            <label for="settings">
+              <span class="icon">
+                <i class="fas fa-cog"></i>
+              </span>
+            </label>
+          </button>
+          <div class="settings-panel">
+            <div class="menu">
+              <p class="menu-label">
+                Что показывать в таблице
+              </p>
+              <ul class="menu-list">
+                <li><a>ФИО</a></li>
+                <li><a>Договор</a></li>
+                <li><a>Логин</a></li>
+                <li><a>Дата отключения</a></li>
+                <li><a>Внутренний IP</a></li>
+                <li><a>Телефон</a></li>
+                <li><a>Комната</a></li>
+                <li><a>Тариф</a></li>
+                <li><a>Точка подключения</a></li>
+                <li><a>Баланс</a></li>
+                <li><a>Статус</a></li>
+              </ul>
+              <p class="menu-label">
+                СМС оповещения
+              </p>
+              <ul class="menu-list">
+                <li><a>Вкл/Выкл</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
         <div class="navbar-item">
           <a class="button is-warning" href="/admin-logout">Выйти</a>
@@ -49,189 +74,35 @@
       </div>
     </div>
   </nav>
-  <!-- <nav class="level has-bottom-shadow is-spaced">
-    <div class="level-left">
-      <div class="level-item">
-        <div class="dropdown" id="dropdown">
-          <div class="dropdown-trigger" id="dropdownTrigger">
-            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-              <span>Отображение таблицы</span>
-              <span class="icon is-small">
-                <i class="fas fa-angle-down" aria-hidden="true"></i>
-              </span>
-            </button>
-          </div>
-          <div class="dropdown-menu" id="dropdown-menu" role="menu">
-            <div class="dropdown-content">
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="nameBox" disabled autocomplete="off">
-                  ФИО
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="agreementBox">
-                  Договор
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="loginBox" autocomplete="off">
-                  Логин
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="expiredDateBox">
-                  Дата отключения
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="ipBox">
-                  Внутренний IP
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="phoneBox">
-                  Телефон
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="commentBox">
-                  Комментарий
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="tariffBox" autocomplete="off">
-                  Тариф
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="connectionPlaceBox">
-                  Точка подключения
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="balanceBox" autocomplete="off">
-                  Баланс
-                </label>
-              </div>
-              <div class="dropdown-item">
-                <label class="checkbox">
-                  <input type="checkbox" id="activeBox" autocomplete="off">
-                  Статус
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav> -->
   <div class="columns">
-    <div class="column is-2">
-      <aside class="menu">
-        <p class="menu-label">
-          Что показывать в таблице
-        </p>
-        <ul class="menu-list">
-          <li><a>ФИО</a></li>
-          <li><a>Договор</a></li>
-          <li><a>Логин</a></li>
-          <li><a>Дата отключения</a></li>
-          <li><a>Внутренний IP</a></li>
-          <li><a>Телефон</a></li>
-          <li><a>Комната</a></li>
-          <li><a>Тариф</a></li>
-          <li><a>Точка подключения</a></li>
-          <li><a>Баланс</a></li>
-          <li><a>Статус</a></li>
-        </ul>
-      </aside>
-    </div>
     <div class="column">
-      <table class="table is-hoverable is-fullwidth">
-        <thead>
-          <tr>
-            <th class="name">ФИО</th>
-            <th class="agreement">Договор</th>
-            <th class="login">Логин</th>
-            <th class="expiredDate">Дата отключения</th>
-            <th class="ip">Внутренний IP</th>
-            <th class="phone">Телефон</th>
-            <th class="room">Комната</th>
-            <th class="tariff">Тариф</th>
-            <th class="connectionPlace">Точка подключения</th>
-            <th class="balance">Баланс</th>
-            <th class="active">Статус</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- {{range .}}
-          <tr>
-            <td class="name invisible">
-              <a href="/user-info?id={{.ID}}">{{.Name}}</a>
-            </td>
-            <td class="agreement invisible">
-              {{.Agreement}}
-            </td>
-            <td class="login invisible">
-              {{.Login}}
-            </td>
-            <td class="expiredDate invisible">
-              {{if .Active}}
-              {{formatTime .PaymentsEnds}}
-              {{else}}
-              Клиент не подключен
-              {{end}}
-            </td>
-            <td class="ip invisible">
-              {{.InIP}}
-            </td>
-            <td class="phone invisible">
-              {{.Phone}}
-            </td>
-            <td class="comment invisible">
-              {{.Comment}}
-            </td>
-            <td class="tariff invisible">
-              {{.Tariff.Name}}
-            </td>
-            <td class="connectionPlace invisible">
-              {{.ConnectionPlace}}
-            </td>
-            <td class="balance invisible">
-              <span class="level">
-                <span class="level-right">
-                  <span class="level-item">
-                    {{.Money}}
-                  </span>
-                </span>
-              </span>
-            </td>
-            <td class="active invisible">
-              <span class="icon has-text-success">
-                <i class="fas fa-user-check"></i>
-              </span>
-              <span class="icon has-text-danger">
-                <i class="fas fa-user-times"></i>
-              </span>
-          </td>
-          </tr> -->
-        </tbody>
-      </table>
+      <div class="container is-fluid">
+        <table class="table is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th class="name">ФИО</th>
+              <th class="agreement">Договор</th>
+              <th class="login">Логин</th>
+              <th class="expiredDate">Дата отключения</th>
+              <th class="ip">Внутренний IP</th>
+              <th class="phone">Телефон</th>
+              <th class="room">Комната</th>
+              <th class="tariff">Тариф</th>
+              <th class="connectionPlace">Точка подключения</th>
+              <th class="balance">Баланс</th>
+              <th class="active">Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <footer class="footer">
     <div class="content has-text-centered">
-      <p>Здесь много текста</p>
+      <p>Здесь располагается богатая информация по поводу собранных средств со студентов за услуги интернета, который мы
+        им предоставляем.</p>
     </div>
   </footer>
 </body>
