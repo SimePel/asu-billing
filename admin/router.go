@@ -14,13 +14,17 @@ import (
 func newRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.With(checkJWTtoken).Get("/", indexHandler)
-	r.Get("/login", loginHandler)
-	r.With(jsonContentType).Post("/login", loginPostHandler)
-
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
+	r.Get("/login", loginHandler)
+	r.With(jsonContentType).Post("/login", loginPostHandler)
+	r.With(checkJWTtoken).Get("/", indexHandler)
+	r.With(checkJWTtoken).Get("/logout", logoutHandler)
+	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
+	r.With(checkJWTtoken).With(jsonContentType).Post("/add-user", addUserPostHandler)
+
 	r.Route("/users", func(r chi.Router) {
+		r.Use(checkJWTtoken)
 		r.Use(jsonContentType)
 		r.Use(setDBtoCtx)
 		r.Route("/{userID}", func(r chi.Router) {
@@ -29,9 +33,6 @@ func newRouter() *chi.Mux {
 		})
 		r.Get("/", getAllUsers)
 	})
-
-	r.Get("/add-user", addUserHandler)
-	r.With(jsonContentType).Post("/add-user", addUserPostHandler)
 
 	return r
 }
@@ -49,6 +50,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func addUserHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadFile("templates/add-user.html")
 	w.Write(b)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	c := http.Cookie{
+		Name:    "jwt",
+		Expires: time.Now().Add(-1 * time.Minute),
+	}
+	http.SetCookie(w, &c)
+	http.Redirect(w, r, "/login", 303)
 }
 
 func loginPostHandler(w http.ResponseWriter, r *http.Request) {
