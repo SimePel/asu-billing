@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
@@ -61,6 +63,36 @@ func TestAddUserHandler(t *testing.T) {
 	resp, err := http.Get(ts.URL + "/add-user")
 	require.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestLogoutHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c := http.Cookie{
+			Name:    "jwt",
+			Value:   "token",
+			Expires: time.Now().AddDate(0, 0, 1),
+		}
+		r.AddCookie(&c)
+		logoutHandler(w, r)
+	}))
+	defer ts.Close()
+
+	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if req.URL.Path == "/login" {
+				return errors.New("ОК")
+			}
+			return nil
+		},
+	}
+
+	resp, err := client.Get(ts.URL + "/logout")
+	require.NotNil(t, err)
+	assert.Equal(t, 303, resp.StatusCode)
+
+	actualCookie := resp.Cookies()[0]
+	assert.Equal(t, "", actualCookie.Value)
+	assert.Greater(t, time.Now().Sub(actualCookie.Expires).Seconds(), float64(0))
 }
 
 func TestLoginPostHandler(t *testing.T) {
