@@ -55,7 +55,8 @@ type User struct {
 // GetAllUsers returns all users from db
 func GetAllUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.i>
+			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price,
+			ips.id, ext_ip
 	FROM (( users
 			INNER JOIN ips ON users.ip_id = ips.id)
 			INNER JOIN tariffs ON users.tariff = tariffs.id)`)
