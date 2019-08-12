@@ -28,7 +28,7 @@ type dbCtxKey string
 func setDBtoCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		db := initializeDB()
-		ctx := context.WithValue(r.Context(), dbCtxKey("db"), &db)
+		ctx := context.WithValue(r.Context(), dbCtxKey("db"), db)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
