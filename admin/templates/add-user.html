@@ -4,98 +4,102 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Добавление клиента</title>
+  <title>Добавление пользователя</title>
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
   <script src="../assets/js/awesome.min.js"></script>
-  <!-- <script src="../assets/js/goBack.js"></script> -->
+  <script src="../assets/js/goBack.js"></script>
 </head>
 
 <body>
-  <section class="hero is-light">
-    <div class="hero-body">
-      <div class="container">
-        <h1 class="title">
-          Добавление клиента
-        </h1>
+  <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <h3 class="title is-size-4">Добавление пользователя</h3>
       </div>
     </div>
-  </section>
-  <section class="section">
-    <div class="container">
-      <div class="columns">
-        <div class="column is-one-quarter">
-          <form action="/add-user" method="post">
-            <div class="field">
-              <label class="label">ФИО<span class="has-text-danger"> *</span></label>
-              <div class="control">
-                <input class="input" name="name" type="text" placeholder="" required>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Договор<span class="has-text-danger"> *</span></label>
-              <div class="control">
-                <input class="input" name="agreement" type="text" placeholder="" required>
-              </div>
-            </div>
-            <label class="label">Логин<span class="has-text-danger"> *</span></label>
-            <div class="field has-addons">
-              <div class="control">
-                <input class="input" name="login" type="text" placeholder="" required>
-              </div>
-              <div class="control">
-                <a class="button is-static">
-                  @stud.asu.ru
-                </a>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Тариф<span class="has-text-danger"> *</span></label>
-              <div class="control">
-                <div class="select">
-                  <select name="tariff" required>
-                    <option value="1" selected>Базовый (200р)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Точка подключения</label>
-              <div class="control">
-                <input class="input" name="connectionPlace" type="text" placeholder="">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Номер телефона</label>
-              <div class="control">
-                <input class="input" name="phone" type="text" placeholder="">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Комната</label>
-              <div class="control">
-                <input class="input" name="room" type="text" placeholder="">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Сумма</label>
-              <div class="control">
-                <input class="input" name="balance" type="number" placeholder="">
-              </div>
-            </div>
-            <div class="field is-grouped">
-              <div class="control">
-                <button class="button" onclick="goBack()">
-                  Вернуться
-                </button>
-              </div>
-              <div class="control">
-                <button class="button is-success">
-                  Добавить
-                </button>
-              </div>
-            </div>
-          </form>
+    <div class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a class="button is-warning" href="/logout">Выйти</a>
         </div>
+      </div>
+    </div>
+  </nav>
+  <section class="section">
+    <div class="columns">
+      <div class="column is-one-fifth">
+        <form action="/add-user" method="post">
+          <div class="field">
+            <label class="label">ФИО<span class="has-text-danger"> *</span></label>
+            <div class="control">
+              <input class="input" name="name" type="text" required>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Договор<span class="has-text-danger"> *</span></label>
+            <div class="control">
+              <input class="input" name="agreement" type="text" required>
+            </div>
+          </div>
+          <label class="label">Логин<span class="has-text-danger"> *</span></label>
+          <div class="field has-addons">
+            <div class="control">
+              <input class="input" name="login" type="text" required>
+            </div>
+            <div class="control">
+              <a class="button is-static">
+                @stud.asu.ru
+              </a>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Тариф<span class="has-text-danger"> *</span></label>
+            <div class="control">
+              <div class="select">
+                <select name="tariff" required>
+                  <option value="1" selected>Базовый (200р)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Точка подключения</label>
+            <div class="control">
+              <input class="input" name="connectionPlace" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Номер телефона</label>
+            <div class="control">
+              <input class="input" name="phone" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Комната</label>
+            <div class="control">
+              <input class="input" name="room" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Сумма</label>
+            <div class="control">
+              <input class="input" name="balance" type="number">
+            </div>
+          </div>
+          <div class="field is-grouped">
+            <div class="control">
+              <button class="button is-success">
+                Добавить
+              </button>
+            </div>
+            <div class="control">
+              <button class="button" onclick="goBack()">
+                Отмена
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </section>
