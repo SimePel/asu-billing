@@ -27,11 +27,6 @@ footer {
 	border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.margin-17px {
-    margin-top: 17px;
-    margin-bottom: 17px; 
-}
-
 .invisible {
     display: none;
 }
@@ -71,8 +66,20 @@ footer {
     transition: 0.35s
 }
 
-/* .settings-content {
-    position: relative;
-    padding: 1em;
-    margin: 0 auto;
-} */
+nav.navbar + section.section {
+    padding: 1.5rem 1.5rem;
+}
+
+div.column > p {
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+div.column > p > span {
+    font-weight: 500;
+}
+
+.logo {
+    color: hsl(217, 71%, 53%);
+    transform: scale(1.5,1.5);
+}
