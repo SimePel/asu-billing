@@ -21,6 +21,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/", indexHandler)
 	r.With(checkJWTtoken).Get("/logout", logoutHandler)
 	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
+	r.With(checkJWTtoken).Get("/user", userHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/add-user", addUserPostHandler)
 
 	r.Route("/users", func(r chi.Router) {
@@ -49,6 +50,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadFile("templates/add-user.html")
+	w.Write(b)
+}
+
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	b, _ := ioutil.ReadFile("templates/user.html")
 	w.Write(b)
 }
 
