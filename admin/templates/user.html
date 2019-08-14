@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
   <script src="../assets/js/awesome.min.js"></script>
-  <script src="../assets/js/goBack.js"></script>
+  <script src="../assets/js/user.js"></script>
 </head>
 
 <body>
@@ -38,46 +38,28 @@
   <section class="section">
     <div class="columns">
       <div class="column is-6">
-        <p>
-          <span>ФИО: </span>
-        </p>
-        <p>
-          <span>Договор: </span>
-        </p>
-        <p>
-          <span>Тариф: </span>
-        </p>
-        <p>
-          <span>Внутренний IP: </span>
-        </p>
-        <p>
-          <span>Внешний IP: </span>
-        </p>
-        <p>
-          <span>Логин: </span>
-        </p>
-        <p>
-          <span>Дата следующей оплаты: </span>
-        </p>
-        <p>
-          <span>Точка подключения: </span>
-        </p>
-        <p>
-          <span>Телефон: </span>
-        </p>
-        <p>
-          <span>Комната: </span>
-        </p>
-        <p>
-          <span>Остаток на счету: </span>
-          <span class="field">
-            <span class="control">
-              <a class="button is-warning" href="/pay?id=">
-                Пополнить
-              </a>
+        <ul>
+          <li>ФИО: <span id="name"></span></li>
+          <li>Договор: <span id="agreement"></span></li>
+          <li>Логин: <span id="login"></span></li>
+          <li>Тариф: <span id="tariff"></span></li>
+          <li>Внутренний IP: <span id="innerIP"></span></li>
+          <li>Внешний IP: <span id="extIP"></span></li>
+          <li>Телефон: <span id="phone"></span></li>
+          <li>Комната: <span id="room"></span></li>
+          <li>Точка подключения: <span id="connectionPlace"></span></li>
+          <li>Дата следующей оплаты: <span id="expiredDate"></span></li>
+          <li>Остаток на счету: <span id="balance"></span>
+            <span class="field">
+              <span class="control">
+                <a class="button is-warning" href="/pay?id=">
+                  Пополнить
+                </a>
+              </span>
             </span>
-          </span>
-        </p>
+          </li>
+        </ul>
+
         <div class="field is-grouped">
           <div class="control">
             <a class="button is-info" href="/edit-user?id=">Изменить</a>

@@ -70,13 +70,17 @@ nav.navbar + section.section {
     padding: 1.5rem 1.5rem;
 }
 
-div.column > p {
+div.column > ul > li {
     margin-bottom: 1rem;
     font-size: 1.4rem;
 }
 
-div.column > p > span {
+div.column > ul > li {
     font-weight: 500;
+}
+
+div.column > ul > li > span {
+    font-weight: 400;
 }
 
 .logo {
