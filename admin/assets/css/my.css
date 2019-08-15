@@ -87,3 +87,7 @@ div.column > ul > li > span {
     color: hsl(217, 71%, 53%);
     transform: scale(1.5,1.5);
 }
+
+.clickable {
+    cursor: pointer;
+}

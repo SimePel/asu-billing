@@ -9,8 +9,8 @@ function getUser(userID) {
         document.querySelector("#phone").append(user.phone);
         document.querySelector("#room").append(user.room);
         document.querySelector("#connectionPlace").append(user.connection_place);
-        const d = new Date(user.expired_date);
         if (user.activity === true) {
+            const d = new Date(user.expired_date);
             const expiredDate = d.getDay() + "." + d.getMonth() + "." + d.getFullYear();
             document.querySelector("#expiredDate").append(expiredDate);
         } else {
