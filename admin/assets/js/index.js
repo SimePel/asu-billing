@@ -12,9 +12,9 @@ function getUsers() {
             tds.push(createTD(user.name));
             tds.push(createTD(user.agreement));
             tds.push(createTD(user.login));
-            let d = new Date(user.expired_date);
             let expiredDate = "Не подключен";
             if (user.activity === true) {
+                const d = new Date(user.expired_date);
                 expiredDate = d.getDay() + "." + d.getMonth() + "." + d.getFullYear();
             }
             tds.push(createTD(expiredDate));
@@ -28,6 +28,10 @@ function getUsers() {
 
             let tr = document.createElement("tr");
             tr.append(...tds);
+            tr.classList.add("clickable");
+            tr.addEventListener("click", (e) => {
+                window.location.href = "/user?id=" + user.id;
+            })
             document.getElementById("tbody").append(tr);
         });
     })
