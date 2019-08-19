@@ -5,6 +5,23 @@ function getUsers() {
         return td;
     }
 
+    function createStatusIcon(activity) {
+        let td = document.createElement("td");
+        let span = document.createElement("span");
+        let i = document.createElement("i");
+        if (activity === true) {
+            span.classList.add("icon", "has-text-success");
+            i.classList.add("fas", "fa-user-check");
+        } else {
+            span.classList.add("icon", "has-text-danger");
+            i.classList.add("fas", "fa-user-times");
+        }
+        span.append(i);
+        td.append(span);
+
+        return td;
+    }
+
     fetch("users").then((res) => { return res.json() }).then((users) => {
         users.forEach(user => {
             let tds = [];
@@ -24,7 +41,7 @@ function getUsers() {
             tds.push(createTD(user.tariff.name));
             tds.push(createTD(user.connection_place));
             tds.push(createTD(user.balance));
-            tds.push(createTD(user.activity));
+            tds.push(createStatusIcon(user.activity));
 
             let tr = document.createElement("tr");
             tr.append(...tds);
