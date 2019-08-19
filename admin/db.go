@@ -55,11 +55,11 @@ type User struct {
 // GetAllUsers returns all users from db
 func GetAllUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-			connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price,
-			ips.ip, ext_ip
+		connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price,
+		ips.ip, ext_ip
 	FROM (( users
-			INNER JOIN ips ON users.ip_id = ips.id)
-			INNER JOIN tariffs ON users.tariff = tariffs.id)`)
+		INNER JOIN ips ON users.ip_id = ips.id)
+		INNER JOIN tariffs ON users.tariff = tariffs.id)`)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get all users: %v", err)
 	}
@@ -87,13 +87,13 @@ func GetAllUsers(db *sql.DB) ([]User, error) {
 // GetUserByID returns user from db
 func GetUserByID(db *sql.DB, id int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement,
-			expired_date, connection_place, activity, room, phone, tariffs.id AS tariff_id,
-			tariffs.name AS tariff_name, price, ips.ip, ext_ip  
-		FROM (( users
-			INNER JOIN ips ON users.ip_id = ips.id)
-			INNER JOIN tariffs ON users.tariff = tariffs.id)
-		WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login,
+	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
+		connection_place, activity, room, phone, tariffs.id AS tariff_id,
+		tariffs.name AS tariff_name, price, ips.ip, ext_ip  
+	FROM (( users
+		INNER JOIN ips ON users.ip_id = ips.id)
+		INNER JOIN tariffs ON users.tariff = tariffs.id)
+	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login,
 		&user.Agreement, &user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Room,
 		&user.Phone, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
