@@ -57,23 +57,27 @@ function getUsers() {
 window.onload = () => {
     getUsers();
 
-    /*Надеюсь верно разместил код, потому что  разбираться во всех js файлах жутко долго...
-    
-    Поскольку jQuery я не обнаружил,решил цепануть jQuery, он значительно упрощает такие вещи, думаю и в дальнейшем пригодится, но можно переписать и на чистый js
+    function highlight(el) {
+        if (el.className == ''){
+            el.classList.add('active');
+        }
+        else {
+            el.classList.remove('active');
+        }
+    };
 
-    Код при клике на элемент меню (li) меняем ему класс active, соответственно подцепляя необходимые стили, при повторном клике убираем этот класс...
+    let menu = document.querySelector('.menu-list');
+    menu.onclick = function(event) {
+    let item = event.target;
+    highlight(item);
+    };
 
-    Вообще реализация этой штуки лучше, когда знаешь что происходит под капотом.. Там видимо выгружаются данные user'а и отображаются активные пункты меню, соответственно нужно будет накинуть класс active на активные пункты меню при выгрузке с БД или откуда-либо, чтобы активные отображались сразу, при загрузке страницы пользователем.. Думаю это ты реализуешь, если понял о чем я говорю..
-    */
-    $('.menu-item').on('click', function(){
-        $(this).toggleClass('active');
-    });
-
-    /* Кнопка СМС оповещений будет отображать ВКЛ и зеленый BG Color если включены, и ВЫКЛ и красный, если выключено */
-    
-    $('.toggle').on('click', function(){
-        $(this).toggleClass('active').find('a').text($(this).text() == 'Вкл' ? 'Выкл' : 'Вкл');
-    });
+    let toggle = document.getElementById('toggle');
+    toggle.onclick = function(){
+        highlight(this);
+        this.innerHTML=="Выкл" ? this.innerHTML="Вкл" : this.innerHTML="Выкл";
+        
+    };
 
     
 }
