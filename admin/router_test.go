@@ -54,6 +54,17 @@ func TestLoginHandler(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func TestUserHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userHandler(w, r)
+	}))
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/user")
+	require.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
 func TestAddUserHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		addUserHandler(w, r)
