@@ -92,39 +92,28 @@ div.column > ul > li > span {
     cursor: pointer;
 }
 
-
-/* Устанавливаем ширину list item в 100% процентов блока и делаем анимацию в 0.3 сек на переход цветов */
 .menu .menu-list li a{
-    width: 100%;
     line-height: 18px;
-    border: none;
     border-radius: 0;
-    transition: background-color .3s ease-in-out;
+    transition: background-color .3s ease;
 }
 
-/*Если у list item есть класс active, делаем зеленый background*/
 .menu .menu-list li a.active{
     background-color: #e4e4e4;
 }
 
 
-
-/*То же самое, только в другом виде для кнопки СМС оповещений*/
-
-.menu .menu-list #toggle a:hover{
+.menu .menu-list .toggle a:hover{
     background-color: transparent;
 }
 
-.menu .menu-list #toggle{
+.menu .menu-list .toggle{
     color: #f3f3f3;
-}
-
-.menu .menu-list #toggle{
     background-color: #ef5350;
 }
 
-.menu .menu-list #toggle.active{
-    background-color: #8fe091;
+.menu .menu-list .toggle.active{
+    background-color: #6bdd6d;
 }
 
 
