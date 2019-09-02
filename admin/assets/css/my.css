@@ -102,7 +102,6 @@ div.column > ul > li > span {
     background-color: #e4e4e4;
 }
 
-
 .menu .menu-list .toggle a:hover{
     background-color: transparent;
 }
@@ -115,6 +114,3 @@ div.column > ul > li > span {
 .menu .menu-list .toggle.active{
     background-color: #6bdd6d;
 }
-
-
-
