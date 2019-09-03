@@ -232,21 +232,12 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestDBgetIDbyLogin(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	require.NoError(t, err)
-	defer db.Close()
-
 	user := User{
 		ID:    1,
 		Login: "blabla.123",
 	}
 
-	rows := sqlmock.NewRows([]string{"id"}).
-		AddRow(user.ID)
-
-	mock.ExpectQuery("SELECT id FROM users WHERE login = ").WithArgs(user.Login).WillReturnRows(rows)
-
-	actualID, err := GetUserIDbyLogin(db, user.Login)
+	actualID, err := GetUserIDbyLogin(mysql.db, user.Login)
 	require.NoError(t, err)
 	assert.Equal(t, user.ID, actualID)
 }
