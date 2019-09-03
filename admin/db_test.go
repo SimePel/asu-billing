@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -231,7 +230,7 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, expectedUser, actualUser)
 }
 
-func TestDBgetIDbyLogin(t *testing.T) {
+func TestGetUserIDbyLogin(t *testing.T) {
 	user := User{
 		ID:    1,
 		Login: "blabla.123",
@@ -243,39 +242,22 @@ func TestDBgetIDbyLogin(t *testing.T) {
 }
 
 func TestAddUserToDB(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	require.NoError(t, err)
-	defer db.Close()
-
-	rows := sqlmock.NewRows([]string{"id"}).
-		AddRow("2")
-	mock.ExpectQuery(`SELECT id FROM ips WHERE used = 0`).WillReturnRows(rows)
-
-	res := sqlmock.NewResult(1, 1)
-	mock.ExpectExec(`UPDATE ips SET used=1 WHERE id = `).WithArgs(2).WillReturnResult(res)
-
-	mock.ExpectExec(`INSERT INTO users (.+) VALUES (.+)`).WillReturnResult(res)
-
 	expectedUser := User{
-		ID:              1,
-		Activity:        false,
-		Name:            "Тест",
-		Agreement:       "П-777",
-		Room:            "502",
-		Phone:           "88005553550",
-		Login:           "blabla.123",
-		InnerIP:         "10.80.80.1",
-		ExtIP:           "82.200.46.10",
-		Balance:         0,
-		ConnectionPlace: "Не важно",
-		ExpiredDate:     time.Now().Add(time.Minute),
+		Activity:    false,
+		Name:        "Тестовый Тест Тестович3",
+		Agreement:   "П-003",
+		Phone:       "88005553553",
+		Login:       "baloga.154",
+		ExtIP:       "82.200.46.10",
+		ExpiredDate: time.Now().Add(time.Minute),
 		Tariff: Tariff{
 			ID:    1,
-			Name:  "Проводной",
+			Name:  "Базовый-30",
 			Price: 200,
 		},
 	}
 
-	_, err = AddUserToDB(db, expectedUser)
+	actualID, err := AddUserToDB(mysql.db, expectedUser)
 	require.NoError(t, err)
+	assert.Equal(t, 3, actualID)
 }
