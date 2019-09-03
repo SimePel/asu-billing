@@ -129,11 +129,6 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	room := r.FormValue("room")
 	connectionPlace := r.FormValue("connectionPlace")
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
-	balanceStr := r.FormValue("balance")
-	balance := 0
-	if balanceStr != "" {
-		balance, _ = strconv.Atoi(balanceStr)
-	}
 
 	user := User{
 		Name:            name,
@@ -143,7 +138,6 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		Phone:           phone,
 		Room:            room,
 		ConnectionPlace: connectionPlace,
-		Balance:         balance,
 	}
 
 	db := initializeDB()
