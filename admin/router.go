@@ -18,6 +18,7 @@ func newRouter() *chi.Mux {
 
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
+	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
 	r.With(checkJWTtoken).Get("/", indexHandler)
 	r.With(checkJWTtoken).Get("/logout", logoutHandler)
 	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
@@ -146,6 +147,43 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("could not add user to db with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
+	}
+
+	http.Redirect(w, r, "/", 303)
+}
+
+func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var payment struct {
+		UserID int `json:"id"`
+		Sum    int `json:"sum"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&payment)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	db := initializeDB()
+	err = processPayment(db, payment.UserID, payment.Sum)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	user, err := GetUserByID(db, payment.UserID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if user.hasEnoughMoneyForPayment() {
+		err := payForNextMonth(db, user)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	http.Redirect(w, r, "/", 303)

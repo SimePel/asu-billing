@@ -52,6 +52,14 @@ type User struct {
 	ConnectionPlace string    `json:"connection_place"`
 }
 
+func (u User) hasEnoughMoneyForPayment() bool {
+	if u.Balance < u.Tariff.Price {
+		return false
+	}
+
+	return true
+}
+
 // GetAllUsers returns all users from db
 func GetAllUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
@@ -149,6 +157,32 @@ func getUnusedInnerIPid(db *sql.DB) (int, error) {
 	}
 
 	return innerIPid, nil
+}
+
+func processPayment(db *sql.DB, userID, sum int) error {
+	_, err := db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)
+	if err != nil {
+		return fmt.Errorf("cannot increase balance field: %v", err)
+	}
+
+	_, err = db.Exec(`INSERT INTO payments (user_id, sum, date) VALUES (?,?,?)`,
+		userID, sum, time.Now().Add(time.Hour*7))
+	if err != nil {
+		return fmt.Errorf("cannot insert record about payment: %v", err)
+	}
+
+	return nil
+}
+
+func payForNextMonth(db *sql.DB, user User) error {
+	t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
+	_, err := db.Exec(`UPDATE users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
+		t, user.Tariff.Price, user.ID)
+	if err != nil {
+		return fmt.Errorf("cannot update user's info after payment: %v", err)
+	}
+
+	return nil
 }
 
 // func DeleteUserByID(db *sql.DB, id int) error {
