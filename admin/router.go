@@ -178,7 +178,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.hasEnoughMoneyForPayment() {
+	if user.Activity == false && user.hasEnoughMoneyForPayment() {
 		err := mysql.PayForNextMonth(user)
 		if err != nil {
 			log.Println(err)
