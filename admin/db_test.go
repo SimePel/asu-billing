@@ -11,10 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var mysql struct {
-	db *sql.DB
-}
-
 func prepareDB(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS users (
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -142,9 +138,18 @@ func clearDB(db *sql.DB) error {
 	return nil
 }
 
-func TestMain(m *testing.M) {
+func openTestDBconnection() *sql.DB {
 	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
-	mysql.db, _ = sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	return db
+}
+
+func TestMain(m *testing.M) {
+	mysql := MySQL{db: openTestDBconnection()}
 
 	err := prepareDB(mysql.db)
 	if err != nil {
@@ -163,6 +168,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestPing(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
 	require.Nil(t, mysql.db.Ping())
 }
 
@@ -201,7 +207,8 @@ func TestGetAllUsers(t *testing.T) {
 			}},
 	}
 
-	actualUsers, err := GetAllUsers(mysql.db)
+	mysql := MySQL{db: openTestDBconnection()}
+	actualUsers, err := mysql.GetAllUsers()
 	require.NoError(t, err)
 	assert.Equal(t, expectedUsers, actualUsers)
 }
@@ -225,7 +232,8 @@ func TestGetUserByID(t *testing.T) {
 		},
 	}
 
-	actualUser, err := GetUserByID(mysql.db, int(expectedUser.ID))
+	mysql := MySQL{db: openTestDBconnection()}
+	actualUser, err := mysql.GetUserByID(int(expectedUser.ID))
 	require.NoError(t, err)
 	assert.Equal(t, expectedUser, actualUser)
 }
@@ -236,12 +244,13 @@ func TestGetUserIDbyLogin(t *testing.T) {
 		Login: "blabla.123",
 	}
 
-	actualID, err := GetUserIDbyLogin(mysql.db, user.Login)
+	mysql := MySQL{db: openTestDBconnection()}
+	actualID, err := mysql.GetUserIDbyLogin(user.Login)
 	require.NoError(t, err)
 	assert.Equal(t, user.ID, actualID)
 }
 
-func TestAddUserToDB(t *testing.T) {
+func TestAddUser(t *testing.T) {
 	expectedUser := User{
 		Activity:    false,
 		Name:        "Тестовый Тест Тестович3",
@@ -257,7 +266,8 @@ func TestAddUserToDB(t *testing.T) {
 		},
 	}
 
-	actualID, err := AddUserToDB(mysql.db, expectedUser)
+	mysql := MySQL{db: openTestDBconnection()}
+	actualID, err := mysql.AddUser(expectedUser)
 	require.NoError(t, err)
 	assert.Equal(t, 3, actualID)
 }

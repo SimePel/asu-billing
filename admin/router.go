@@ -141,8 +141,8 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		ConnectionPlace: connectionPlace,
 	}
 
-	db := initializeDB()
-	id, err := AddUserToDB(db, user)
+	mysql := MySQL{db: initializeDB()}
+	id, err := mysql.AddUser(user)
 	if err != nil {
 		log.Printf("could not add user to db with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
@@ -165,21 +165,21 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := initializeDB()
-	err = processPayment(db, payment.UserID, payment.Sum)
+	mysql := MySQL{db: initializeDB()}
+	err = mysql.ProcessPayment(payment.UserID, payment.Sum)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	user, err := GetUserByID(db, payment.UserID)
+	user, err := mysql.GetUserByID(payment.UserID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	if user.hasEnoughMoneyForPayment() {
-		err := payForNextMonth(db, user)
+		err := mysql.PayForNextMonth(user)
 		if err != nil {
 			log.Println(err)
 			return

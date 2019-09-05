@@ -12,8 +12,8 @@ import (
 )
 
 func getAllUsers(w http.ResponseWriter, r *http.Request) {
-	db := r.Context().Value(dbCtxKey("db")).(*sql.DB)
-	users, err := GetAllUsers(db)
+	mysql := MySQL{db: r.Context().Value(dbCtxKey("db")).(*sql.DB)}
+	users, err := mysql.GetAllUsers()
 	if err != nil {
 		log.Print(err)
 		http.Error(w, http.StatusText(500), 500)
@@ -37,8 +37,8 @@ func userCtx(next http.Handler) http.Handler {
 		}
 
 		id, _ := strconv.Atoi(userID)
-		db := r.Context().Value(dbCtxKey("db")).(*sql.DB)
-		user, err := GetUserByID(db, id)
+		mysql := MySQL{db: r.Context().Value(dbCtxKey("db")).(*sql.DB)}
+		user, err := mysql.GetUserByID(id)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, http.StatusText(500), 500)

@@ -10,6 +10,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// MySQL
+type MySQL struct {
+	db *sql.DB
+}
+
 func initializeDB() *sql.DB {
 	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
 	db, err := sql.Open("mysql", dsn)
@@ -61,8 +66,8 @@ func (u User) hasEnoughMoneyForPayment() bool {
 }
 
 // GetAllUsers returns all users from db
-func GetAllUsers(db *sql.DB) ([]User, error) {
-	rows, err := db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
+func (mysql MySQL) GetAllUsers() ([]User, error) {
+	rows, err := mysql.db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
 		connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price,
 		ips.ip, ext_ip
 	FROM (( users
@@ -93,9 +98,9 @@ func GetAllUsers(db *sql.DB) ([]User, error) {
 }
 
 // GetUserByID returns user from db
-func GetUserByID(db *sql.DB, id int) (User, error) {
+func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
+	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
 		connection_place, activity, room, phone, tariffs.id AS tariff_id,
 		tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
@@ -112,9 +117,9 @@ func GetUserByID(db *sql.DB, id int) (User, error) {
 }
 
 // GetUserIDbyLogin returns user id from db
-func GetUserIDbyLogin(db *sql.DB, login string) (uint, error) {
+func (mysql MySQL) GetUserIDbyLogin(login string) (uint, error) {
 	var id uint
-	err := db.QueryRow(`SELECT id FROM users WHERE login = ?`, login).Scan(&id)
+	err := mysql.db.QueryRow(`SELECT id FROM users WHERE login = ?`, login).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get user id by login: %v", err)
 	}
@@ -122,13 +127,14 @@ func GetUserIDbyLogin(db *sql.DB, login string) (uint, error) {
 	return id, nil
 }
 
-func AddUserToDB(db *sql.DB, user User) (int, error) {
-	innerIPid, err := getUnusedInnerIPid(db)
+// AddUser adds user to db
+func (mysql MySQL) AddUser(user User) (int, error) {
+	innerIPid, err := mysql.getUnusedInnerIPid()
 	if err != nil {
 		return 0, fmt.Errorf("cannot get unused id of inner ip: %v", err)
 	}
 
-	res, err := db.Exec(`INSERT INTO users (balance, activity, name, room, login, phone, ext_ip,
+	res, err := mysql.db.Exec(`INSERT INTO users (balance, activity, name, room, login, phone, ext_ip,
 		ip_id, tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
 		user.Balance, user.Activity, user.Name, user.Room, user.Login, user.Phone, "82.200.46.10",
 		innerIPid, user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
@@ -144,14 +150,14 @@ func AddUserToDB(db *sql.DB, user User) (int, error) {
 	return int(id), nil
 }
 
-func getUnusedInnerIPid(db *sql.DB) (int, error) {
+func (mysql MySQL) getUnusedInnerIPid() (int, error) {
 	var innerIPid int
-	err := db.QueryRow(`SELECT id FROM ips WHERE used = 0`).Scan(&innerIPid)
+	err := mysql.db.QueryRow(`SELECT id FROM ips WHERE used = 0`).Scan(&innerIPid)
 	if err != nil {
 		return 0, fmt.Errorf("cannot scan id from db to variable: %v", err)
 	}
 
-	_, err = db.Exec(`UPDATE ips SET used=1 WHERE id = ?`, innerIPid)
+	_, err = mysql.db.Exec(`UPDATE ips SET used=1 WHERE id = ?`, innerIPid)
 	if err != nil {
 		return 0, fmt.Errorf("cannot set inner ip as used: %v", err)
 	}
@@ -159,13 +165,14 @@ func getUnusedInnerIPid(db *sql.DB) (int, error) {
 	return innerIPid, nil
 }
 
-func processPayment(db *sql.DB, userID, sum int) error {
-	_, err := db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)
+// ProcessPayment updates balance and insert record into payments table
+func (mysql MySQL) ProcessPayment(userID, sum int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)
 	if err != nil {
 		return fmt.Errorf("cannot increase balance field: %v", err)
 	}
 
-	_, err = db.Exec(`INSERT INTO payments (user_id, sum, date) VALUES (?,?,?)`,
+	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, sum, date) VALUES (?,?,?)`,
 		userID, sum, time.Now().Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)
@@ -174,9 +181,10 @@ func processPayment(db *sql.DB, userID, sum int) error {
 	return nil
 }
 
-func payForNextMonth(db *sql.DB, user User) error {
+// PayForNextMonth activates user for next month
+func (mysql MySQL) PayForNextMonth(user User) error {
 	t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
-	_, err := db.Exec(`UPDATE users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
+	_, err := mysql.db.Exec(`UPDATE users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
 		t, user.Tariff.Price, user.ID)
 	if err != nil {
 		return fmt.Errorf("cannot update user's info after payment: %v", err)
