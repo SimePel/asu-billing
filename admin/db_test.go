@@ -151,20 +151,18 @@ func openTestDBconnection() *sql.DB {
 func TestMain(m *testing.M) {
 	mysql := MySQL{db: openTestDBconnection()}
 
-	err := prepareDB(mysql.db)
+	err := clearDB(mysql.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = prepareDB(mysql.db)
 	if err != nil {
 		panic(err)
 	}
 	defer mysql.db.Close()
 
-	exitCode := m.Run()
-
-	err = clearDB(mysql.db)
-	if err != nil {
-		panic(err)
-	}
-
-	os.Exit(exitCode)
+	os.Exit(m.Run())
 }
 
 func TestPing(t *testing.T) {
