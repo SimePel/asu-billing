@@ -114,3 +114,7 @@ div.column > ul > li > span {
 .menu .menu-list .toggle.active{
     background-color: #6bdd6d;
 }
+
+#paymentInput {
+    width: 8rem;
+}

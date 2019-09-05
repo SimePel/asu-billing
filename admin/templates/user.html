@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
   <script src="../assets/js/awesome.min.js"></script>
-  <script src="../assets/js/user.js"></script>
+  <script type="module" src="../assets/js/user.js"></script>
 </head>
 
 <body>
@@ -51,10 +51,13 @@
           <li>Дата следующей оплаты: <span id="expiredDate"></span></li>
           <li>Остаток на счету: <span id="balance"></span>
             <span class="field">
+              <span class="control" hidden>
+                <input id="paymentInput" class="input" type="number" name="sum" placeholder="Сумма">
+              </span>
               <span class="control">
-                <a class="button is-warning" href="/pay?id=">
+                <button id="paymentButton" class="button is-warning">
                   Пополнить
-                </a>
+                </button>
               </span>
             </span>
           </li>

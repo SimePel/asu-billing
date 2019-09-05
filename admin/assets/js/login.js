@@ -16,11 +16,9 @@ function auth() {
     })
 }
 
-window.onload = () => {
-    document.getElementById("loginBtn").addEventListener("click", auth)
-    document.getElementById("password").addEventListener("keyup", (event) => {
-        if (event.keyCode === 13) {
-            auth();
-        }
-    })
-}
+document.getElementById("loginBtn").addEventListener("click", auth)
+document.getElementById("password").addEventListener("keyup", (event) => {
+    if (event.keyCode === 13) {
+        auth();
+    }
+})

@@ -1,3 +1,3 @@
-function goBack() {
+export default function goBack() {
     location.replace(document.referrer);
 }

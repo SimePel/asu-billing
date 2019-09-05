@@ -1,3 +1,5 @@
+import goBack from "./goBack.js";
+
 function getUser(userID) {
     fetch("/users/" + userID).then((res) => { return res.json() }).then((user) => {
         document.querySelector("#name").append(user.name);
@@ -20,8 +22,40 @@ function getUser(userID) {
     })
 }
 
-window.onload = () => {
+function deposit() {
     const urlParams = new URLSearchParams(window.location.search);
-    const userID = urlParams.get("id");
-    getUser(userID);
+    const id = urlParams.get("id");
+    fetch("payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+            id: parseInt(id),
+            sum: parseInt(document.querySelector("#paymentInput").value),
+        }),
+    }).then(() => {
+        goBack();
+    });
 }
+
+function revealPaymentInput() {
+    let paymentInput = document.querySelector("#paymentInput");
+    let paymentInputParent = paymentInput.parentElement;
+
+    paymentInputParent.removeAttribute("hidden");
+    let paymentButton = document.querySelector("#paymentButton");
+    paymentButton.removeEventListener("click", revealPaymentInput);
+
+    paymentButton.addEventListener("click", deposit);
+    paymentInput.addEventListener("keyup", event => {
+        if (event.keyCode === 13) {
+            deposit();
+        }
+    });
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const userID = urlParams.get("id");
+getUser(userID);
+
+let paymentButton = document.querySelector("#paymentButton");
+paymentButton.addEventListener("click", revealPaymentInput);
