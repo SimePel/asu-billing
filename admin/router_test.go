@@ -200,7 +200,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 303, resp.StatusCode)
 
-	mysql := MySQL{db: initializeDB()}
+	mysql := MySQL{db: openTestDBconnection()}
 	id, err := mysql.GetUserIDbyLogin(expected.Login)
 	require.NoError(t, err)
 
@@ -214,4 +214,66 @@ func TestAddUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Room, user.Room)
 	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
 	assert.Equal(t, expected.Tariff, user.Tariff.ID)
+}
+
+func TestPaymentPostHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paymentPostHandler(w, r)
+	}))
+	defer ts.Close()
+
+	user := User{
+		ID:        100,
+		Activity:  false,
+		Name:      "Тестовый Тест Тестович100",
+		Agreement: "П-100",
+		Phone:     "88005553100",
+		Login:     "blabla.1000",
+		Balance:   0,
+		Tariff: Tariff{
+			ID:    1,
+			Name:  "Базовый-30",
+			Price: 200,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	userID, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	var payment struct {
+		UserID int `json:"id"`
+		Sum    int `json:"sum"`
+	}
+	payment.UserID = userID
+	payment.Sum = 100
+	b, err := json.Marshal(&payment)
+	require.NoError(t, err)
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	resp, err := client.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
+	require.NoError(t, err)
+	assert.Equal(t, 303, resp.StatusCode)
+
+	actualUser, err := mysql.GetUserByID(userID)
+	require.NoError(t, err)
+
+	assert.Equal(t, payment.Sum, actualUser.Balance)
+	assert.Equal(t, false, actualUser.Activity)
+
+	resp, err = client.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
+	require.NoError(t, err)
+	assert.Equal(t, 303, resp.StatusCode)
+
+	actualUser, err = mysql.GetUserByID(userID)
+	require.NoError(t, err)
+
+	assert.Equal(t, 0, actualUser.Balance)
+	assert.Equal(t, true, actualUser.Activity)
+
+	// Еще проверить записи в табличке payments
 }
