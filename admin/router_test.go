@@ -6,7 +6,9 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -153,4 +155,63 @@ func TestLoginPostHandler(t *testing.T) {
 	assert.Equal(t, "bad", J.Answer)
 	assert.Equal(t, J.Error, "Неверный логин или пароль.")
 	resp.Body.Close()
+}
+
+func TestAddUserPostHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		addUserPostHandler(w, r)
+	}))
+	defer ts.Close()
+
+	expected := struct {
+		Name            string
+		Agreement       string
+		Login           string
+		Phone           string
+		Room            string
+		Tariff          int
+		ConnectionPlace string
+	}{
+		"Tестовый Тест Тестович4",
+		"П-004",
+		"aloha.125",
+		"88005553554",
+		"555",
+		1,
+		"",
+	}
+
+	formValues := url.Values{}
+	formValues.Add("name", expected.Name)
+	formValues.Add("agreement", expected.Agreement)
+	formValues.Add("login", expected.Login)
+	formValues.Add("phone", expected.Phone)
+	formValues.Add("room", expected.Room)
+	formValues.Add("connectionPlace", expected.ConnectionPlace)
+	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err := client.PostForm(ts.URL+"/add-user", formValues)
+	require.NoError(t, err)
+	assert.Equal(t, 303, resp.StatusCode)
+
+	mysql := MySQL{db: initializeDB()}
+	id, err := mysql.GetUserIDbyLogin(expected.Login)
+	require.NoError(t, err)
+
+	user, err := mysql.GetUserByID(int(id))
+	require.NoError(t, err)
+
+	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.Agreement, user.Agreement)
+	assert.Equal(t, expected.Login, user.Login)
+	assert.Equal(t, expected.Phone, user.Phone)
+	assert.Equal(t, expected.Room, user.Room)
+	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
+	assert.Equal(t, expected.Tariff, user.Tariff.ID)
 }
