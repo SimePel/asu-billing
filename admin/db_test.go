@@ -108,7 +108,7 @@ func prepareDB(db *sql.DB) error {
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, login, 
 		connection_place, phone, room, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
 		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 1,
-		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 0, 'П-002', '2019-08-12 07:46:35',
+		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
 		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 0, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
@@ -197,7 +197,7 @@ func TestGetAllUsers(t *testing.T) {
 			Login:     "bla.124",
 			InnerIP:   "10.1.108.10",
 			ExtIP:     "82.200.46.10",
-			Balance:   0,
+			Balance:   300,
 			Tariff: Tariff{
 				ID:    1,
 				Name:  "Базовый-30",
@@ -268,4 +268,42 @@ func TestAddUser(t *testing.T) {
 	actualID, err := mysql.AddUser(expectedUser)
 	require.NoError(t, err)
 	assert.Equal(t, 3, actualID)
+}
+
+func TestProcessPayment(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	err := mysql.ProcessPayment(1, 100)
+	require.NoError(t, err)
+
+	user, err := mysql.GetUserByID(1)
+	require.NoError(t, err)
+
+	assert.Equal(t, 200, user.Balance)
+	// Еще протестить, что создалась запись в табличке payments
+}
+
+func TestPayForNextMonth(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	user, err := mysql.GetUserByID(2)
+	require.NoError(t, err)
+
+	err = mysql.PayForNextMonth(user)
+	require.NoError(t, err)
+
+	actualUser, err := mysql.GetUserByID(2)
+	require.NoError(t, err)
+
+	expected := struct {
+		ExpiredDate time.Time
+		Activity    bool
+		Balance     int
+	}{
+		time.Now().AddDate(0, 1, 0),
+		true,
+		100,
+	}
+
+	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04:05"), actualUser.ExpiredDate.Format("2016.01.2 15:04:05"))
+	assert.Equal(t, expected.Activity, actualUser.Activity)
+	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
