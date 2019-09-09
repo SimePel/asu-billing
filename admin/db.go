@@ -16,7 +16,8 @@ type MySQL struct {
 }
 
 func initializeDB() *sql.DB {
-	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/billingdev?parseTime=true", os.Getenv("MYSQL_LOGIN"), os.Getenv("MYSQL_PASS"))
+	dsn := fmt.Sprintf("%v:%v@tcp(10.0.0.33)/%v?parseTime=true", os.Getenv("MYSQL_LOGIN"),
+		os.Getenv("MYSQL_PASS"), os.Getenv("DB_NAME"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
