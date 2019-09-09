@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -178,13 +179,28 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Activity == false && user.hasEnoughMoneyForPayment() {
-		err := mysql.PayForNextMonth(user)
+	if user.Activity == false {
+		tryToRenewPayment(mysql, user)
+	}
+}
+
+func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
+	user, _ := mysql.GetUserByID(int(u.ID))
+	return func() {
+		tryToRenewPayment(mysql, user)
+	}
+}
+
+func tryToRenewPayment(mysql MySQL, user User) {
+	if user.hasEnoughMoneyForPayment() {
+		expirationDate, err := mysql.PayForNextMonth(user)
+		fmt.Printf("%v\n", expirationDate.String())
 		if err != nil {
 			log.Println(err)
 			return
 		}
-	}
 
-	http.Redirect(w, r, "/", 303)
+		f := createTryToRenewPaymentFunc(mysql, user)
+		time.AfterFunc(expirationDate, f)
+	}
 }

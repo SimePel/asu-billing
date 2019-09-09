@@ -250,13 +250,12 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Activity:    false,
-		Name:        "Тестовый Тест Тестович3",
-		Agreement:   "П-003",
-		Phone:       "88005553553",
-		Login:       "baloga.154",
-		ExtIP:       "82.200.46.10",
-		ExpiredDate: time.Now().Add(time.Minute),
+		Activity:  false,
+		Name:      "Тестовый Тест Тестович3",
+		Agreement: "П-003",
+		Phone:     "88005553553",
+		Login:     "baloga.154",
+		ExtIP:     "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -287,7 +286,7 @@ func TestPayForNextMonth(t *testing.T) {
 	user, err := mysql.GetUserByID(2)
 	require.NoError(t, err)
 
-	err = mysql.PayForNextMonth(user)
+	_, err = mysql.PayForNextMonth(user)
 	require.NoError(t, err)
 
 	actualUser, err := mysql.GetUserByID(2)

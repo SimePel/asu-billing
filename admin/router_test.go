@@ -250,14 +250,9 @@ func TestPaymentPostHandler(t *testing.T) {
 	b, err := json.Marshal(&payment)
 	require.NoError(t, err)
 
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-	resp, err := client.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
+	resp, err := http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
 	require.NoError(t, err)
-	assert.Equal(t, 303, resp.StatusCode)
+	assert.Equal(t, 200, resp.StatusCode)
 
 	actualUser, err := mysql.GetUserByID(userID)
 	require.NoError(t, err)
@@ -265,9 +260,9 @@ func TestPaymentPostHandler(t *testing.T) {
 	assert.Equal(t, payment.Sum, actualUser.Balance)
 	assert.Equal(t, false, actualUser.Activity)
 
-	resp, err = client.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
+	resp, err = http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
 	require.NoError(t, err)
-	assert.Equal(t, 303, resp.StatusCode)
+	assert.Equal(t, 200, resp.StatusCode)
 
 	actualUser, err = mysql.GetUserByID(userID)
 	require.NoError(t, err)

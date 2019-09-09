@@ -32,6 +32,8 @@ function deposit() {
             id: parseInt(id),
             sum: parseInt(document.querySelector("#paymentInput").value),
         }),
+    }).then(() => {
+        goBack();
     });
 }
 

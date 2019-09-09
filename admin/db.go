@@ -183,15 +183,15 @@ func (mysql MySQL) ProcessPayment(userID, sum int) error {
 }
 
 // PayForNextMonth activates user for next month
-func (mysql MySQL) PayForNextMonth(user User) error {
+func (mysql MySQL) PayForNextMonth(user User) (time.Duration, error) {
 	t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
 	_, err := mysql.db.Exec(`UPDATE users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
 		t, user.Tariff.Price, user.ID)
 	if err != nil {
-		return fmt.Errorf("cannot update user's info after payment: %v", err)
+		return 0, fmt.Errorf("cannot update user's info after payment: %v", err)
 	}
 
-	return nil
+	return time.Until(t), nil
 }
 
 // func DeleteUserByID(db *sql.DB, id int) error {
