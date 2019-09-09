@@ -36,7 +36,7 @@ function getUsers() {
                 let expiredDate = "Не подключен";
                 if (user.activity === true) {
                     const d = new Date(user.expired_date);
-                    expiredDate = d.getDay() + "." + d.getMonth() + "." + d.getFullYear();
+                    expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
                 }
                 tds.push(createTD(expiredDate));
                 tds.push(createTD(user.inner_ip));
