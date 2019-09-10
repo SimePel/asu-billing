@@ -1,5 +1,15 @@
 import goBack from "./goBack.js";
 
+const urlParams = new URLSearchParams(window.location.search);
+const userID = urlParams.get("id");
+getUser(userID);
+
+let paymentButton = document.querySelector("#paymentButton");
+paymentButton.addEventListener("click", revealPaymentInput);
+
+let deleteButton = document.querySelector("#deleteButton");
+deleteButton.addEventListener("click", deleteUser);
+
 function getUser(userID) {
     fetch("/users/" + userID).then((res) => { return res.json() }).then((user) => {
         document.querySelector("#name").append(user.name);
@@ -23,13 +33,11 @@ function getUser(userID) {
 }
 
 function deposit() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
     fetch("payment", {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify({
-            id: parseInt(id),
+            id: parseInt(userID),
             sum: parseInt(document.querySelector("#paymentInput").value),
         }),
     }).then(() => {
@@ -42,7 +50,6 @@ function revealPaymentInput() {
     let paymentInputParent = paymentInput.parentElement;
 
     paymentInputParent.removeAttribute("hidden");
-    let paymentButton = document.querySelector("#paymentButton");
     paymentButton.removeEventListener("click", revealPaymentInput);
 
     paymentButton.addEventListener("click", deposit);
@@ -53,9 +60,13 @@ function revealPaymentInput() {
     });
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const userID = urlParams.get("id");
-getUser(userID);
-
-let paymentButton = document.querySelector("#paymentButton");
-paymentButton.addEventListener("click", revealPaymentInput);
+function deleteUser() {
+    let answer = confirm("Вы действительно хотите удалить этого пользователя?");
+    if (answer === true) {
+        fetch("users/" + userID, {
+            method: "DELETE",
+        }).then(() => {
+            goBack();
+        });
+    }
+}
