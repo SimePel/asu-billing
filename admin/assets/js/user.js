@@ -13,7 +13,7 @@ function getUser(userID) {
         document.querySelector("#connectionPlace").append(user.connection_place);
         if (user.activity === true) {
             const d = new Date(user.expired_date);
-            const expiredDate = d.getDay() + "." + d.getMonth() + "." + d.getFullYear();
+            const expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
             document.querySelector("#expiredDate").append(expiredDate);
         } else {
             document.querySelector("#expiredDate").parentElement.remove();
