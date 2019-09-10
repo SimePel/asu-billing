@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -194,7 +193,6 @@ func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
 func tryToRenewPayment(mysql MySQL, user User) {
 	if user.hasEnoughMoneyForPayment() {
 		expirationDate, err := mysql.PayForNextMonth(user)
-		fmt.Printf("%v\n", expirationDate.String())
 		if err != nil {
 			log.Println(err)
 			return
