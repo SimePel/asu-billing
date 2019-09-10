@@ -326,3 +326,31 @@ func TestPayForNextMonth(t *testing.T) {
 	assert.Equal(t, expected.Activity, actualUser.Activity)
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
+
+func TestDeleteUserByID(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	user := User{
+		Activity:  false,
+		Name:      "Тестовый Тест Тестович4",
+		Agreement: "П-104",
+		Phone:     "88005553441",
+		Login:     "unknown.444",
+		ExtIP:     "82.200.46.10",
+		Tariff: Tariff{
+			ID:    1,
+			Name:  "Базовый-30",
+			Price: 200,
+		},
+	}
+
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	err = mysql.ProcessPayment(id, 200)
+	require.NoError(t, err)
+
+	err = mysql.DeleteUserByID(id)
+	require.NoError(t, err)
+
+	// Проверить, что и в табличке payments каскадно удалились записи
+}

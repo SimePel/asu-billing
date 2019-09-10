@@ -194,27 +194,22 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Duration, error) {
 	return time.Until(t), nil
 }
 
-// func DeleteUserByID(db *sql.DB, id int) error {
-// 	var innerIPid int
-// 	err := db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
-// 	if err != nil {
-// 		return fmt.Errorf("could not scan ip_id from users table to variable: %v", err)
-// 	}
+func (mysql MySQL) DeleteUserByID(id int) error {
+	var innerIPid int
+	err := mysql.db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
+	if err != nil {
+		return fmt.Errorf("cannot scan ip_id from users table to variable: %v", err)
+	}
 
-// 	_, err = db.Exec(`UPDATE ips SET used = 0 WHERE id=?`, innerIPid)
-// 	if err != nil {
-// 		return fmt.Errorf("could not set false used state to ip_id: %v", err)
-// 	}
+	_, err = mysql.db.Exec(`UPDATE ips SET used = 0 WHERE id=?`, innerIPid)
+	if err != nil {
+		return fmt.Errorf("cannot set false used state to ip_id: %v", err)
+	}
 
-// 	_, err = db.Exec(`DELETE FROM users WHERE id = ?`, id)
-// 	if err != nil {
-// 		return fmt.Errorf("could not delete user with id=%v: %v", id, err)
-// 	}
+	_, err = mysql.db.Exec(`DELETE FROM users WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot delete user with id=%v: %v", id, err)
+	}
 
-// 	_, err = db.Exec(`DELETE FROM payments WHERE user_id = ?`, id)
-// 	if err != nil {
-// 		return fmt.Errorf("could not delete payments info about user with id=%v: %v", id, err)
-// 	}
-
-// 	return nil
-// }
+	return nil
+}
