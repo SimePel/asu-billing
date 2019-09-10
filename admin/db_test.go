@@ -28,8 +28,14 @@ func prepareDB(db *sql.DB) error {
 		ip_id int(10) unsigned NOT NULL,
 		ext_ip varchar(15) COLLATE utf8_unicode_ci NOT NULL,
 		PRIMARY KEY (id),
-		UNIQUE KEY ip_id (ip_id)
+		UNIQUE (ip_id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users
+		ADD FOREIGN KEY (ip_id) REFERENCES ips(id);`)
 	if err != nil {
 		return err
 	}
@@ -39,7 +45,7 @@ func prepareDB(db *sql.DB) error {
 		ip varchar(16) COLLATE utf8_unicode_ci NOT NULL,
 		used tinyint(1) NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
-		UNIQUE KEY ip (ip)
+		UNIQUE (ip)
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
 	if err != nil {
 		return err
@@ -57,21 +63,12 @@ func prepareDB(db *sql.DB) error {
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS payments (
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
-		user_id int(10) unsigned NOT NULL,
+		user_id bigint(20) unsigned NOT NULL,
 		sum smallint(6) NOT NULL,
 		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-		PRIMARY KEY (id)
-	  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`INSERT INTO payments (id, user_id, sum, date) VALUES (1, 1, 200, '2019-06-07 07:32:50');`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`INSERT INTO tariffs (id, name, price) VALUES (1, 'Базовый-30', 200);`)
+		PRIMARY KEY (id),
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
 	if err != nil {
 		return err
 	}
@@ -114,23 +111,46 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`INSERT INTO payments (id, user_id, sum, date) VALUES (1, 1, 200, '2019-06-07 07:32:50');`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`INSERT INTO tariffs (id, name, price) VALUES (1, 'Базовый-30', 200);`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func clearDB(db *sql.DB) error {
-	_, err := db.Exec(`TRUNCATE TABLE users;`)
+	_, err := db.Exec(`SET FOREIGN_KEY_CHECKS = 0;`)
 	if err != nil {
 		return err
 	}
+
 	_, err = db.Exec(`TRUNCATE TABLE ips;`)
 	if err != nil {
 		return err
 	}
+
+	_, err = db.Exec(`TRUNCATE TABLE users;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`TRUNCATE TABLE payments;`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`TRUNCATE TABLE tariffs;`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`TRUNCATE TABLE payments;`)
+
+	_, err = db.Exec(`SET FOREIGN_KEY_CHECKS = 1;`)
 	if err != nil {
 		return err
 	}
