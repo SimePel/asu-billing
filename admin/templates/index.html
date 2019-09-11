@@ -46,18 +46,18 @@
               <p class="menu-label">
                 Что показывать в таблице
               </p>
-              <ul class="menu-list">
-                <li><a>ФИО</a></li>
-                <li><a>Договор</a></li>
-                <li><a>Логин</a></li>
-                <li><a>Дата отключения</a></li>
-                <li><a>Внутренний IP</a></li>
-                <li><a>Телефон</a></li>
-                <li><a>Комната</a></li>
-                <li><a>Тариф</a></li>
-                <li><a>Точка подключения</a></li>
-                <li><a>Баланс</a></li>
-                <li><a>Статус</a></li>
+              <ul id="menu-list" class="menu-list">
+                <li><a data-menu-item="name">ФИО</a></li>
+                <li><a data-menu-item="agreement">Договор</a></li>
+                <li><a data-menu-item="login">Логин</a></li>
+                <li><a data-menu-item="expiredDate">Дата отключения</a></li>
+                <li><a data-menu-item="ip">Внутренний IP</a></li>
+                <li><a data-menu-item="phone">Телефон</a></li>
+                <li><a data-menu-item="room">Комната</a></li>
+                <li><a data-menu-item="tariff">Тариф</a></li>
+                <li><a data-menu-item="connectionPlace">Точка подключения</a></li>
+                <li><a data-menu-item="balance">Баланс</a></li>
+                <li><a data-menu-item="activity">Статус</a></li>
               </ul>
               <p class="menu-label">
                 СМС оповещения
@@ -80,17 +80,17 @@
         <table class="table is-hoverable is-fullwidth">
           <thead>
             <tr>
-              <th class="name">ФИО</th>
-              <th class="agreement">Договор</th>
-              <th class="login">Логин</th>
-              <th class="expiredDate">Дата отключения</th>
-              <th class="ip">Внутренний IP</th>
-              <th class="phone">Телефон</th>
-              <th class="room">Комната</th>
-              <th class="tariff">Тариф</th>
-              <th class="connectionPlace">Точка подключения</th>
-              <th class="balance">Баланс</th>
-              <th class="active">Статус</th>
+              <th data-table-tag="name" hidden>ФИО</th>
+              <th data-table-tag="agreement" hidden>Договор</th>
+              <th data-table-tag="login" hidden>Логин</th>
+              <th data-table-tag="expiredDate" hidden>Дата отключения</th>
+              <th data-table-tag="ip" hidden>Внутренний IP</th>
+              <th data-table-tag="phone" hidden>Телефон</th>
+              <th data-table-tag="room" hidden>Комната</th>
+              <th data-table-tag="tariff" hidden>Тариф</th>
+              <th data-table-tag="connectionPlace" hidden>Точка подключения</th>
+              <th data-table-tag="balance" hidden>Баланс</th>
+              <th data-table-tag="activity" hidden>Статус</th>
             </tr>
           </thead>
           <tbody id="tbody">
