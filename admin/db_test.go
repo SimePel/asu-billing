@@ -310,6 +310,41 @@ func TestProcessPayment(t *testing.T) {
 	// Еще протестить, что создалась запись в табличке payments
 }
 
+func TestGetPaymentsByID(t *testing.T) {
+	user := User{
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович6",
+		Agreement: "П-006",
+		Phone:     "88005553566",
+		Login:     "payment.166",
+		ExtIP:     "82.200.46.10",
+		Balance:   0,
+		Tariff: Tariff{
+			ID:    1,
+			Name:  "Базовый-30",
+			Price: 200,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	err = mysql.ProcessPayment(id, 200)
+	require.NoError(t, err)
+
+	err = mysql.ProcessPayment(id, 100)
+	require.NoError(t, err)
+
+	actualPayments, err := mysql.GetPaymentsByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, 2, len(actualPayments))
+	assert.Equal(t, 200, actualPayments[0].Sum)
+	assert.Equal(t, 100, actualPayments[1].Sum)
+}
+
 func TestPayForNextMonth(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user, err := mysql.GetUserByID(2)
