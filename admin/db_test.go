@@ -246,6 +246,12 @@ func TestGetUserByID(t *testing.T) {
 		ExtIP:       "82.200.46.10",
 		Balance:     100,
 		ExpiredDate: time.Date(2019, time.June, 27, 4, 25, 26, 0, time.UTC),
+		Payments: []Payment{
+			Payment{
+				Sum:  200,
+				Date: time.Date(2019, time.June, 7, 7, 32, 50, 0, time.UTC),
+			},
+		},
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
