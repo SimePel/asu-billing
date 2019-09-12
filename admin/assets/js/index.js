@@ -55,7 +55,7 @@ function getUsers() {
                 tds.push(createTD("agreement", user.agreement));
                 tds.push(createTD("login", user.login));
                 let expiredDate = "Не подключен";
-                if (user.activity === true) {
+                if (user.paid === true) {
                     const d = new Date(user.expired_date);
                     expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
                 }
