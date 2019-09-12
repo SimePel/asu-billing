@@ -242,3 +242,33 @@ func (mysql MySQL) DeleteUserByID(id int) error {
 
 	return nil
 }
+
+func (mysql MySQL) GetCountOfActiveUsers() (int, error) {
+	var count int
+	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=true`).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("cannot do queryRow: %v", err)
+	}
+
+	return count, nil
+}
+
+func (mysql MySQL) GetCountOfInactiveUsers() (int, error) {
+	var count int
+	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=false`).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("cannot do queryRow: %v", err)
+	}
+
+	return count, nil
+}
+
+func (mysql MySQL) GetAllMoneyWeHave() (int, error) {
+	var sum int
+	err := mysql.db.QueryRow(`SELECT SUM(sum) FROM payments`).Scan(&sum)
+	if err != nil {
+		return 0, fmt.Errorf("cannot do queryRow: %v", err)
+	}
+
+	return sum, nil
+}

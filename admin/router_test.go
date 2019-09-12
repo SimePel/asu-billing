@@ -272,3 +272,28 @@ func TestPaymentPostHandler(t *testing.T) {
 
 	// Еще проверить записи в табличке payments
 }
+
+func TestGetStatsAboutUsers(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		getStatsAboutUsers(w, r)
+	}))
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/stats")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	var J struct {
+		ActiveUsersCount   int `json:"active_users_count"`
+		InactiveUsersCount int `json:"inactive_users_count"`
+		AllMoney           int `json:"all_money"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&J)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.NotZero(t, J.ActiveUsersCount)
+	assert.NotZero(t, J.InactiveUsersCount)
+	assert.NotZero(t, J.AllMoney)
+}

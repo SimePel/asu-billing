@@ -398,3 +398,24 @@ func TestDeleteUserByID(t *testing.T) {
 
 	// Проверить, что и в табличке payments каскадно удалились записи
 }
+
+func TestGetCountOfActiveUsers(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	count, err := mysql.GetCountOfActiveUsers()
+	require.NoError(t, err)
+	assert.Equal(t, 1, count)
+}
+
+func TestGetCountOfInactiveUsers(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	count, err := mysql.GetCountOfInactiveUsers()
+	require.NoError(t, err)
+	assert.NotZero(t, count)
+}
+
+func TestGetAllMoneyWeHave(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	money, err := mysql.GetAllMoneyWeHave()
+	require.NoError(t, err)
+	assert.NotZero(t, money)
+}

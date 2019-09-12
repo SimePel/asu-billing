@@ -19,6 +19,7 @@ func newRouter() *chi.Mux {
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
+	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 	r.With(checkJWTtoken).Get("/", indexHandler)
 	r.With(checkJWTtoken).Get("/logout", logoutHandler)
 	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
@@ -202,4 +203,39 @@ func tryToRenewPayment(mysql MySQL, user User) {
 		f := createTryToRenewPaymentFunc(mysql, user)
 		time.AfterFunc(expirationDate, f)
 	}
+}
+
+func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
+	mysql := MySQL{db: initializeDB()}
+	activeUsersCount, err := mysql.GetCountOfActiveUsers()
+	if err != nil {
+		log.Printf("cannot get count of active users: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	inactiveUsersCount, err := mysql.GetCountOfInactiveUsers()
+	if err != nil {
+		log.Printf("cannot get count of inactive users: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	allMoney, err := mysql.GetAllMoneyWeHave()
+	if err != nil {
+		log.Printf("cannot get sum of all money we have: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	J := struct {
+		ActiveUsersCount   int `json:"active_users_count"`
+		InactiveUsersCount int `json:"inactive_users_count"`
+		AllMoney           int `json:"all_money"`
+	}{
+		ActiveUsersCount:   activeUsersCount,
+		InactiveUsersCount: inactiveUsersCount,
+		AllMoney:           allMoney,
+	}
+	json.NewEncoder(w).Encode(&J)
 }
