@@ -16,44 +16,31 @@ import (
 )
 
 func TestUserCtx(t *testing.T) {
-	var expectedID uint = 1
+	mysql := MySQL{db: openTestDBconnection()}
+	user := User{
+		Paid:      false,
+		Activity:  false,
+		Name:      "Тестовый Тест Тестович701",
+		Agreement: "П-701",
+		Room:      "701а",
+		Login:     "king.701",
+		Balance:   0,
+		Tariff: Tariff{
+			ID:    1,
+			Name:  "Проводной",
+			Price: 200,
+		},
+	}
+	expectedID, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
 	r := chi.NewRouter()
 	r.Route("/users", func(r chi.Router) {
 		r.Route("/{userID}", func(r chi.Router) {
 			r.Use(jsonContentType)
 			r.Use(func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					db, mock, err := sqlmock.New()
-					require.NoError(t, err)
-					defer db.Close()
-
-					user := User{
-						ID:              expectedID,
-						Paid:            false,
-						Activity:        false,
-						Name:            "Тест",
-						Agreement:       "П-777",
-						Room:            "502",
-						Phone:           "88005553550",
-						Login:           "blabla.123",
-						InnerIP:         "10.80.80.1",
-						ExtIP:           "82.200.46.10",
-						Balance:         0,
-						ConnectionPlace: "Не важно",
-						ExpiredDate:     time.Now().Add(time.Minute),
-						Tariff: Tariff{
-							ID:    1,
-							Name:  "Проводной",
-							Price: 200,
-						},
-					}
-					rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement", "expired_date",
-						"connection_place", "paid", "activity", "room", "phone", "tariff_id", "tariff_name", "price",
-						"ip", "ext_ip"}).AddRow(user.ID, user.Balance, user.Name, user.Login, user.Agreement,
-						user.ExpiredDate, user.ConnectionPlace, user.Paid, user.Activity, user.Room, user.Phone,
-						user.Tariff.ID, user.Tariff.Name, user.Tariff.Price, user.InnerIP, user.ExtIP)
-					mock.ExpectQuery(`SELECT (.+) FROM (.+) WHERE users.id = `).WithArgs(expectedID).WillReturnRows(rows)
-					ctx := context.WithValue(r.Context(), dbCtxKey("db"), db)
+					ctx := context.WithValue(r.Context(), dbCtxKey("db"), mysql.db)
 					next.ServeHTTP(w, r.WithContext(ctx))
 				})
 			})
@@ -65,7 +52,6 @@ func TestUserCtx(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	// Да - бред, но пока не понял, почему если добавлять юзера в самом тесте, то функция его не находит
 	res, err := http.Get(ts.URL + fmt.Sprintf("/users/%v", expectedID))
 	require.NoError(t, err)
 	assert.Equal(t, 200, res.StatusCode)
@@ -73,7 +59,7 @@ func TestUserCtx(t *testing.T) {
 	var actualUser *User
 	err = json.NewDecoder(res.Body).Decode(&actualUser)
 	require.NoError(t, err)
-	assert.Equal(t, expectedID, actualUser.ID)
+	assert.Equal(t, expectedID, int(actualUser.ID))
 }
 
 func TestGetUser(t *testing.T) {
