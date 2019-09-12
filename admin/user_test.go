@@ -29,6 +29,7 @@ func TestUserCtx(t *testing.T) {
 
 					user := User{
 						ID:              expectedID,
+						Paid:            false,
 						Activity:        false,
 						Name:            "Тест",
 						Agreement:       "П-777",
@@ -46,11 +47,10 @@ func TestUserCtx(t *testing.T) {
 							Price: 200,
 						},
 					}
-					rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement",
-						"expired_date", "connection_place", "activity", "room", "phone", "tariff_id",
-						"tariff_name", "price", "ip", "ext_ip"}).AddRow(user.ID, user.Balance,
-						user.Name, user.Login, user.Agreement, user.ExpiredDate,
-						user.ConnectionPlace, user.Activity, user.Room, user.Phone,
+					rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement", "expired_date",
+						"connection_place", "paid", "activity", "room", "phone", "tariff_id", "tariff_name", "price",
+						"ip", "ext_ip"}).AddRow(user.ID, user.Balance, user.Name, user.Login, user.Agreement,
+						user.ExpiredDate, user.ConnectionPlace, user.Paid, user.Activity, user.Room, user.Phone,
 						user.Tariff.ID, user.Tariff.Name, user.Tariff.Price, user.InnerIP, user.ExtIP)
 					mock.ExpectQuery(`SELECT (.+) FROM (.+) WHERE users.id = `).WithArgs(expectedID).WillReturnRows(rows)
 					ctx := context.WithValue(r.Context(), dbCtxKey("db"), db)
@@ -86,6 +86,7 @@ func TestGetUser(t *testing.T) {
 
 	user := &User{
 		ID:              100,
+		Paid:            false,
 		Activity:        false,
 		Name:            "Тест",
 		Agreement:       "П-777",
@@ -117,6 +118,7 @@ func TestGetAllUsersHandler(t *testing.T) {
 	expectedUsers := []User{
 		{
 			ID:              1,
+			Paid:            false,
 			Activity:        false,
 			Name:            "Тест",
 			Agreement:       "П-777",
@@ -135,6 +137,7 @@ func TestGetAllUsersHandler(t *testing.T) {
 			}},
 		{
 			ID:              2,
+			Paid:            false,
 			Activity:        false,
 			Name:            "Тест2",
 			Agreement:       "П-123",
@@ -153,16 +156,18 @@ func TestGetAllUsersHandler(t *testing.T) {
 			}},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement", "expired_date",
-		"connection_place", "activity", "room", "phone", "tariff_id", "tariff_name", "price", "ip", "ext_ip"}).
+	rows := sqlmock.NewRows([]string{"id", "balance", "name", "login", "agreement", "expired_date", "connection_place",
+		"paid", "activity", "room", "phone", "tariff_id", "tariff_name", "price", "ip", "ext_ip"}).
 		AddRow(expectedUsers[0].ID, expectedUsers[0].Balance, expectedUsers[0].Name, expectedUsers[0].Login,
 			expectedUsers[0].Agreement, expectedUsers[0].ExpiredDate, expectedUsers[0].ConnectionPlace,
-			expectedUsers[0].Activity, expectedUsers[0].Room, expectedUsers[0].Phone, expectedUsers[0].Tariff.ID,
-			expectedUsers[0].Tariff.Name, expectedUsers[0].Tariff.Price, expectedUsers[0].InnerIP, expectedUsers[0].ExtIP).
+			expectedUsers[0].Paid, expectedUsers[0].Activity, expectedUsers[0].Room, expectedUsers[0].Phone,
+			expectedUsers[0].Tariff.ID, expectedUsers[0].Tariff.Name, expectedUsers[0].Tariff.Price,
+			expectedUsers[0].InnerIP, expectedUsers[0].ExtIP).
 		AddRow(expectedUsers[1].ID, expectedUsers[1].Balance, expectedUsers[1].Name, expectedUsers[1].Login,
 			expectedUsers[1].Agreement, expectedUsers[1].ExpiredDate, expectedUsers[1].ConnectionPlace,
-			expectedUsers[1].Activity, expectedUsers[1].Room, expectedUsers[1].Phone, expectedUsers[1].Tariff.ID,
-			expectedUsers[1].Tariff.Name, expectedUsers[1].Tariff.Price, expectedUsers[1].InnerIP, expectedUsers[1].ExtIP)
+			expectedUsers[1].Paid, expectedUsers[1].Activity, expectedUsers[1].Room, expectedUsers[1].Phone,
+			expectedUsers[1].Tariff.ID, expectedUsers[1].Tariff.Name, expectedUsers[1].Tariff.Price,
+			expectedUsers[1].InnerIP, expectedUsers[1].ExtIP)
 
 	mock.ExpectQuery("SELECT (.+) FROM (.+)").WillReturnRows(rows)
 

@@ -224,7 +224,7 @@ func TestPaymentPostHandler(t *testing.T) {
 
 	user := User{
 		ID:        100,
-		Activity:  false,
+		Paid:      false,
 		Name:      "Тестовый Тест Тестович100",
 		Agreement: "П-100",
 		Phone:     "88005553100",
@@ -258,7 +258,7 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, payment.Sum, actualUser.Balance)
-	assert.Equal(t, false, actualUser.Activity)
+	assert.Equal(t, user.Paid, actualUser.Paid)
 
 	resp, err = http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
 	require.NoError(t, err)
@@ -268,7 +268,7 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, 0, actualUser.Balance)
-	assert.Equal(t, true, actualUser.Activity)
+	assert.Equal(t, true, actualUser.Paid)
 
 	// Еще проверить записи в табличке payments
 }

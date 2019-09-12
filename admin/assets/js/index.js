@@ -7,22 +7,22 @@ function getUsers() {
         return td;
     }
 
-    function createStatusIcon(activity) {
+    function createStatusTD(paid, activity) {
         let td = document.createElement("td");
-        let span = document.createElement("span");
-        let i = document.createElement("i");
-        if (activity === true) {
-            span.classList.add("icon", "has-text-success");
-            i.classList.add("fas", "fa-user-check");
-        } else {
-            span.classList.add("icon", "has-text-danger");
-            i.classList.add("fas", "fa-user-times");
-        }
-
         td.setAttribute("hidden", "");
         td.setAttribute("data-table-tag", "activity");
-        span.append(i);
-        td.append(span);
+
+        let paidText = "Не оплачено. ";
+        if (paid) {
+            paidText = "Оплачено. ";
+        }
+
+        let activityText = "Без доступа в интернет";
+        if (activity) {
+            activityText = "Подключен к интернету";
+        }
+
+        td.append(paidText + activityText);
         return td;
     }
 
@@ -66,7 +66,7 @@ function getUsers() {
                 tds.push(createTD("tariff", user.tariff.name));
                 tds.push(createTD("connectionPlace", user.connection_place));
                 tds.push(createTD("balance", user.balance));
-                tds.push(createStatusIcon(user.activity));
+                tds.push(createStatusTD(user.paid, user.activity));
 
                 let tr = document.createElement("tr");
                 tr.append(...tds);

@@ -44,6 +44,7 @@ type User struct {
 	ID        uint      `json:"id"`
 	Balance   int       `json:"balance"`
 	Activity  bool      `json:"activity"`
+	Paid      bool      `json:"paid"`
 	Name      string    `json:"name"`
 	Room      string    `json:"room"`
 	Login     string    `json:"login"`
@@ -69,8 +70,7 @@ func (u User) hasEnoughMoneyForPayment() bool {
 // GetAllUsers returns all users from db
 func (mysql MySQL) GetAllUsers() ([]User, error) {
 	rows, err := mysql.db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-		connection_place, activity, room, phone, tariffs.id AS tariff_id, tariffs.name, price,
-		ips.ip, ext_ip
+	 	connection_place, activity, paid, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.ip, ext_ip
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)`)
@@ -82,9 +82,9 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 	var user User
 	users := make([]User, 0)
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement,
-			&user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Room, &user.Phone,
-			&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+		err := rows.Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
+			&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Phone, &user.Tariff.ID,
+			&user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get one row: %v", err)
 		}
@@ -101,15 +101,14 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 // GetUserByID returns user from db
 func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
-	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-		connection_place, activity, room, phone, tariffs.id AS tariff_id,
-		tariffs.name AS tariff_name, price, ips.ip, ext_ip  
+	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date, connection_place,
+		activity, paid, room, phone, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
-	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login,
-		&user.Agreement, &user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Room,
-		&user.Phone, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
+		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Phone, &user.Tariff.ID, &user.Tariff.Name,
+		&user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
@@ -135,10 +134,10 @@ func (mysql MySQL) AddUser(user User) (int, error) {
 		return 0, fmt.Errorf("cannot get unused id of inner ip: %v", err)
 	}
 
-	res, err := mysql.db.Exec(`INSERT INTO users (balance, activity, name, room, login, phone, ext_ip,
-		ip_id, tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-		user.Balance, user.Activity, user.Name, user.Room, user.Login, user.Phone, "82.200.46.10",
-		innerIPid, user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
+	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, room, login, phone, ext_ip, ip_id, tariff,
+		agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		user.Balance, user.Paid, user.Name, user.Room, user.Login, user.Phone, "82.200.46.10", innerIPid,
+		user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
 	if err != nil {
 		return 0, fmt.Errorf("cannot insert values in db: %v", err)
 	}
@@ -185,7 +184,7 @@ func (mysql MySQL) ProcessPayment(userID, sum int) error {
 // PayForNextMonth activates user for next month
 func (mysql MySQL) PayForNextMonth(user User) (time.Duration, error) {
 	t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
-	_, err := mysql.db.Exec(`UPDATE users SET expired_date=?, activity=1, balance=balance-? WHERE id=?`,
+	_, err := mysql.db.Exec(`UPDATE users SET expired_date=?, paid=1, balance=balance-? WHERE id=?`,
 		t, user.Tariff.Price, user.ID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot update user's info after payment: %v", err)

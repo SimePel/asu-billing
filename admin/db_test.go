@@ -23,6 +23,7 @@ func prepareDB(db *sql.DB) error {
 		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
 		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
+		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',
 		tariff int(10) unsigned NOT NULL,
 		ip_id int(10) unsigned NOT NULL,
@@ -103,10 +104,10 @@ func prepareDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, login, 
-		connection_place, phone, room, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
-		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 1,
+		connection_place, phone, room, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
+		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 1, 1, 
 		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 0, 1, 2, '82.200.46.10');`)
+		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 0, 0, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
@@ -194,6 +195,7 @@ func TestGetAllUsers(t *testing.T) {
 	expectedUsers := []User{
 		{
 			ID:          1,
+			Paid:        true,
 			Activity:    true,
 			Name:        "Тестовый Тест Тестович",
 			Agreement:   "П-001",
@@ -210,7 +212,7 @@ func TestGetAllUsers(t *testing.T) {
 			}},
 		{
 			ID:        2,
-			Activity:  false,
+			Paid:      false,
 			Name:      "Тестовый Тест Тестович2",
 			Agreement: "П-002",
 			Room:      "501c",
@@ -234,6 +236,7 @@ func TestGetAllUsers(t *testing.T) {
 func TestGetUserByID(t *testing.T) {
 	expectedUser := User{
 		ID:          1,
+		Paid:        true,
 		Activity:    true,
 		Name:        "Тестовый Тест Тестович",
 		Agreement:   "П-001",
@@ -270,7 +273,7 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Activity:  false,
+		Paid:      false,
 		Name:      "Тестовый Тест Тестович3",
 		Agreement: "П-003",
 		Phone:     "88005553553",
@@ -314,7 +317,7 @@ func TestPayForNextMonth(t *testing.T) {
 
 	expected := struct {
 		ExpiredDate time.Time
-		Activity    bool
+		Paid        bool
 		Balance     int
 	}{
 		time.Now().AddDate(0, 1, 0),
@@ -323,14 +326,14 @@ func TestPayForNextMonth(t *testing.T) {
 	}
 
 	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04:05"), actualUser.ExpiredDate.Format("2016.01.2 15:04:05"))
-	assert.Equal(t, expected.Activity, actualUser.Activity)
+	assert.Equal(t, expected.Paid, actualUser.Paid)
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
 
 func TestDeleteUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
-		Activity:  false,
+		Paid:      false,
 		Name:      "Тестовый Тест Тестович4",
 		Agreement: "П-104",
 		Phone:     "88005553441",
