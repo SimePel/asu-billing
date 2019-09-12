@@ -116,3 +116,29 @@ func TestGetAllUsersHandler(t *testing.T) {
 	assert.Equal(t, 200, rr.Code)
 	assert.NotNil(t, actualUsers)
 }
+
+func TestDeleteUserHandler(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/users/userID", nil)
+	require.Nil(t, err)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		deleteUser(w, r)
+	})
+
+	user := User{
+		Name:  "Временно",
+		Login: "Временно",
+	}
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, userCtxKey("user"), &user)
+	req = req.WithContext(ctx)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, 200, rr.Code)
+}
