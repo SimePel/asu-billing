@@ -179,7 +179,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Activity == false {
+	if user.Paid == false {
 		tryToRenewPayment(mysql, user)
 	}
 }
