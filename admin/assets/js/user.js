@@ -11,6 +11,22 @@ let deleteButton = document.querySelector("#deleteButton");
 deleteButton.addEventListener("click", deleteUser);
 
 function getUser(userID) {
+    function showPayments(payments) {
+        for (let payment of payments) {
+            let tr = document.createElement("tr");
+            let sumTD = document.createElement("td");
+            sumTD.append(payment.sum);
+            let dateTD = document.createElement("td");
+            const d = new Date(payment.date);
+            const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+            dateTD.append(date);
+            let tds = [];
+            tds.push(dateTD, sumTD);
+            tr.append(...tds);
+            document.querySelector("#tbody").append(tr);
+        }
+    }
+
     fetch("/users/" + userID).then((res) => { return res.json() }).then((user) => {
         document.querySelector("#name").append(user.name);
         document.querySelector("#agreement").append(user.agreement);
@@ -29,6 +45,7 @@ function getUser(userID) {
             document.querySelector("#expiredDate").parentElement.remove();
         }
         document.querySelector("#balance").append(user.balance);
+        showPayments(user.payments);
     })
 }
 

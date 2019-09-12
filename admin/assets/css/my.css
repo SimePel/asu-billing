@@ -118,3 +118,9 @@ div.column > ul > li > span {
 #paymentInput {
     width: 8rem;
 }
+
+h4 {
+    font-weight: 500;
+    font-size: 1.4rem;
+    margin-bottom: 0.85rem;
+}

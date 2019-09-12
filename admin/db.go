@@ -113,6 +113,12 @@ func (mysql MySQL) GetUserByID(id int) (User, error) {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
 
+	payments, err := mysql.GetPaymentsByID(id)
+	if err != nil {
+		return user, fmt.Errorf("cannot get payments with id=%v: %v", id, err)
+	}
+	user.Payments = payments
+
 	return user, nil
 }
 
@@ -125,6 +131,30 @@ func (mysql MySQL) GetUserIDbyLogin(login string) (uint, error) {
 	}
 
 	return id, nil
+}
+
+// GetPaymentsByID returns info about user payments
+func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
+	rows, err := mysql.db.Query(`SELECT sum, date FROM payments WHERE user_id= ?`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get payments by id: %v", err)
+	}
+
+	var payment Payment
+	payments := make([]Payment, 0)
+	for rows.Next() {
+		err := rows.Scan(&payment.Sum, &payment.Date)
+		if err != nil {
+			return nil, fmt.Errorf("cannot scan from row: %v", err)
+		}
+		payments = append(payments, payment)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return payments, nil
 }
 
 // AddUser adds user to db
