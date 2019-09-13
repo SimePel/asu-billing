@@ -15,10 +15,19 @@
   <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <div class="navbar-item">
-        <h3 class="title is-size-4">Добавление пользователя</h3>
+        <a class="logo" href="/">
+          <span class="icon">
+            <i class="fas fa-home"></i>
+          </span>
+        </a>
       </div>
     </div>
     <div class="navbar-menu">
+      <div class="navbar-start">
+        <div class="navbar-item">
+          <h3 class="title is-size-4">Добавление пользователя</h3>
+        </div>
+      </div>
       <div class="navbar-end">
         <div class="navbar-item">
           <a class="button is-warning" href="/logout">Выйти</a>
@@ -28,69 +37,29 @@
   </nav>
   <section class="section">
     <div class="columns">
-      <div class="column is-one-fifth">
+      <div class="column is-6">
         <form action="/add-user" method="post">
-          <div class="field">
-            <label class="label">ФИО<span class="has-text-danger"> *</span></label>
-            <div class="control">
-              <input class="input" name="name" type="text" required>
-            </div>
+          <input type="hidden" name="id"></input>
+          <div>ФИО<span class="has-text-danger">*</span>: <input class="input" type="text" name="name" required></input>
           </div>
-          <div class="field">
-            <label class="label">Договор<span class="has-text-danger"> *</span></label>
-            <div class="control">
-              <input class="input" name="agreement" type="text" required>
-            </div>
+          <div>Договор<span class="has-text-danger">*</span>: <input class="input" type="text" name="agreement"
+              required></input></div>
+          <div>Логин<span class="has-text-danger">*</span>: <input class="input" type="text" name="login"
+              required></input></div>
+          <div>Тариф: <span class="control select"><select name="tariff" required>
+                <option value="1" selected>Базовый (200р)</option>
+              </select></span>
           </div>
-          <label class="label">Логин<span class="has-text-danger"> *</span></label>
-          <div class="field has-addons">
-            <div class="control">
-              <input class="input" name="login" type="text" required>
-            </div>
-            <div class="control">
-              <a class="button is-static">
-                @stud.asu.ru
-              </a>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Тариф<span class="has-text-danger"> *</span></label>
-            <div class="control">
-              <div class="select">
-                <select name="tariff" required>
-                  <option value="1" selected>Базовый (200р)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Точка подключения</label>
-            <div class="control">
-              <input class="input" name="connectionPlace" type="text">
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Номер телефона</label>
-            <div class="control">
-              <input class="input" name="phone" type="text">
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Комната</label>
-            <div class="control">
-              <input class="input" name="room" type="text">
-            </div>
-          </div>
+          <div>Телефон: <input class="input" type="tel" name="phone"></input></div>
+          <div>Комната: <input class="input" type="text" name="room"></input></div>
+          <div>Точка подключения: <input class="input" type="text" name="connectionPlace"></input></div>
+
           <div class="field is-grouped">
             <div class="control">
-              <button class="button is-success">
-                Добавить
-              </button>
+              <input type="submit" class="button is-success" value="Создать"></input>
             </div>
             <div class="control">
-              <button id="cancelButton" class="button">
-                Отмена
-              </button>
+              <a class="button" href="/">Отменить</a>
             </div>
           </div>
         </form>
