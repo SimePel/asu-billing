@@ -1,12 +1,16 @@
 function auth() {
     fetch("login", {
         method: "POST",
-        headers: { "Content-Type": "application/json; charset=utf-8" },
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
         body: JSON.stringify({
             login: document.getElementById("login").value,
             password: document.getElementById("password").value,
         }),
-    }).then((res) => { return res.json() }).then((data) => {
+    }).then((res) => {
+        return res.json()
+    }).then((data) => {
         if (data.answer != "ok") {
             document.getElementById("errorHere").innerHTML = data.error;
             return;

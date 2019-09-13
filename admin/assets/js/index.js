@@ -122,7 +122,7 @@ addEventListenersToMenuItems();
 let toggle = document.querySelector(".toggle");
 toggle.addEventListener("click", event => {
     toggle.classList.toggle("active");
-    toggle.innerHTML == "Выкл"
-        ? (toggle.innerHTML = "Вкл")
-        : (toggle.innerHTML = "Выкл");
+    toggle.innerHTML == "Выкл" ?
+        (toggle.innerHTML = "Вкл") :
+        (toggle.innerHTML = "Выкл");
 });
