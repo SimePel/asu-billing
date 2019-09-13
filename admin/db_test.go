@@ -298,6 +298,23 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, 3, actualID)
 }
 
+func TestUpdateUser(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	user, err := mysql.GetUserByID(2)
+	require.NoError(t, err)
+
+	user.Phone = "89993334455"
+	user.ConnectionPlace = "рандом"
+
+	err = mysql.UpdateUser(user)
+	require.NoError(t, err)
+
+	updatedUser, err := mysql.GetUserByID(2)
+	require.NoError(t, err)
+
+	assert.Equal(t, user, updatedUser)
+}
+
 func TestProcessPayment(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	err := mysql.ProcessPayment(1, 100)

@@ -1,17 +1,19 @@
-html, body {
+html,
+body {
     height: 100%;
 }
 
-body { 
-    display:flex; 
-    flex-direction:column; 
+body {
+    display: flex;
+    flex-direction: column;
 }
 
 footer {
-    margin-top:auto;
+    margin-top: auto;
 }
 
-.table td, .table th {
+.table td,
+.table th {
     border: 1px solid #f3f3f3;
 }
 
@@ -24,7 +26,7 @@ footer {
 }
 
 .has-border-top {
-	border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .invisible {
@@ -57,61 +59,71 @@ footer {
     transform: translateX(100%);
 }
 
-.open:checked ~ .settings-panel {
+.open:checked~.settings-panel {
     transform: translateX(0);
     transition: 0.35s
 }
 
-.open:not(:checked) ~ .settings-panel {
+.open:not(:checked)~.settings-panel {
     transition: 0.35s
 }
 
-nav.navbar + section.section {
+nav.navbar+section.section {
     padding: 1.5rem 1.5rem;
 }
 
-div.column > ul > li {
+div.column>ul>li {
     margin-bottom: 1rem;
     font-size: 1.4rem;
 }
 
-div.column > ul > li {
+div.column>form>div {
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
     font-weight: 500;
 }
 
-div.column > ul > li > span {
+div.column>form>div>input {
+    width: 16rem;
+}
+
+div.column>ul>li {
+    font-weight: 500;
+}
+
+div.column>ul>li>span {
     font-weight: 400;
 }
 
 .logo {
     color: hsl(217, 71%, 53%);
-    transform: scale(1.5,1.5);
+    transform: scale(1.5, 1.5);
 }
 
 .clickable {
     cursor: pointer;
 }
 
-.menu .menu-list li a{
+.menu .menu-list li a {
     line-height: 18px;
     border-radius: 0;
     transition: background-color .3s ease;
 }
 
-.menu .menu-list li a.active{
+.menu .menu-list li a.active {
     background-color: #e4e4e4;
 }
 
-.menu .menu-list .toggle a:hover{
+.menu .menu-list .toggle a:hover {
     background-color: transparent;
 }
 
-.menu .menu-list .toggle{
+.menu .menu-list .toggle {
     color: #f3f3f3;
     background-color: #ef5350;
 }
 
-.menu .menu-list .toggle.active{
+.menu .menu-list .toggle.active {
     background-color: #6bdd6d;
 }
 
@@ -126,5 +138,5 @@ h4 {
 }
 
 .footer {
-    padding: 2rem 1.5rem 3rem; 
+    padding: 2rem 1.5rem 2rem;
 }

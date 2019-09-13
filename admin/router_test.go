@@ -78,6 +78,17 @@ func TestAddUserHandler(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func TestEditUserHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		editUserHandler(w, r)
+	}))
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/edit-user")
+	require.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
 func TestLogoutHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c := http.Cookie{
@@ -214,6 +225,75 @@ func TestAddUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Room, user.Room)
 	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
 	assert.Equal(t, expected.Tariff, user.Tariff.ID)
+}
+
+func TestEditUserPostHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		editUserPostHandler(w, r)
+	}))
+	defer ts.Close()
+
+	user := User{
+		Name:      "Tестовый Тест Тестович127",
+		Agreement: "П-127",
+		Login:     "update.128",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	expected := struct {
+		Name            string
+		Agreement       string
+		Login           string
+		Phone           string
+		Room            string
+		Tariff          int
+		ConnectionPlace string
+	}{
+		"Tестовый Тест Тестович128",
+		"П-128",
+		"wasUpdated.128",
+		"88005553128",
+		"128",
+		1,
+		"рандом",
+	}
+
+	formValues := url.Values{}
+	formValues.Add("id", strconv.Itoa(id))
+	formValues.Add("name", expected.Name)
+	formValues.Add("agreement", expected.Agreement)
+	formValues.Add("login", expected.Login)
+	formValues.Add("phone", expected.Phone)
+	formValues.Add("room", expected.Room)
+	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+	formValues.Add("connectionPlace", expected.ConnectionPlace)
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err := client.PostForm(ts.URL+"/edit-user", formValues)
+	require.NoError(t, err)
+	assert.Equal(t, 303, resp.StatusCode)
+
+	updatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, expected.Name, updatedUser.Name)
+	assert.Equal(t, expected.Agreement, updatedUser.Agreement)
+	assert.Equal(t, expected.Login, updatedUser.Login)
+	assert.Equal(t, expected.Phone, updatedUser.Phone)
+	assert.Equal(t, expected.Room, updatedUser.Room)
+	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
+	assert.Equal(t, expected.ConnectionPlace, updatedUser.ConnectionPlace)
 }
 
 func TestPaymentPostHandler(t *testing.T) {

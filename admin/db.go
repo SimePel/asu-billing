@@ -195,6 +195,16 @@ func (mysql MySQL) getUnusedInnerIPid() (int, error) {
 	return innerIPid, nil
 }
 
+func (mysql MySQL) UpdateUser(user User) error {
+	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, login=?, tariff=?, phone=?, room=?, connection_place=? WHERE id=?`,
+		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Room, user.ConnectionPlace, user.ID)
+	if err != nil {
+		return fmt.Errorf("cannot update user fields: %v", err)
+	}
+
+	return nil
+}
+
 // ProcessPayment updates balance and insert record into payments table
 func (mysql MySQL) ProcessPayment(userID, sum int) error {
 	_, err := mysql.db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)

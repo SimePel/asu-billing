@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,13 +19,16 @@ func newRouter() *chi.Mux {
 
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
+	r.With(checkJWTtoken).Post("/add-user", addUserPostHandler)
+	r.With(checkJWTtoken).Post("/edit-user", editUserPostHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
-	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
+
 	r.With(checkJWTtoken).Get("/", indexHandler)
 	r.With(checkJWTtoken).Get("/logout", logoutHandler)
 	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
+	r.With(checkJWTtoken).Get("/edit-user", editUserHandler)
 	r.With(checkJWTtoken).Get("/user", userHandler)
-	r.With(checkJWTtoken).With(jsonContentType).Post("/add-user", addUserPostHandler)
+	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(checkJWTtoken)
@@ -53,6 +57,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadFile("templates/add-user.html")
+	w.Write(b)
+}
+
+func editUserHandler(w http.ResponseWriter, r *http.Request) {
+	b, _ := ioutil.ReadFile("templates/edit-user.html")
 	w.Write(b)
 }
 
@@ -152,6 +161,38 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", 303)
+}
+
+func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	name := r.FormValue("name")
+	agreement := r.FormValue("agreement")
+	login := r.FormValue("login")
+	phone := r.FormValue("phone")
+	room := r.FormValue("room")
+	connectionPlace := r.FormValue("connectionPlace")
+	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
+
+	user := User{
+		ID:              uint(id),
+		Name:            name,
+		Agreement:       agreement,
+		Login:           login,
+		Tariff:          Tariff{ID: tariff},
+		Phone:           phone,
+		Room:            room,
+		ConnectionPlace: connectionPlace,
+	}
+
+	mysql := MySQL{db: initializeDB()}
+	err := mysql.UpdateUser(user)
+	if err != nil {
+		log.Printf("cannot edit user with id=%v: %v", id, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/user?id=%v", id), 303)
 }
 
 func paymentPostHandler(w http.ResponseWriter, r *http.Request) {

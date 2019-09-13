@@ -4,6 +4,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const userID = urlParams.get("id");
 getUser(userID);
 
+let editButton = document.querySelector("#editButton");
+editButton.setAttribute("href", "/edit-user?id=" + userID);
+
 let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInput);
 
@@ -27,7 +30,9 @@ function getUser(userID) {
         }
     }
 
-    fetch("/users/" + userID).then((res) => { return res.json() }).then((user) => {
+    fetch("/users/" + userID).then((res) => {
+        return res.json()
+    }).then((user) => {
         document.querySelector("#name").append(user.name);
         document.querySelector("#agreement").append(user.agreement);
         document.querySelector("#login").append(user.login);
@@ -45,14 +50,18 @@ function getUser(userID) {
             document.querySelector("#expiredDate").parentElement.remove();
         }
         document.querySelector("#balance").append(user.balance);
-        showPayments(user.payments);
+        if (user.payments !== undefined) {
+            showPayments(user.payments);
+        }
     })
 }
 
 function deposit() {
     fetch("payment", {
         method: "POST",
-        headers: { "Content-Type": "application/json; charset=utf-8" },
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
         body: JSON.stringify({
             id: parseInt(userID),
             sum: parseInt(document.querySelector("#paymentInput").value),
