@@ -92,7 +92,7 @@ function deleteUser() {
         fetch("users/" + userID, {
             method: "DELETE",
         }).then(() => {
-            goBack();
+            window.location.replace("/");
         });
     }
 }

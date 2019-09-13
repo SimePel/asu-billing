@@ -16,7 +16,7 @@ function auth() {
             return;
         }
 
-        window.location.replace("http://localhost:8081/");
+        window.location.replace("/");
     })
 }
 
