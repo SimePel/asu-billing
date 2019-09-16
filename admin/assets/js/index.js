@@ -128,17 +128,21 @@ function showStatistics() {
 
 function displayAllUsers() {
     let activeLink = document.querySelector(".active-link");
-    activeLink.classList.remove("active-link");
+    if (activeLink) {
+        activeLink.classList.remove("active-link");
+    }
     displayAllUsersButton.classList.add("active-link");
-    removeHiddenAttributeFromAllTRs();
+    removeHiddenAttributeForAllTRs();
 }
 
 function displayOnlyActiveUsers() {
     let activeLink = document.querySelector(".active-link");
-    activeLink.classList.remove("active-link");
+    if (activeLink) {
+        activeLink.classList.remove("active-link");
+    }
     displayActiveUsersButton.classList.add("active-link");
 
-    removeHiddenAttributeFromAllTRs();
+    removeHiddenAttributeForAllTRs();
 
     let inactiveUsers = document.querySelectorAll(`tr[data-is-active="false"]`);
     for (let tr of inactiveUsers) {
@@ -148,10 +152,12 @@ function displayOnlyActiveUsers() {
 
 function displayOnlyInactiveUsers() {
     let activeLink = document.querySelector(".active-link");
-    activeLink.classList.remove("active-link");
+    if (activeLink) {
+        activeLink.classList.remove("active-link");
+    }
     displayInactiveUsersButton.classList.add("active-link");
 
-    removeHiddenAttributeFromAllTRs();
+    removeHiddenAttributeForAllTRs();
 
     let activeUsers = document.querySelectorAll(`tr[data-is-active="true"]`);
     for (let tr of activeUsers) {
@@ -159,10 +165,44 @@ function displayOnlyInactiveUsers() {
     }
 }
 
-function removeHiddenAttributeFromAllTRs() {
-    let allUsers = document.querySelectorAll(`tr`);
-    for (let tr of allUsers) {
-        tr.removeAttribute("hidden", "");
+function removeHiddenAttributeForAllTRs() {
+    let allTRs = document.querySelectorAll(`tr`);
+    for (let tr of allTRs) {
+        tr.removeAttribute("hidden");
+    }
+}
+
+function setHiddenAttribiteForAllTRs() {
+    let allTRs = document.querySelectorAll(`tbody>tr`);
+    for (let tr of allTRs) {
+        tr.setAttribute("hidden", "");
+    }
+}
+
+function searchThroughTheTable() {
+    let whatToSearch = document.querySelector("#search").value;
+    let treeWalker = document.createTreeWalker(
+        document.getElementById("tbody"),
+        NodeFilter.SHOW_ELEMENT, {
+            acceptNode: function (node) {
+                if (node.textContent.toLowerCase().includes(whatToSearch)) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            }
+        }
+    );
+
+    setHiddenAttribiteForAllTRs();
+    let activeLink = document.querySelector(".active-link");
+    activeLink.classList.remove("active-link");
+
+    for (let node = treeWalker.nextNode();; node = treeWalker.nextSibling()) {
+        if (node == null) {
+            break;
+        }
+
+        let elem = node.firstChild.parentElement;
+        elem.removeAttribute("hidden");
     }
 }
 
@@ -178,6 +218,15 @@ displayActiveUsersButton.addEventListener("click", displayOnlyActiveUsers);
 
 let displayInactiveUsersButton = document.querySelector("#inactive");
 displayInactiveUsersButton.addEventListener("click", displayOnlyInactiveUsers);
+
+let searchButton = document.querySelector("#searchButton");
+searchButton.addEventListener("click", searchThroughTheTable);
+let searchInput = document.querySelector("#search");
+searchInput.addEventListener("keyup", event => {
+    if (event.keyCode === 13) {
+        searchThroughTheTable();
+    }
+});
 
 let toggle = document.querySelector(".toggle");
 toggle.addEventListener("click", event => {
