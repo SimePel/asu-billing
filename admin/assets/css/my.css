@@ -12,6 +12,10 @@ footer {
     margin-top: auto;
 }
 
+table {
+    margin-top: 0.85rem;
+}
+
 .table td,
 .table th {
     border: 1px solid #f3f3f3;
@@ -57,6 +61,34 @@ footer {
     padding: 0;
     box-sizing: border-box;
     transform: translateX(100%);
+    z-index: 100;
+}
+
+#tableSettings {
+    background-color: white;
+    position: fixed;
+    width: 25rem;
+    top: 52px;
+    right: 0;
+    padding: 0;
+    box-sizing: border-box;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
+    z-index: 1;
+}
+
+#tableSettings>p {
+    padding-left: 0.4rem;
+}
+
+.active-link {
+    color: #212121;
+    font-weight: 500;
+    cursor: default;
+    text-decoration: none;
+}
+
+#tableSettings>p>a:hover {
+    font-weight: 500;
 }
 
 .open:checked~.settings-panel {

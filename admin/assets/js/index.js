@@ -20,13 +20,11 @@ function getUsers() {
         let span = document.createElement("span");
         span.classList.add("icon");
         span.setAttribute("title", "Без доступа в интернет");
-        span.setAttribute("data-active", "false");
         let i = document.createElement("i");
         i.classList.add("fas", "fa-ban");
         if (activity) {
             i.classList.replace("fa-ban", "fa-check");
             span.setAttribute("title", "Подключен к интернету");
-            span.setAttribute("data-active", "true");
         }
         span.append(i);
 
@@ -80,6 +78,10 @@ function getUsers() {
                 let tr = document.createElement("tr");
                 tr.append(...tds);
                 tr.classList.add("clickable");
+                tr.setAttribute("data-is-active", "false");
+                if (user.activity) {
+                    tr.setAttribute("data-is-active", "true");
+                }
                 tr.addEventListener("click", e => {
                     window.location.href = "/user?id=" + user.id;
                 });
@@ -124,9 +126,58 @@ function showStatistics() {
     });
 }
 
+function displayAllUsers() {
+    let activeLink = document.querySelector(".active-link");
+    activeLink.classList.remove("active-link");
+    displayAllUsersButton.classList.add("active-link");
+    removeHiddenAttributeFromAllTRs();
+}
+
+function displayOnlyActiveUsers() {
+    let activeLink = document.querySelector(".active-link");
+    activeLink.classList.remove("active-link");
+    displayActiveUsersButton.classList.add("active-link");
+
+    removeHiddenAttributeFromAllTRs();
+
+    let inactiveUsers = document.querySelectorAll(`tr[data-is-active="false"]`);
+    for (let tr of inactiveUsers) {
+        tr.setAttribute("hidden", "");
+    }
+}
+
+function displayOnlyInactiveUsers() {
+    let activeLink = document.querySelector(".active-link");
+    activeLink.classList.remove("active-link");
+    displayInactiveUsersButton.classList.add("active-link");
+
+    removeHiddenAttributeFromAllTRs();
+
+    let activeUsers = document.querySelectorAll(`tr[data-is-active="true"]`);
+    for (let tr of activeUsers) {
+        tr.setAttribute("hidden", "");
+    }
+}
+
+function removeHiddenAttributeFromAllTRs() {
+    let allUsers = document.querySelectorAll(`tr`);
+    for (let tr of allUsers) {
+        tr.removeAttribute("hidden", "");
+    }
+}
+
 getUsers();
 showStatistics();
 addEventListenersToMenuItems();
+
+let displayAllUsersButton = document.querySelector("#all");
+displayAllUsersButton.addEventListener("click", displayAllUsers);
+
+let displayActiveUsersButton = document.querySelector("#active");
+displayActiveUsersButton.addEventListener("click", displayOnlyActiveUsers);
+
+let displayInactiveUsersButton = document.querySelector("#inactive");
+displayInactiveUsersButton.addEventListener("click", displayOnlyInactiveUsers);
 
 let toggle = document.querySelector(".toggle");
 toggle.addEventListener("click", event => {
