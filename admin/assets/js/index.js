@@ -17,12 +17,21 @@ function getUsers() {
             paidText = "Оплачено. ";
         }
 
-        let activityText = "Без доступа в интернет";
+        let span = document.createElement("span");
+        span.classList.add("icon");
+        span.setAttribute("title", "Без доступа в интернет");
+        span.setAttribute("data-active", "false");
+        let i = document.createElement("i");
+        i.classList.add("fas", "fa-ban");
         if (activity) {
-            activityText = "Подключен к интернету";
+            i.classList.replace("fa-ban", "fa-check");
+            span.setAttribute("title", "Подключен к интернету");
+            span.setAttribute("data-active", "true");
         }
+        span.append(i);
 
-        td.append(paidText + activityText);
+        td.append(paidText);
+        td.append(span);
         return td;
     }
 
