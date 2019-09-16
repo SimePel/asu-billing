@@ -181,6 +181,7 @@ function setHiddenAttribiteForAllTRs() {
 
 function searchThroughTheTable() {
     let whatToSearch = document.querySelector("#search").value;
+    whatToSearch = whatToSearch.toLowerCase();
     let treeWalker = document.createTreeWalker(
         document.getElementById("tbody"),
         NodeFilter.SHOW_ELEMENT, {
@@ -194,7 +195,9 @@ function searchThroughTheTable() {
 
     setHiddenAttribiteForAllTRs();
     let activeLink = document.querySelector(".active-link");
-    activeLink.classList.remove("active-link");
+    if (activeLink) {
+        activeLink.classList.remove("active-link");
+    }
 
     for (let node = treeWalker.nextNode();; node = treeWalker.nextSibling()) {
         if (node == null) {
