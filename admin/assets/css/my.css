@@ -21,6 +21,11 @@ table {
     border: 1px solid #f3f3f3;
 }
 
+.table th:not([align]),
+.table td:not([align]) {
+    text-align: center;
+}
+
 .is-spaced {
     padding: .5rem .75rem;
 }
