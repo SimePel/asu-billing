@@ -156,13 +156,14 @@ div.column>ul>li>span {
     background-color: transparent;
 }
 
-.menu .menu-list .toggle {
-    color: #f3f3f3;
-    background-color: #ef5350;
+#sms-status.disable {
+    color: #fff;
+    background-color: #ff3860;
 }
 
-.menu .menu-list .toggle.active {
-    background-color: #6bdd6d;
+#sms-status {
+    background-color: #23d160;
+    color: #fff;
 }
 
 #paymentInput {

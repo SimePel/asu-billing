@@ -231,10 +231,10 @@ searchInput.addEventListener("keyup", event => {
     }
 });
 
-let toggle = document.querySelector(".toggle");
-toggle.addEventListener("click", event => {
-    toggle.classList.toggle("active");
-    toggle.innerHTML == "Выкл" ?
-        (toggle.innerHTML = "Вкл") :
-        (toggle.innerHTML = "Выкл");
+let smsStatus = document.querySelector("#sms-status");
+smsStatus.addEventListener("click", () => {
+    smsStatus.classList.toggle("disable");
+    smsStatus.textContent == "Включены" ?
+        (smsStatus.textContent = "Выключены") :
+        (smsStatus.textContent = "Включены");
 });
