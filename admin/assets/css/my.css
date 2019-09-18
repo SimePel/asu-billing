@@ -13,7 +13,7 @@ footer {
 }
 
 table {
-    margin-top: 1rem;
+    margin-top: 1.6rem;
 }
 
 .table td,
@@ -72,9 +72,9 @@ table {
 #tableSettings {
     background-color: white;
     position: fixed;
-    width: 28rem;
-    top: 52px;
-    right: 0;
+    width: 100%;
+    top: 53px;
+    left: 0;
     padding: 0;
     box-sizing: border-box;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
@@ -82,8 +82,8 @@ table {
 }
 
 #tableSettings>p {
-    padding-left: 0.4rem;
-    font-size: 1.1rem;
+    padding-left: 0.75rem;
+    font-size: 1.06rem;
 }
 
 .active-link {
