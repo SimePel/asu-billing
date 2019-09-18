@@ -219,6 +219,13 @@ function getNotificationStatus() {
     });
 }
 
+function changeNotificationStatus(newStatus) {
+    fetch("change-notification-status", {
+        method: "POST",
+        body: newStatus,
+    });
+}
+
 getUsers();
 showStatistics();
 addEventListenersToMenuItems();
@@ -244,8 +251,10 @@ searchInput.addEventListener("keyup", event => {
 
 let smsStatus = document.querySelector("#sms-status");
 smsStatus.addEventListener("click", () => {
-    smsStatus.classList.toggle("disable");
+    let newStatus = !smsStatus.classList.toggle("disable");
     smsStatus.textContent == "Включены" ?
         (smsStatus.textContent = "Выключены") :
         (smsStatus.textContent = "Включены");
+
+    changeNotificationStatus(newStatus);
 });

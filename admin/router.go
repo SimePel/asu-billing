@@ -29,6 +29,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/edit-user", editUserHandler)
 	r.With(checkJWTtoken).Get("/user", userHandler)
 	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
+	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 
 	r.Route("/users", func(r chi.Router) {
@@ -73,6 +74,30 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 
 func notificationStatusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(strconv.FormatBool(smsNotificationStatus)))
+}
+
+func changeNotificationStatusHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	status, err := strconv.ParseBool(string(body))
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	if status == smsNotificationStatus {
+		return
+	}
+
+	smsNotificationStatus = !smsNotificationStatus
+	log.Println(smsNotificationStatus)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
