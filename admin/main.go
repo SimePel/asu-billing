@@ -25,9 +25,14 @@ func restorePaymentsTimers() error {
 
 	for _, user := range users {
 		if user.ExpiredDate.After(time.Now()) {
-			expirationDate := time.Until(user.ExpiredDate)
-			f := createTryToRenewPaymentFunc(mysql, user)
-			time.AfterFunc(expirationDate, f)
+			paymentFunc := createTryToRenewPaymentFunc(mysql, user)
+			time.AfterFunc(time.Until(user.ExpiredDate), paymentFunc)
+
+			// Если оказались внутри периода из трех дней, то ничего страшного не произойдет
+			// Until вернет отрицательное число и функция выполниться в этот же момент
+			notificationDate := user.ExpiredDate.AddDate(0, 0, -3)
+			notificationFunc := createSendNotificationFunc(user)
+			time.AfterFunc(time.Until(notificationDate), notificationFunc)
 			continue
 		}
 		tryToRenewPayment(mysql, user)

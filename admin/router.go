@@ -255,10 +255,29 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
-	user, _ := mysql.GetUserByID(int(u.ID))
+func createSendNotificationFunc(u User) func() {
 	return func() {
-		tryToRenewPayment(mysql, user)
+		err := sendNotification(u)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func sendNotification(user User) error {
+	message := fmt.Sprintf("На ЛС: %v %vр. Пополните счет за проводное подключение к сети АГУ", user.Agreement, user.Balance)
+	err := sendSMS(user.Phone, message)
+	if err != nil {
+		log.Println("Cannot send sms. ", err)
+	}
+
+	return nil
+}
+
+func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
+	return func() {
+		tryToRenewPayment(mysql, u)
 	}
 }
 
@@ -270,8 +289,18 @@ func tryToRenewPayment(mysql MySQL, user User) {
 			return
 		}
 
-		f := createTryToRenewPaymentFunc(mysql, user)
-		time.AfterFunc(expirationDate, f)
+		user, err = mysql.GetUserByID(int(user.ID))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		paymentFunc := createTryToRenewPaymentFunc(mysql, user)
+		time.AfterFunc(time.Until(expirationDate), paymentFunc)
+
+		notificationDate := expirationDate.AddDate(0, 0, -3)
+		notificationFunc := createSendNotificationFunc(user)
+		time.AfterFunc(time.Until(notificationDate), notificationFunc)
 	}
 }
 
