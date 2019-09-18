@@ -97,7 +97,6 @@ func changeNotificationStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	smsNotificationStatus = !smsNotificationStatus
-	log.Println(smsNotificationStatus)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
