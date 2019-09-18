@@ -18,12 +18,13 @@ function getUsers() {
         }
 
         let span = document.createElement("span");
-        span.classList.add("icon");
+        span.classList.add("icon", "has-text-danger");
         span.setAttribute("title", "Без доступа в интернет");
         let i = document.createElement("i");
         i.classList.add("fas", "fa-ban");
         if (activity) {
             i.classList.replace("fa-ban", "fa-check");
+            span.classList.replace("has-text-danger", "has-text-success");
             span.setAttribute("title", "Подключен к интернету");
         }
         span.append(i);
