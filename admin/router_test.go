@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -87,6 +88,26 @@ func TestEditUserHandler(t *testing.T) {
 	resp, err := http.Get(ts.URL + "/edit-user")
 	require.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestNotificationStatusHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		notificationStatusHandler(w, r)
+	}))
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/notification-status")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	notificationStatus, err := strconv.ParseBool(string(body))
+	require.NoError(t, err)
+
+	assert.Equal(t, smsNotificationStatus, notificationStatus)
 }
 
 func TestLogoutHandler(t *testing.T) {
