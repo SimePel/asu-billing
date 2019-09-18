@@ -94,7 +94,8 @@
               <th data-table-tag="tariff" hidden>Тариф</th>
               <th data-table-tag="connectionPlace" hidden>Точка подключения</th>
               <th data-table-tag="balance" hidden>Баланс</th>
-              <th data-table-tag="activity" hidden>Статус</th>
+              <th data-table-tag="activity" hidden>Статус(<span class="has-text-success"
+                  id="countOfActiveUsers"></span>/<span class="has-text-danger" id="countOfInactiveUsers"></span>)</th>
             </tr>
           </thead>
           <tbody id="tbody">
@@ -103,14 +104,6 @@
       </div>
     </div>
   </div>
-  <footer class="footer">
-    <div class="content has-text-centered">
-      <p>На данный момент кол-во пользователей: <span id="countOfAllUsers"></span>.</p>
-      <p>Подключенных: <span id="countOfActiveUsers"></span>. Неподключенных: <span id="countOfInactiveUsers"></span>.
-      </p>
-      <p>Кол-во денежных средств полученных за все время: <span id="allMoney"></span> рублей.</p>
-    </div>
-  </footer>
 </body>
 
 </html>
