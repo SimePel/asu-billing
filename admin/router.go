@@ -28,6 +28,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
 	r.With(checkJWTtoken).Get("/edit-user", editUserHandler)
 	r.With(checkJWTtoken).Get("/user", userHandler)
+	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 
 	r.Route("/users", func(r chi.Router) {
@@ -68,6 +69,10 @@ func editUserHandler(w http.ResponseWriter, r *http.Request) {
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadFile("templates/user.html")
 	w.Write(b)
+}
+
+func notificationStatusHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(strconv.FormatBool(smsNotificationStatus)))
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {

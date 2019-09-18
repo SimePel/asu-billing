@@ -209,9 +209,19 @@ function searchThroughTheTable() {
     }
 }
 
+function getNotificationStatus() {
+    fetch("notification-status").then(res => res.text()).then(status => {
+        if (status === "false") {
+            smsStatus.classList.add("disable");
+            smsStatus.textContent = "Выключены";
+        }
+    });
+}
+
 getUsers();
 showStatistics();
 addEventListenersToMenuItems();
+getNotificationStatus();
 
 let displayAllUsersButton = document.querySelector("#all");
 displayAllUsersButton.addEventListener("click", displayAllUsers);
