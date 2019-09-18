@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -108,6 +109,31 @@ func TestNotificationStatusHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, smsNotificationStatus, notificationStatus)
+}
+
+func TestChangeNotificationStatusHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		changeNotificationStatusHandler(w, r)
+	}))
+	defer ts.Close()
+
+	r := strings.NewReader("blabla")
+	resp, err := http.Post(ts.URL+"/change-notification-status", "text/plain; charset=utf-8", r)
+	require.NoError(t, err)
+	assert.Equal(t, 500, resp.StatusCode)
+
+	currentStatus := smsNotificationStatus
+	r = strings.NewReader(strconv.FormatBool(currentStatus))
+	resp, err = http.Post(ts.URL+"/change-notification-status", "text/plain; charset=utf-8", r)
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, smsNotificationStatus, currentStatus)
+
+	r = strings.NewReader(strconv.FormatBool(!currentStatus))
+	resp, err = http.Post(ts.URL+"/change-notification-status", "text/plain; charset=utf-8", r)
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, smsNotificationStatus, !currentStatus)
 }
 
 func TestLogoutHandler(t *testing.T) {
