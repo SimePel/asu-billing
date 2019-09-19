@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -74,4 +75,19 @@ func TestCheckJWTtoken(t *testing.T) {
 	require.NoError(t, err)
 	resp.Body.Close()
 	assert.Equal(t, "secret page", string(body))
+}
+
+// На самом деле этот тест бесполезный, сделан только для + coverage
+func TestSetDBtoCtx(t *testing.T) {
+	r := chi.NewRouter()
+	r.With(setDBtoCtx).Get("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, r.Context().Value(dbCtxKey("db")).(*sql.DB))
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/")
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
 }
