@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
@@ -42,10 +43,35 @@ func TestCheckJWTtoken(t *testing.T) {
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+
 	b, err := ioutil.ReadAll(resp.Body)
-	require.Nil(t, err)
-	defer resp.Body.Close()
+	require.NoError(t, err)
+	resp.Body.Close()
 	assert.Equal(t, "login page", string(b))
+
+	token, err := createJWTtoken("login")
+	require.NoError(t, err)
+
+	c := &http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		HttpOnly: true,
+		Expires:  time.Now().AddDate(0, 1, 0),
+		SameSite: 3,
+	}
+
+	req, err := http.NewRequest("GET", ts.URL+"/", nil)
+	require.NoError(t, err)
+	req.AddCookie(c)
+
+	client := &http.Client{}
+	resp, err = client.Do(req)
+	require.NoError(t, err)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+	resp.Body.Close()
+	assert.Equal(t, "secret page", string(body))
 }
