@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,14 +12,28 @@ import (
 
 func TestCreateJWTtoken(t *testing.T) {
 	tokenString, err := createJWTtoken("login")
-	require.Nil(t, err)
+	require.NoError(t, err)
+
 	token, err := parseJWTtoken(tokenString)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.True(t, token.Valid)
 	assert.Equal(t, tokenString, token.Raw)
+
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
 	assert.Equal(t, claims["login"], "login")
+
+	tokenString, err = createJWTtoken("fail")
+	require.NoError(t, err)
+
+	err = os.Setenv("JWT_KEY", "")
+	require.NoError(t, err)
+
+	token, err = parseJWTtoken(tokenString)
+	require.Error(t, err)
+
+	err = os.Setenv("JWT_KEY", "returnJWT_KEY")
+	require.NoError(t, err)
 }
 
 func TestGetJWTtokenFromCookies(t *testing.T) {
