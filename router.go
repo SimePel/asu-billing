@@ -154,6 +154,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "jwt",
 		Value:    token,
 		HttpOnly: false, // for js interaction
+		Secure:   true,
 		Expires:  time.Now().AddDate(0, 1, 0),
 		SameSite: 3,
 	}
