@@ -11,6 +11,7 @@ function insertValuesInInputs() {
         document.getElementsByName("login")[0].value = user.login;
         document.getElementsByName("phone")[0].value = user.phone;
         document.getElementsByName("room")[0].value = user.room;
+        document.getElementsByName("comment")[0].value = user.comment;
         document.getElementsByName("connectionPlace")[0].value = user.connection_place;
     })
 }

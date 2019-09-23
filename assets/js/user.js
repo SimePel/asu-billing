@@ -43,6 +43,7 @@ function getUser(userID) {
         document.querySelector("#extIP").append(user.ext_ip);
         document.querySelector("#phone").append(user.phone);
         document.querySelector("#room").append(user.room);
+        document.querySelector("#comment").append(user.comment);
         document.querySelector("#connectionPlace").append(user.connection_place);
         if (user.activity === true) {
             const d = new Date(user.expired_date);

@@ -52,6 +52,7 @@ type User struct {
 	Room      string    `json:"room"`
 	Login     string    `json:"login"`
 	Phone     string    `json:"phone"`
+	Comment   string    `json:"comment"`
 	ExtIP     string    `json:"ext_ip"`
 	InnerIP   string    `json:"inner_ip"`
 	Tariff    Tariff    `json:"tariff"`
@@ -73,7 +74,8 @@ func (u User) hasEnoughMoneyForPayment() bool {
 // GetAllUsers returns all users from db
 func (mysql MySQL) GetAllUsers() ([]User, error) {
 	rows, err := mysql.db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-	 	connection_place, activity, paid, room, phone, tariffs.id AS tariff_id, tariffs.name, price, ips.ip, ext_ip
+		connection_place, activity, paid, room, comment, phone, tariffs.id AS tariff_id, tariffs.name,
+		price, ips.ip, ext_ip
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)`)
@@ -86,8 +88,8 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
-			&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Phone, &user.Tariff.ID,
-			&user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+			&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.Phone,
+			&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get one row: %v", err)
 		}
@@ -105,13 +107,13 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
 	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date, connection_place,
-		activity, paid, room, phone, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
+		activity, paid, room, comment, phone, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
 	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
-		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Phone, &user.Tariff.ID, &user.Tariff.Name,
-		&user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.Phone, &user.Tariff.ID,
+		&user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
@@ -172,10 +174,10 @@ func (mysql MySQL) AddUser(user User) (int, error) {
 		return 0, fmt.Errorf("cannot get next agreement: %v", err)
 	}
 
-	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, room, login, phone, ext_ip, ip_id, tariff,
-		agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-		user.Balance, user.Paid, user.Name, user.Room, user.Login, user.Phone, "82.200.46.10", innerIPid,
-		user.Tariff.ID, agreement, user.ConnectionPlace, user.ExpiredDate)
+	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, room, comment, login, phone, ext_ip, ip_id,
+		tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		user.Balance, user.Paid, user.Name, user.Room, user.Comment, user.Login, user.Phone, "82.200.46.10",
+		innerIPid, user.Tariff.ID, agreement, user.ConnectionPlace, user.ExpiredDate)
 	if err != nil {
 		return 0, fmt.Errorf("cannot insert values in db: %v", err)
 	}
@@ -221,8 +223,10 @@ func (mysql MySQL) getNextAgreement() (string, error) {
 }
 
 func (mysql MySQL) UpdateUser(user User) error {
-	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, login=?, tariff=?, phone=?, room=?, connection_place=? WHERE id=?`,
-		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Room, user.ConnectionPlace, user.ID)
+	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, login=?, tariff=?, phone=?, room=?, comment=?,
+	 	connection_place=? WHERE id=?`,
+		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Room, user.Comment,
+		user.ConnectionPlace, user.ID)
 	if err != nil {
 		return fmt.Errorf("cannot update user fields: %v", err)
 	}

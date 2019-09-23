@@ -226,6 +226,7 @@ func TestAddUserPostHandler(t *testing.T) {
 		Login           string
 		Phone           string
 		Room            string
+		Comment         string
 		Tariff          int
 		ConnectionPlace string
 	}{
@@ -233,6 +234,7 @@ func TestAddUserPostHandler(t *testing.T) {
 		"aloha.125",
 		"88005553554",
 		"555",
+		"Важный пользователь",
 		1,
 		"",
 	}
@@ -242,6 +244,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	formValues.Add("login", expected.Login)
 	formValues.Add("phone", expected.Phone)
 	formValues.Add("room", expected.Room)
+	formValues.Add("comment", expected.Comment)
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 
@@ -266,6 +269,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Login, user.Login)
 	assert.Equal(t, expected.Phone, user.Phone)
 	assert.Equal(t, expected.Room, user.Room)
+	assert.Equal(t, expected.Comment, user.Comment)
 	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
 	assert.Equal(t, expected.Tariff, user.Tariff.ID)
 }
@@ -294,6 +298,7 @@ func TestEditUserPostHandler(t *testing.T) {
 		Login           string
 		Phone           string
 		Room            string
+		Comment         string
 		Tariff          int
 		ConnectionPlace string
 	}{
@@ -302,6 +307,7 @@ func TestEditUserPostHandler(t *testing.T) {
 		"wasUpdated.128",
 		"88005553128",
 		"128",
+		"улетел",
 		1,
 		"рандом",
 	}
@@ -313,6 +319,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	formValues.Add("login", expected.Login)
 	formValues.Add("phone", expected.Phone)
 	formValues.Add("room", expected.Room)
+	formValues.Add("comment", expected.Comment)
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
 
@@ -334,6 +341,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Login, updatedUser.Login)
 	assert.Equal(t, expected.Phone, updatedUser.Phone)
 	assert.Equal(t, expected.Room, updatedUser.Room)
+	assert.Equal(t, expected.Comment, updatedUser.Comment)
 	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
 	assert.Equal(t, expected.ConnectionPlace, updatedUser.ConnectionPlace)
 }

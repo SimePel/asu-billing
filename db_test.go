@@ -23,6 +23,7 @@ func prepareDB(db *sql.DB) error {
 		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
 		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
+		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
 		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',
 		tariff int(10) unsigned NOT NULL,
@@ -105,10 +106,10 @@ func prepareDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, login, 
-		connection_place, phone, room, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
-		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 1, 1, 
+		connection_place, phone, room, comment, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
+		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 'игрок', 1, 1, 
 		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 0, 0, 1, 2, '82.200.46.10');`)
+		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
@@ -201,6 +202,7 @@ func TestGetAllUsers(t *testing.T) {
 			Name:        "Тестовый Тест Тестович",
 			Agreement:   "П-001",
 			Phone:       "88005553550",
+			Comment:     "игрок",
 			Login:       "blabla.123",
 			InnerIP:     "10.1.108.1",
 			ExtIP:       "82.200.46.10",
@@ -217,6 +219,7 @@ func TestGetAllUsers(t *testing.T) {
 			Name:      "Тестовый Тест Тестович2",
 			Agreement: "П-002",
 			Room:      "501c",
+			Comment:   "комментарий",
 			Login:     "bla.124",
 			InnerIP:   "10.1.108.10",
 			ExtIP:     "82.200.46.10",
@@ -242,6 +245,7 @@ func TestGetUserByID(t *testing.T) {
 		Name:        "Тестовый Тест Тестович",
 		Agreement:   "П-001",
 		Phone:       "88005553550",
+		Comment:     "игрок",
 		Login:       "blabla.123",
 		InnerIP:     "10.1.108.1",
 		ExtIP:       "82.200.46.10",
@@ -281,11 +285,12 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Paid:  false,
-		Name:  "Тестовый Тест Тестович3",
-		Phone: "88005553553",
-		Login: "baloga.154",
-		ExtIP: "82.200.46.10",
+		Paid:    false,
+		Name:    "Тестовый Тест Тестович3",
+		Phone:   "88005553553",
+		Comment: "Серьезный",
+		Login:   "baloga.154",
+		ExtIP:   "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -306,6 +311,7 @@ func TestUpdateUser(t *testing.T) {
 
 	user.Phone = "89993334455"
 	user.ConnectionPlace = "рандом"
+	user.Comment = "обновился"
 
 	err = mysql.UpdateUser(user)
 	require.NoError(t, err)

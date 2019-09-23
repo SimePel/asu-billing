@@ -169,6 +169,7 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
+	comment := r.FormValue("comment")
 	connectionPlace := r.FormValue("connectionPlace")
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
@@ -179,6 +180,7 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
 		Room:            room,
+		Comment:         comment,
 		ConnectionPlace: connectionPlace,
 	}
 
@@ -200,6 +202,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
+	comment := r.FormValue("comment")
 	connectionPlace := r.FormValue("connectionPlace")
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
@@ -211,6 +214,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
 		Room:            room,
+		Comment:         comment,
 		ConnectionPlace: connectionPlace,
 	}
 
