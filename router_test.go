@@ -223,7 +223,6 @@ func TestAddUserPostHandler(t *testing.T) {
 
 	expected := struct {
 		Name            string
-		Agreement       string
 		Login           string
 		Phone           string
 		Room            string
@@ -231,7 +230,6 @@ func TestAddUserPostHandler(t *testing.T) {
 		ConnectionPlace string
 	}{
 		"Tестовый Тест Тестович4",
-		"П-004",
 		"aloha.125",
 		"88005553554",
 		"555",
@@ -241,7 +239,6 @@ func TestAddUserPostHandler(t *testing.T) {
 
 	formValues := url.Values{}
 	formValues.Add("name", expected.Name)
-	formValues.Add("agreement", expected.Agreement)
 	formValues.Add("login", expected.Login)
 	formValues.Add("phone", expected.Phone)
 	formValues.Add("room", expected.Room)
@@ -266,7 +263,6 @@ func TestAddUserPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, expected.Name, user.Name)
-	assert.Equal(t, expected.Agreement, user.Agreement)
 	assert.Equal(t, expected.Login, user.Login)
 	assert.Equal(t, expected.Phone, user.Phone)
 	assert.Equal(t, expected.Room, user.Room)
@@ -281,9 +277,8 @@ func TestEditUserPostHandler(t *testing.T) {
 	defer ts.Close()
 
 	user := User{
-		Name:      "Tестовый Тест Тестович127",
-		Agreement: "П-127",
-		Login:     "update.128",
+		Name:  "Tестовый Тест Тестович127",
+		Login: "update.128",
 		Tariff: Tariff{
 			ID: 1,
 		},
@@ -350,13 +345,12 @@ func TestPaymentPostHandler(t *testing.T) {
 	defer ts.Close()
 
 	user := User{
-		ID:        100,
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович100",
-		Agreement: "П-100",
-		Phone:     "88005553100",
-		Login:     "blabla.1000",
-		Balance:   0,
+		ID:      100,
+		Paid:    false,
+		Name:    "Тестовый Тест Тестович100",
+		Phone:   "88005553100",
+		Login:   "blabla.1000",
+		Balance: 0,
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",

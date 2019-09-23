@@ -281,12 +281,11 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович3",
-		Agreement: "П-003",
-		Phone:     "88005553553",
-		Login:     "baloga.154",
-		ExtIP:     "82.200.46.10",
+		Paid:  false,
+		Name:  "Тестовый Тест Тестович3",
+		Phone: "88005553553",
+		Login: "baloga.154",
+		ExtIP: "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -332,13 +331,12 @@ func TestProcessPayment(t *testing.T) {
 
 func TestGetPaymentsByID(t *testing.T) {
 	user := User{
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович6",
-		Agreement: "П-006",
-		Phone:     "88005553566",
-		Login:     "payment.166",
-		ExtIP:     "82.200.46.10",
-		Balance:   0,
+		Paid:    false,
+		Name:    "Тестовый Тест Тестович6",
+		Phone:   "88005553566",
+		Login:   "payment.166",
+		ExtIP:   "82.200.46.10",
+		Balance: 0,
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -396,12 +394,11 @@ func TestPayForNextMonth(t *testing.T) {
 func TestDeleteUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович4",
-		Agreement: "П-104",
-		Phone:     "88005553441",
-		Login:     "unknown.444",
-		ExtIP:     "82.200.46.10",
+		Paid:  false,
+		Name:  "Тестовый Тест Тестович4",
+		Phone: "88005553441",
+		Login: "unknown.444",
+		ExtIP: "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
