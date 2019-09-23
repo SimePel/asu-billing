@@ -8,7 +8,7 @@ let editButton = document.querySelector("#editButton");
 editButton.setAttribute("href", "/edit-user?id=" + userID);
 
 let paymentButton = document.querySelector("#paymentButton");
-paymentButton.addEventListener("click", revealPaymentInput);
+paymentButton.addEventListener("click", revealPaymentInputs);
 
 let deleteButton = document.querySelector("#deleteButton");
 deleteButton.addEventListener("click", deleteUser);
@@ -17,6 +17,8 @@ function getUser(userID) {
     function showPayments(payments) {
         for (let payment of payments) {
             let tr = document.createElement("tr");
+            let receiptTD = document.createElement("td");
+            receiptTD.append(payment.receipt_id);
             let sumTD = document.createElement("td");
             sumTD.append(payment.sum);
             let dateTD = document.createElement("td");
@@ -24,7 +26,7 @@ function getUser(userID) {
             const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
             dateTD.append(date);
             let tds = [];
-            tds.push(dateTD, sumTD);
+            tds.push(receiptTD, dateTD, sumTD);
             tr.append(...tds);
             document.querySelector("#tbody").append(tr);
         }
@@ -64,6 +66,7 @@ function deposit() {
         },
         body: JSON.stringify({
             id: parseInt(userID),
+            receipt_id: parseInt(document.querySelector("#receiptInput").value),
             sum: parseInt(document.querySelector("#paymentInput").value),
         }),
     }).then(() => {
@@ -71,12 +74,18 @@ function deposit() {
     });
 }
 
-function revealPaymentInput() {
+function revealPaymentInputs() {
+    let receiptInput = document.querySelector("#receiptInput");
+    let receiptInputParent = receiptInput.parentElement;
+
+    receiptInputParent.removeAttribute("hidden");
+    receiptInput.focus();
+
     let paymentInput = document.querySelector("#paymentInput");
     let paymentInputParent = paymentInput.parentElement;
 
     paymentInputParent.removeAttribute("hidden");
-    paymentButton.removeEventListener("click", revealPaymentInput);
+    paymentButton.removeEventListener("click", revealPaymentInputs);
 
     paymentButton.addEventListener("click", deposit);
     paymentInput.addEventListener("keyup", event => {

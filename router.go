@@ -228,8 +228,9 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var payment struct {
-		UserID int `json:"id"`
-		Sum    int `json:"sum"`
+		UserID    int `json:"id"`
+		ReceiptID int `json:"receipt_id"`
+		Sum       int `json:"sum"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&payment)
@@ -239,7 +240,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err = mysql.ProcessPayment(payment.UserID, payment.Sum)
+	err = mysql.ProcessPayment(payment.UserID, payment.ReceiptID, payment.Sum)
 	if err != nil {
 		log.Println(err)
 		return

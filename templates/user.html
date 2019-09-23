@@ -52,6 +52,9 @@
           <li>Остаток на счету: <span id="balance"></span>
             <span class="field">
               <span class="control" hidden>
+                <input id="receiptInput" class="input" type="number" name="receiptID" placeholder="№">
+              </span>
+              <span class="control" hidden>
                 <input id="paymentInput" class="input" type="number" name="sum" placeholder="Сумма">
               </span>
               <span class="control">
@@ -79,6 +82,7 @@
         <table class="table is-hoverable is-fullwidth">
           <thead>
             <tr>
+              <th>Квитанция</th>
               <th>Дата</th>
               <th>Сумма</th>
             </tr>

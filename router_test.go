@@ -369,10 +369,12 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	var payment struct {
-		UserID int `json:"id"`
-		Sum    int `json:"sum"`
+		UserID    int `json:"id"`
+		ReceiptID int `json:"receipt_id"`
+		Sum       int `json:"sum"`
 	}
 	payment.UserID = userID
+	payment.ReceiptID = 101
 	payment.Sum = 100
 	b, err := json.Marshal(&payment)
 	require.NoError(t, err)
@@ -385,7 +387,12 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, payment.Sum, actualUser.Balance)
+	assert.Equal(t, payment.ReceiptID, actualUser.Payments[len(actualUser.Payments)-1].ReceiptID)
 	assert.Equal(t, user.Paid, actualUser.Paid)
+
+	payment.ReceiptID = 102
+	b, err = json.Marshal(&payment)
+	require.NoError(t, err)
 
 	resp, err = http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
 	require.NoError(t, err)
@@ -395,6 +402,7 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, 0, actualUser.Balance)
+	assert.Equal(t, payment.ReceiptID, actualUser.Payments[len(actualUser.Payments)-1].ReceiptID)
 	assert.Equal(t, true, actualUser.Paid)
 
 	// Еще проверить записи в табличке payments

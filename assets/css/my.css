@@ -166,6 +166,10 @@ div.column>ul>li>span {
     color: #fff;
 }
 
+#receiptInput {
+    width: 4rem;
+}
+
 #paymentInput {
     width: 8rem;
 }
