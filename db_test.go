@@ -36,8 +36,20 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`ALTER TABLE users
-		ADD FOREIGN KEY (ip_id) REFERENCES ips(id);`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS archive_users (
+		id int(10) unsigned NOT NULL,
+		name varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+		agreement mediumint(8) unsigned NOT NULL,
+		login varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
+		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
+		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
+		ip_id int(10) unsigned NOT NULL,
+		PRIMARY KEY (id),
+		UNIQUE (agreement),
+		UNIQUE (ip_id)
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
 	if err != nil {
 		return err
 	}
@@ -49,6 +61,12 @@ func prepareDB(db *sql.DB) error {
 		PRIMARY KEY (id),
 		UNIQUE (ip)
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users
+		ADD FOREIGN KEY (ip_id) REFERENCES ips(id);`)
 	if err != nil {
 		return err
 	}
@@ -397,7 +415,7 @@ func TestPayForNextMonth(t *testing.T) {
 		100,
 	}
 
-	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04:05"), actualUser.ExpiredDate.Format("2016.01.2 15:04:05"))
+	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04"), actualUser.ExpiredDate.Format("2016.01.2 15:04"))
 	assert.Equal(t, expected.Paid, actualUser.Paid)
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
