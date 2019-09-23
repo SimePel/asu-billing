@@ -59,10 +59,10 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
+func archiveUser(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(userCtxKey("user")).(*User)
 	mysql := MySQL{db: initializeDB()}
-	err := mysql.DeleteUserByID(int(user.ID))
+	err := mysql.ArchiveUserByID(int(user.ID))
 	if err != nil {
 		log.Println(err)
 	}

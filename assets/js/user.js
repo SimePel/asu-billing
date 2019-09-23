@@ -10,8 +10,8 @@ editButton.setAttribute("href", "/edit-user?id=" + userID);
 let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInputs);
 
-let deleteButton = document.querySelector("#deleteButton");
-deleteButton.addEventListener("click", deleteUser);
+let archiveButton = document.querySelector("#archiveButton");
+archiveButton.addEventListener("click", archiveUser);
 
 function getUser(userID) {
     function showPayments(payments) {
@@ -96,8 +96,8 @@ function revealPaymentInputs() {
     });
 }
 
-function deleteUser() {
-    let answer = confirm("Вы действительно хотите удалить этого пользователя?");
+function archiveUser() {
+    let answer = confirm("Вы действительно хотите поместить этого пользователя в архив?");
     if (answer === true) {
         fetch("users/" + userID, {
             method: "DELETE",

@@ -262,16 +262,17 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	return t, nil
 }
 
-func (mysql MySQL) DeleteUserByID(id int) error {
-	var innerIPid int
-	err := mysql.db.QueryRow(`SELECT ip_id FROM users WHERE id = ?`, id).Scan(&innerIPid)
+func (mysql MySQL) ArchiveUserByID(id int) error {
+	user, err := mysql.GetUserByID(id)
 	if err != nil {
-		return fmt.Errorf("cannot scan ip_id from users table to variable: %v", err)
+		return fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
 
-	_, err = mysql.db.Exec(`UPDATE ips SET used = 0 WHERE id=?`, innerIPid)
+	_, err = mysql.db.Exec(`INSERT INTO archive_users (id, name, agreement, login, phone, room, comment,
+		connection_place, ip_id) VALUES (?,?,?,?,?,?,?,?,?)`, id, user.Name, user.Agreement, user.Login,
+		user.Phone, user.Room, user.Comment, user.ConnectionPlace, user.InnerIP)
 	if err != nil {
-		return fmt.Errorf("cannot set false used state to ip_id: %v", err)
+		return fmt.Errorf("cannot insert values in archive_users: %v", err)
 	}
 
 	_, err = mysql.db.Exec(`DELETE FROM users WHERE id = ?`, id)

@@ -153,6 +153,11 @@ func clearDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`TRUNCATE TABLE archive_users;`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`SET FOREIGN_KEY_CHECKS = 1;`)
 	if err != nil {
 		return err
@@ -397,7 +402,7 @@ func TestPayForNextMonth(t *testing.T) {
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
 
-func TestDeleteUserByID(t *testing.T) {
+func TestArchiveUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
 		Paid:  false,
@@ -418,9 +423,10 @@ func TestDeleteUserByID(t *testing.T) {
 	err = mysql.ProcessPayment(id, 44, 200)
 	require.NoError(t, err)
 
-	err = mysql.DeleteUserByID(id)
+	err = mysql.ArchiveUserByID(id)
 	require.NoError(t, err)
 
+	// Проверить, что в archive_users добавилась запись
 	// Проверить, что и в табличке payments каскадно удалились записи
 }
 

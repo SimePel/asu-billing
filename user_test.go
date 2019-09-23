@@ -117,17 +117,20 @@ func TestGetAllUsersHandler(t *testing.T) {
 	assert.NotNil(t, actualUsers)
 }
 
-func TestDeleteUserHandler(t *testing.T) {
+func TestArchiveUserHandler(t *testing.T) {
 	req, err := http.NewRequest("DELETE", "/users/userID", nil)
 	require.Nil(t, err)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		deleteUser(w, r)
+		archiveUser(w, r)
 	})
 
 	user := User{
 		Name:  "Временно",
 		Login: "Временно",
+		Tariff: Tariff{
+			ID: 1,
+		},
 	}
 	mysql := MySQL{db: openTestDBconnection()}
 	id, err := mysql.AddUser(user)
