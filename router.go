@@ -185,7 +185,7 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	mysql := MySQL{db: initializeDB()}
 	id, err := mysql.AddUser(user)
 	if err != nil {
-		log.Printf("could not add user to db with id=%v: %v", id, err)
+		log.Printf("cannot add user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
 	}
@@ -273,7 +273,7 @@ func sendNotification(user User) error {
 	message := fmt.Sprintf("На ЛС: %v %vр. Пополните счет за проводное подключение к сети АГУ", user.Agreement, user.Balance)
 	err := sendSMS(user.Phone, message)
 	if err != nil {
-		log.Println("Cannot send sms. ", err)
+		return fmt.Errorf("cannot send sms: %v", err)
 	}
 
 	return nil

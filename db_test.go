@@ -293,6 +293,9 @@ func TestGetUserByID(t *testing.T) {
 	actualUser, err := mysql.GetUserByID(int(expectedUser.ID))
 	require.NoError(t, err)
 	assert.Equal(t, expectedUser, actualUser)
+
+	_, err = mysql.GetUserByID(100000)
+	require.Error(t, err)
 }
 
 func TestGetUserIDbyLogin(t *testing.T) {
@@ -305,6 +308,9 @@ func TestGetUserIDbyLogin(t *testing.T) {
 	actualID, err := mysql.GetUserIDbyLogin(user.Login)
 	require.NoError(t, err)
 	assert.Equal(t, user.ID, actualID)
+
+	_, err = mysql.GetUserIDbyLogin("НЕСУЩЕСТВУЮЩИЙ")
+	require.Error(t, err)
 }
 
 func TestAddUser(t *testing.T) {
@@ -342,7 +348,6 @@ func TestUpdateUser(t *testing.T) {
 
 	updatedUser, err := mysql.GetUserByID(2)
 	require.NoError(t, err)
-
 	assert.Equal(t, user, updatedUser)
 }
 
@@ -356,6 +361,9 @@ func TestProcessPayment(t *testing.T) {
 
 	assert.Equal(t, 200, user.Balance)
 	assert.Equal(t, 2, user.Payments[len(user.Payments)-1].ReceiptID)
+
+	err = mysql.ProcessPayment(100000, 100000, 100000)
+	require.Error(t, err)
 	// Еще протестить, что создалась запись в табличке payments
 }
 

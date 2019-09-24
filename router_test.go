@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -37,78 +35,28 @@ func TestNewRouter(t *testing.T) {
 }
 
 func TestIndexHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		indexHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/")
-	require.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, indexHandler, "GET", "/", nil)
 }
 
 func TestLoginHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		loginHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/login")
-	require.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, loginHandler, "GET", "/login", nil)
 }
 
 func TestUserHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/user")
-	require.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, userHandler, "GET", "/user", nil)
 }
 
 func TestAddUserHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		addUserHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/add-user")
-	require.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, addUserHandler, "GET", "/add-user", nil)
 }
 
 func TestEditUserHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		editUserHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/edit-user")
-	require.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, editUserHandler, "GET", "/edit-user", nil)
 }
 
 func TestNotificationStatusHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notificationStatusHandler(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/notification-status")
-	require.NoError(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	require.NoError(t, err)
-
-	notificationStatus, err := strconv.ParseBool(string(body))
-	require.NoError(t, err)
-
-	assert.Equal(t, smsNotificationStatus, notificationStatus)
+	require.HTTPSuccess(t, notificationStatusHandler, "GET", "/notification-status", nil)
+	require.HTTPBodyContains(t, notificationStatusHandler, "GET", "/notification-status", nil, smsNotificationStatus)
 }
 
 func TestChangeNotificationStatusHandler(t *testing.T) {
@@ -148,17 +96,14 @@ func TestLogoutHandler(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client := http.Client{
+	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if req.URL.Path == "/login" {
-				return errors.New("ОК")
-			}
-			return nil
+			return http.ErrUseLastResponse
 		},
 	}
 
 	resp, err := client.Get(ts.URL + "/logout")
-	require.NotNil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 303, resp.StatusCode)
 
 	actualCookie := resp.Cookies()[0]
@@ -213,14 +158,20 @@ func TestLoginPostHandler(t *testing.T) {
 	assert.Equal(t, "bad", J.Answer)
 	assert.Equal(t, J.Error, "Неверный логин или пароль.")
 	resp.Body.Close()
+
+	invalidJSON := []byte("{Answer: false, Login alesha,}")
+	resp, err = http.Post(ts.URL+"/login", "application/json; charset=utf-8", bytes.NewBuffer(invalidJSON))
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	err = json.NewDecoder(resp.Body).Decode(&J)
+	require.Nil(t, err)
+	assert.Equal(t, "bad", J.Answer)
+	assert.Equal(t, J.Error, "Ошибка парсинга json.")
+	resp.Body.Close()
 }
 
 func TestAddUserPostHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		addUserPostHandler(w, r)
-	}))
-	defer ts.Close()
-
 	expected := struct {
 		Name            string
 		Login           string
@@ -248,15 +199,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	resp, err := client.PostForm(ts.URL+"/add-user", formValues)
-	require.NoError(t, err)
-	assert.Equal(t, 303, resp.StatusCode)
+	require.HTTPRedirect(t, addUserPostHandler, "POST", "/add-user", formValues)
 
 	mysql := MySQL{db: openTestDBconnection()}
 	id, err := mysql.GetUserIDbyLogin(expected.Login)
@@ -275,11 +218,6 @@ func TestAddUserPostHandler(t *testing.T) {
 }
 
 func TestEditUserPostHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		editUserPostHandler(w, r)
-	}))
-	defer ts.Close()
-
 	user := User{
 		Name:  "Tестовый Тест Тестович127",
 		Login: "update.128",
@@ -323,15 +261,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
 
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	resp, err := client.PostForm(ts.URL+"/edit-user", formValues)
-	require.NoError(t, err)
-	assert.Equal(t, 303, resp.StatusCode)
+	require.HTTPRedirect(t, editUserPostHandler, "POST", "/edit-user", formValues)
 
 	updatedUser, err := mysql.GetUserByID(id)
 	require.NoError(t, err)
@@ -353,7 +283,6 @@ func TestPaymentPostHandler(t *testing.T) {
 	defer ts.Close()
 
 	user := User{
-		ID:      100,
 		Paid:    false,
 		Name:    "Тестовый Тест Тестович100",
 		Phone:   "88005553100",
@@ -407,18 +336,26 @@ func TestPaymentPostHandler(t *testing.T) {
 	assert.Equal(t, payment.ReceiptID, actualUser.Payments[len(actualUser.Payments)-1].ReceiptID)
 	assert.Equal(t, true, actualUser.Paid)
 
+	invalidJSON := []byte("{UserID: 10000, ReceiptID: 10000, Field true,}")
+	resp, err = http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewBuffer(invalidJSON))
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	payment.UserID = 100000
+	payment.ReceiptID = 100000
+	payment.Sum = 100000
+	b, err = json.Marshal(&payment)
+	require.NoError(t, err)
+
+	resp, err = http.Post(ts.URL+"/payment", "application/json; charset=utf-8", bytes.NewReader(b))
+	require.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
 	// Еще проверить записи в табличке payments
 }
 
 func TestGetStatsAboutUsers(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		getStatsAboutUsers(w, r)
-	}))
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/stats")
-	require.NoError(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	require.HTTPSuccess(t, getStatsAboutUsers, "GET", "/stats", nil)
 
 	var J struct {
 		ActiveUsersCount   int `json:"active_users_count"`
@@ -426,11 +363,38 @@ func TestGetStatsAboutUsers(t *testing.T) {
 		AllMoney           int `json:"all_money"`
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&J)
+	body := assert.HTTPBody(getStatsAboutUsers, "GET", "/stats", nil)
+	err := json.NewDecoder(strings.NewReader(body)).Decode(&J)
 	require.NoError(t, err)
-	resp.Body.Close()
 
 	assert.NotZero(t, J.ActiveUsersCount)
 	assert.NotZero(t, J.InactiveUsersCount)
 	assert.NotZero(t, J.AllMoney)
+}
+
+func TestTryToRenewPayment(t *testing.T) {
+	user := User{
+		Paid:    false,
+		Name:    "Тестовый Тест Тестович126",
+		Phone:   "88005553126",
+		Login:   "renew.payment",
+		Balance: 300,
+		Tariff: Tariff{
+			ID:    1,
+			Price: 200,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	tryToRenewPayment(mysql, user)
+
+	updatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, user.Balance-200, updatedUser.Balance)
+	assert.Equal(t, !user.Paid, updatedUser.Paid)
 }
