@@ -263,14 +263,11 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 }
 
 func (mysql MySQL) ArchiveUserByID(id int) error {
-	user, err := mysql.GetUserByID(id)
-	if err != nil {
-		return fmt.Errorf("cannot get user with id=%v: %v", id, err)
-	}
-
-	_, err = mysql.db.Exec(`INSERT INTO archive_users (id, name, agreement, login, phone, room, comment,
-		connection_place, ip_id) VALUES (?,?,?,?,?,?,?,?,?)`, id, user.Name, user.Agreement, user.Login,
-		user.Phone, user.Room, user.Comment, user.ConnectionPlace, user.InnerIP)
+	_, err := mysql.db.Exec(`INSERT INTO archive_users (id, name, agreement, login, phone, room, comment, create_date,
+			connection_place, ip_id)
+		SELECT id, name, agreement, login, phone, room, comment, create_date,
+			connection_place, ip_id
+		FROM users WHERE users.id = ?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot insert values in archive_users: %v", err)
 	}
