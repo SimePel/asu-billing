@@ -165,7 +165,6 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
-	agreement := r.FormValue("agreement")
 	login := r.FormValue("login")
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
@@ -175,7 +174,6 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := User{
 		Name:            name,
-		Agreement:       agreement,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
