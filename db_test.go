@@ -36,25 +36,6 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS archive_users (
-		id int(10) unsigned NOT NULL,
-		name varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-		agreement varchar(6) COLLATE utf8_unicode_ci NOT NULL,
-		login varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
-		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
-		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-		create_date timestamp NOT NULL,
-		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
-		ip_id int(10) unsigned NOT NULL,
-		PRIMARY KEY (id),
-		UNIQUE (agreement),
-		UNIQUE (ip_id)
-	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
-	if err != nil {
-		return err
-	}
-
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS ips (
 		id int(10) unsigned NOT NULL,
 		ip varchar(16) COLLATE utf8_unicode_ci NOT NULL,
@@ -68,6 +49,12 @@ func prepareDB(db *sql.DB) error {
 
 	_, err = db.Exec(`ALTER TABLE users
 		ADD FOREIGN KEY (ip_id) REFERENCES ips(id);`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users
+		ADD FOREIGN KEY (tariff) REFERENCES tariffs(id);`)
 	if err != nil {
 		return err
 	}
