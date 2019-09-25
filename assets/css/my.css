@@ -60,13 +60,13 @@ table {
 
 .settings-panel.settings-panel.settings-panel {
     background-color: white;
-    position: fixed;
+    position: absolute;
     top: 52px;
-    right: 0;
+    left: 10rem;
     padding: 0;
     box-sizing: border-box;
-    transform: translateX(100%);
     z-index: 100;
+    width: 15rem;
 }
 
 #tableSettings {
@@ -98,7 +98,7 @@ table {
 }
 
 .open:checked~.settings-panel {
-    transform: translateX(0);
+    transform: translateX(-100%);
     transition: 0.35s
 }
 
