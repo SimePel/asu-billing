@@ -24,6 +24,9 @@ func initializeDB() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+	db.SetConnMaxLifetime(2 * time.Minute)
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
 
 	return db
 }
