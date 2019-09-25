@@ -71,7 +71,7 @@ table {
 
 #tableSettings {
     background-color: white;
-    position: fixed;
+    position: absolute;
     width: 100%;
     top: 53px;
     left: 0;
