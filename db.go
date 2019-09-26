@@ -62,6 +62,7 @@ type User struct {
 	Payments  []Payment `json:"payments,omitempty"`
 	Agreement string    `json:"agreement"`
 	// separate for a more beautiful view
+	IsArchived      bool      `json:"is_archived"`
 	ExpiredDate     time.Time `json:"expired_date"`
 	ConnectionPlace string    `json:"connection_place"`
 }
@@ -77,7 +78,7 @@ func (u User) hasEnoughMoneyForPayment() bool {
 // GetAllUsers returns all users from db
 func (mysql MySQL) GetAllUsers() ([]User, error) {
 	rows, err := mysql.db.Query(`SELECT users.id, balance, users.name, login, agreement, expired_date,
-		connection_place, activity, paid, room, comment, phone, tariffs.id AS tariff_id, tariffs.name,
+		connection_place, activity, paid, room, comment, is_archived, phone, tariffs.id AS tariff_id, tariffs.name,
 		price, ips.ip, ext_ip
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
@@ -91,7 +92,7 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
-			&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.Phone,
+			&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.IsArchived, &user.Phone,
 			&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get one row: %v", err)
@@ -110,12 +111,12 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
 	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date, connection_place,
-		activity, paid, room, comment, phone, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
+		activity, paid, room, comment, is_archived, phone, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
 	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
-		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.Phone, &user.Tariff.ID,
+		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.IsArchived, &user.Phone, &user.Tariff.ID,
 		&user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
@@ -266,18 +267,9 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 }
 
 func (mysql MySQL) ArchiveUserByID(id int) error {
-	_, err := mysql.db.Exec(`INSERT INTO archive_users (id, name, agreement, login, phone, room, comment, create_date,
-			connection_place, ip_id)
-		SELECT id, name, agreement, login, phone, room, comment, create_date,
-			connection_place, ip_id
-		FROM users WHERE users.id = ?`, id)
+	_, err := mysql.db.Exec(`UPDATE users SET is_archived=1 WHERE id=?`, id)
 	if err != nil {
-		return fmt.Errorf("cannot insert values in archive_users: %v", err)
-	}
-
-	_, err = mysql.db.Exec(`DELETE FROM users WHERE id = ?`, id)
-	if err != nil {
-		return fmt.Errorf("cannot delete user with id=%v: %v", id, err)
+		return fmt.Errorf("cannot archive user: %v", err)
 	}
 
 	return nil

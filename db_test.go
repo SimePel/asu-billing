@@ -24,6 +24,7 @@ func prepareDB(db *sql.DB) error {
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
 		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
 		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		is_archived tinyint(1) NOT NULL DEFAULT '0',
 		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',
 		tariff int(10) unsigned NOT NULL,
@@ -53,18 +54,18 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`ALTER TABLE users
-		ADD FOREIGN KEY (tariff) REFERENCES tariffs(id);`)
-	if err != nil {
-		return err
-	}
-
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS tariffs (
 		id int(10) unsigned NOT NULL,
 		name varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		price smallint(6) NOT NULL,
 		PRIMARY KEY (id)
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users
+		ADD FOREIGN KEY (tariff) REFERENCES tariffs(id);`)
 	if err != nil {
 		return err
 	}
@@ -111,21 +112,21 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`INSERT INTO tariffs (id, name, price) VALUES (1, 'Базовый-30', 200);`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, login, 
-		connection_place, phone, room, comment, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
-		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 'игрок', 1, 1, 
+		connection_place, phone, room, comment, is_archived, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
+		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 'игрок', 0, 1, 1, 
 		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 1, 2, '82.200.46.10');`)
+		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Exec(`INSERT INTO payments (id, receipt_id, user_id, sum, date) VALUES (1, 001, 1, 200, '2019-06-07 07:32:50');`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`INSERT INTO tariffs (id, name, price) VALUES (1, 'Базовый-30', 200);`)
 	if err != nil {
 		return err
 	}
@@ -144,22 +145,17 @@ func clearDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`TRUNCATE TABLE tariffs;`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`TRUNCATE TABLE users;`)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Exec(`TRUNCATE TABLE payments;`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`TRUNCATE TABLE tariffs;`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`TRUNCATE TABLE archive_users;`)
 	if err != nil {
 		return err
 	}
@@ -440,8 +436,9 @@ func TestArchiveUserByID(t *testing.T) {
 	err = mysql.ArchiveUserByID(id)
 	require.NoError(t, err)
 
-	// Проверить, что в archive_users добавилась запись
-	// Проверить, что и в табличке payments каскадно удалились записи
+	archivedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+	assert.Equal(t, true, archivedUser.IsArchived)
 }
 
 func TestGetCountOfActiveUsers(t *testing.T) {
