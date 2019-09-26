@@ -10,8 +10,8 @@ editButton.setAttribute("href", "/edit-user?id=" + userID);
 let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInputs);
 
-// let archiveButton = document.querySelector("#archiveButton");
-// archiveButton.addEventListener("click", archiveUser);
+let archiveButton = document.querySelector("#archiveButton");
+archiveButton.addEventListener("click", archiveUser);
 
 function getUser(userID) {
     function showPayments(payments) {
@@ -96,13 +96,13 @@ function revealPaymentInputs() {
     });
 }
 
-// function archiveUser() {
-//     let answer = confirm("Вы действительно хотите поместить этого пользователя в архив?");
-//     if (answer === true) {
-//         fetch("users/" + userID, {
-//             method: "DELETE",
-//         }).then(() => {
-//             window.location.replace("/");
-//         });
-//     }
-// }
+function archiveUser() {
+    let answer = confirm("Вы действительно хотите поместить этого пользователя в архив?");
+    if (answer === true) {
+        fetch("users/" + userID, {
+            method: "DELETE",
+        }).then(() => {
+            window.location.replace("/");
+        });
+    }
+}

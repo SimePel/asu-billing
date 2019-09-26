@@ -7,10 +7,14 @@ function getUsers() {
         return td;
     }
 
-    function createStatusTD(paid, activity) {
+    function createStatusTD(paid, activity, is_archived) {
         let td = document.createElement("td");
         td.setAttribute("hidden", "");
         td.setAttribute("data-table-tag", "activity");
+        if (is_archived) {
+            td.append("В архиве");
+            return td;
+        }
 
         let paidText = "Не оплачено. ";
         if (paid) {
@@ -74,18 +78,24 @@ function getUsers() {
                 tds.push(createTD("tariff", user.tariff.name));
                 tds.push(createTD("connectionPlace", user.connection_place));
                 tds.push(createTD("balance", user.balance));
-                tds.push(createStatusTD(user.paid, user.activity));
+                tds.push(createStatusTD(user.paid, user.activity, user.is_archived));
 
                 let tr = document.createElement("tr");
                 tr.append(...tds);
                 tr.classList.add("clickable");
-                tr.setAttribute("data-is-active", "false");
-                if (user.activity) {
-                    tr.setAttribute("data-is-active", "true");
-                }
                 tr.addEventListener("click", e => {
                     window.location.href = "/user?id=" + user.id;
                 });
+                if (user.is_archived) {
+                    tr.setAttribute("data-is-archive", "true");
+                    tr.setAttribute("hidden", "");
+                } else {
+                    tr.setAttribute("data-is-active", "false");
+                    if (user.activity) {
+                        tr.setAttribute("data-is-active", "true");
+                    }
+                }
+
                 document.getElementById("tbody").append(tr);
                 displayTable();
             });
@@ -131,7 +141,13 @@ function displayAllUsers() {
         activeLink.classList.remove("active-link");
     }
     displayAllUsersButton.classList.add("active-link");
+
     removeHiddenAttributeForAllTRs();
+
+    let archiveUsers = document.querySelectorAll(`tr[data-is-archive="true"]`);
+    for (let tr of archiveUsers) {
+        tr.setAttribute("hidden", "");
+    }
 }
 
 function displayOnlyActiveUsers() {
@@ -141,11 +157,11 @@ function displayOnlyActiveUsers() {
     }
     displayActiveUsersButton.classList.add("active-link");
 
-    removeHiddenAttributeForAllTRs();
+    setHiddenAttribiteForAllTRs();
 
-    let inactiveUsers = document.querySelectorAll(`tr[data-is-active="false"]`);
-    for (let tr of inactiveUsers) {
-        tr.setAttribute("hidden", "");
+    let activeUsers = document.querySelectorAll(`tr[data-is-active="true"]`);
+    for (let tr of activeUsers) {
+        tr.removeAttribute("hidden");
     }
 }
 
@@ -156,11 +172,26 @@ function displayOnlyInactiveUsers() {
     }
     displayInactiveUsersButton.classList.add("active-link");
 
-    removeHiddenAttributeForAllTRs();
+    setHiddenAttribiteForAllTRs();
 
-    let activeUsers = document.querySelectorAll(`tr[data-is-active="true"]`);
-    for (let tr of activeUsers) {
-        tr.setAttribute("hidden", "");
+    let inactiveUsers = document.querySelectorAll(`tr[data-is-active="false"]`);
+    for (let tr of inactiveUsers) {
+        tr.removeAttribute("hidden");
+    }
+}
+
+function displayOnlyArchiveUsers() {
+    let activeLink = document.querySelector(".active-link");
+    if (activeLink) {
+        activeLink.classList.remove("active-link");
+    }
+    displayArchiveUsersButton.classList.add("active-link");
+
+    setHiddenAttribiteForAllTRs();
+
+    let archiveUsers = document.querySelectorAll(`tr[data-is-archive="true"]`);
+    for (let tr of archiveUsers) {
+        tr.removeAttribute("hidden");
     }
 }
 
@@ -237,6 +268,9 @@ displayActiveUsersButton.addEventListener("click", displayOnlyActiveUsers);
 
 let displayInactiveUsersButton = document.querySelector("#inactive");
 displayInactiveUsersButton.addEventListener("click", displayOnlyInactiveUsers);
+
+let displayArchiveUsersButton = document.querySelector("#archive");
+displayArchiveUsersButton.addEventListener("click", displayOnlyArchiveUsers);
 
 let searchButton = document.querySelector("#searchButton");
 searchButton.addEventListener("click", searchThroughTheTable);
