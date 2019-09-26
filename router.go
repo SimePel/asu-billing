@@ -53,6 +53,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := getJWTtokenFromCookies(r.Cookies())
+	if err == nil {
+		http.Redirect(w, r, "/", 303)
+		return
+	}
 	b, _ := ioutil.ReadFile("templates/login.html")
 	w.Write(b)
 }

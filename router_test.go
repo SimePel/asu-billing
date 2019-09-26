@@ -40,6 +40,21 @@ func TestIndexHandler(t *testing.T) {
 
 func TestLoginHandler(t *testing.T) {
 	require.HTTPSuccess(t, loginHandler, "GET", "/login", nil)
+
+	token, err := createJWTtoken("login")
+	require.NoError(t, err)
+	c := &http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		HttpOnly: true,
+		Expires:  time.Now().AddDate(0, 1, 0),
+		SameSite: 3,
+	}
+
+	require.HTTPRedirect(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.AddCookie(c)
+		loginHandler(w, r)
+	}), "GET", "/login", nil)
 }
 
 func TestUserHandler(t *testing.T) {
