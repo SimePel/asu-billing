@@ -32,6 +32,11 @@ function getUser(userID) {
         }
     }
 
+    function displayArchiveButton() {
+        let archiveButtonGrandParent = archiveButton.parentElement.parentElement;
+        archiveButtonGrandParent.removeAttribute("hidden");
+    }
+
     fetch("/users/" + userID).then((res) => {
         return res.json()
     }).then((user) => {
@@ -53,6 +58,9 @@ function getUser(userID) {
             document.querySelector("#expiredDate").parentElement.remove();
         }
         document.querySelector("#balance").append(user.balance);
+        if (!user.is_archived) {
+            displayArchiveButton();
+        }
         if (user.payments !== undefined) {
             showPayments(user.payments);
         }
