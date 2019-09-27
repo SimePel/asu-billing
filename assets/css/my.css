@@ -26,9 +26,11 @@ table {
     text-align: center;
 }
 
-.table td[data-table-tag="name"] {
+.table td[data-table-tag="name"],
+.table th[data-table-tag="name"] {
     text-align: left;
 }
+
 
 .is-spaced {
     padding: .5rem .75rem;
