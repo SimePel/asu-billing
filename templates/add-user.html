@@ -39,10 +39,11 @@
       <div class="column is-6">
         <form action="/add-user" method="post">
           <input type="hidden" name="id"></input>
-          <div>ФИО<span class="has-text-danger">*</span>:<input class="input" type="text" name="name" required></input>
+          <div>ФИО<span class="has-text-danger">*</span>:<input class="input" type="text" name="name" autofocus
+              maxlength="40" required></input>
           </div>
           <div class="field has-addons">Логин<span class="has-text-danger">*</span>:<span class="control">
-              <input class="input" type="text" name="login" required></input>
+              <input class="input" type="text" name="login" maxlength="32" required></input>
             </span>
             <span class="control">
               <a class="button is-static">
@@ -55,13 +56,13 @@
               </select>
             </span>
           </div>
-          <div>Телефон:<input class="input" type="tel" name="phone"></input>
+          <div>Телефон:<input class="input" type="tel" name="phone" maxlength="12"></input>
           </div>
-          <div>Комната:<input class="input" type="text" name="room"></input>
+          <div>Комната:<input class="input" type="text" name="room" maxlength="14"></input>
           </div>
-          <div>Точка подключения:<input class="input" type="text" name="connectionPlace"></input>
+          <div>Точка подключения:<input class="input" type="text" name="connectionPlace" maxlength="17"></input>
           </div>
-          <div>Комментарий:<input class="input" type="text" name="comment"></input>
+          <div>Комментарий:<input class="input" type="text" name="comment" maxlength="50"></input>
           </div>
 
           <div class="field is-grouped">
