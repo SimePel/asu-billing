@@ -16,6 +16,7 @@ func newRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+	r.Handle("/favicon.ico", http.StripPrefix("/", http.FileServer(http.Dir("./"))))
 
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
