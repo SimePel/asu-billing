@@ -217,14 +217,14 @@ func TestAddUserPostHandler(t *testing.T) {
 	require.HTTPRedirect(t, addUserPostHandler, "POST", "/add-user", formValues)
 
 	mysql := MySQL{db: openTestDBconnection()}
-	id, err := mysql.GetUserIDbyLogin(expected.Login)
+	id, err := mysql.GetUserIDbyLogin(expected.Login + "@stud.asu.ru")
 	require.NoError(t, err)
 
 	user, err := mysql.GetUserByID(int(id))
 	require.NoError(t, err)
 
 	assert.Equal(t, expected.Name, user.Name)
-	assert.Equal(t, expected.Login, user.Login)
+	assert.Equal(t, expected.Login+"@stud.asu.ru", user.Login)
 	assert.Equal(t, expected.Phone, user.Phone)
 	assert.Equal(t, expected.Room, user.Room)
 	assert.Equal(t, expected.Comment, user.Comment)

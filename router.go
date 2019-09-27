@@ -170,7 +170,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
-	login := r.FormValue("login")
+	login := r.FormValue("login") + "@stud.asu.ru"
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
 	comment := r.FormValue("comment")
