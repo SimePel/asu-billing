@@ -16,12 +16,13 @@ import (
 func TestUserCtx(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
-		Paid:     false,
-		Activity: false,
-		Name:     "Тестовый Тест Тестович701",
-		Room:     "701а",
-		Login:    "king.701",
-		Balance:  0,
+		Paid:      false,
+		Activity:  false,
+		Name:      "Тестовый Тест Тестович701",
+		Agreement: "П-011",
+		Room:      "701а",
+		Login:     "king.701",
+		Balance:   0,
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Проводной",
@@ -125,8 +126,9 @@ func TestArchiveUserHandler(t *testing.T) {
 	})
 
 	user := User{
-		Name:  "Временно",
-		Login: "Временно",
+		Name:      "Временно",
+		Login:     "Временно",
+		Agreement: "П-012",
 		Tariff: Tariff{
 			ID: 1,
 		},

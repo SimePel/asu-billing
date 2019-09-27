@@ -173,15 +173,10 @@ func (mysql MySQL) AddUser(user User) (int, error) {
 		return 0, fmt.Errorf("cannot get unused id of inner ip: %v", err)
 	}
 
-	agreement, err := mysql.getNextAgreement()
-	if err != nil {
-		return 0, fmt.Errorf("cannot get next agreement: %v", err)
-	}
-
 	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, room, comment, login, phone, ext_ip, ip_id,
 		tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		user.Balance, user.Paid, user.Name, user.Room, user.Comment, user.Login, user.Phone, "82.200.46.10",
-		innerIPid, user.Tariff.ID, agreement, user.ConnectionPlace, user.ExpiredDate)
+		innerIPid, user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
 	if err != nil {
 		return 0, fmt.Errorf("cannot insert values in db: %v", err)
 	}
@@ -207,23 +202,6 @@ func (mysql MySQL) getUnusedInnerIPid() (int, error) {
 	}
 
 	return innerIPid, nil
-}
-
-func (mysql MySQL) getNextAgreement() (string, error) {
-	var lastAgreement string
-	err := mysql.db.QueryRow(`SELECT MAX(agreement) FROM users`).Scan(&lastAgreement)
-	if err != nil {
-		return "", fmt.Errorf("cannot select max agreement: %v", err)
-	}
-
-	agreementParts := strings.Split(lastAgreement, "-")
-	agreementID, err := strconv.Atoi(agreementParts[1])
-	if err != nil {
-		return "", fmt.Errorf("cannot convert agreement from string to int: %v", err)
-	}
-
-	agreementID += 1
-	return fmt.Sprintf("%v-%03d", agreementParts[0], agreementID), nil
 }
 
 func (mysql MySQL) UpdateUser(user User) error {
@@ -303,4 +281,22 @@ func (mysql MySQL) GetAllMoneyWeHave() (int, error) {
 	}
 
 	return sum, nil
+}
+
+// GetNextAgreement returns next agreement
+func (mysql MySQL) GetNextAgreement() (string, error) {
+	var lastAgreement string
+	err := mysql.db.QueryRow(`SELECT MAX(agreement) FROM users`).Scan(&lastAgreement)
+	if err != nil {
+		return "", fmt.Errorf("cannot select max agreement: %v", err)
+	}
+
+	agreementParts := strings.Split(lastAgreement, "-")
+	agreementID, err := strconv.Atoi(agreementParts[1])
+	if err != nil {
+		return "", fmt.Errorf("cannot convert agreement from string to int: %v", err)
+	}
+
+	agreementID += 1
+	return fmt.Sprintf("%v-%03d", agreementParts[0], agreementID), nil
 }

@@ -32,6 +32,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
 	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
+	r.With(checkJWTtoken).With(jsonContentType).Get("/next-agreement", getNextAgreementHandler)
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(checkJWTtoken)
@@ -171,6 +172,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
+	agreement := r.FormValue("agreement")
 	login := r.FormValue("login") + "@stud.asu.ru"
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
@@ -180,6 +182,7 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := User{
 		Name:            name,
+		Agreement:       agreement,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
@@ -346,5 +349,23 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 		InactiveUsersCount: inactiveUsersCount,
 		AllMoney:           allMoney,
 	}
+	json.NewEncoder(w).Encode(&J)
+}
+
+func getNextAgreementHandler(w http.ResponseWriter, r *http.Request) {
+	mysql := MySQL{db: initializeDB()}
+	agreement, err := mysql.GetNextAgreement()
+	if err != nil {
+		log.Printf("cannot get next agreement: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	J := struct {
+		Agreement string `json:"agreement"`
+	}{
+		Agreement: agreement,
+	}
+
 	json.NewEncoder(w).Encode(&J)
 }

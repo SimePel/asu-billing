@@ -189,6 +189,7 @@ func TestLoginPostHandler(t *testing.T) {
 func TestAddUserPostHandler(t *testing.T) {
 	expected := struct {
 		Name            string
+		Agreement       string
 		Login           string
 		Phone           string
 		Room            string
@@ -197,6 +198,7 @@ func TestAddUserPostHandler(t *testing.T) {
 		ConnectionPlace string
 	}{
 		"Tестовый Тест Тестович4",
+		"П-004",
 		"aloha.125",
 		"88005553554",
 		"555",
@@ -207,6 +209,7 @@ func TestAddUserPostHandler(t *testing.T) {
 
 	formValues := url.Values{}
 	formValues.Add("name", expected.Name)
+	formValues.Add("agreement", expected.Agreement)
 	formValues.Add("login", expected.Login)
 	formValues.Add("phone", expected.Phone)
 	formValues.Add("room", expected.Room)
@@ -224,6 +227,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.Agreement, user.Agreement)
 	assert.Equal(t, expected.Login+"@stud.asu.ru", user.Login)
 	assert.Equal(t, expected.Phone, user.Phone)
 	assert.Equal(t, expected.Room, user.Room)
@@ -298,11 +302,12 @@ func TestPaymentPostHandler(t *testing.T) {
 	defer ts.Close()
 
 	user := User{
-		Paid:    false,
-		Name:    "Тестовый Тест Тестович100",
-		Phone:   "88005553100",
-		Login:   "blabla.1000",
-		Balance: 0,
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович100",
+		Agreement: "П-009",
+		Phone:     "88005553100",
+		Login:     "blabla.1000",
+		Balance:   0,
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -387,13 +392,28 @@ func TestGetStatsAboutUsers(t *testing.T) {
 	assert.NotZero(t, J.AllMoney)
 }
 
+func TestGetNextAgreementHandler(t *testing.T) {
+	require.HTTPSuccess(t, getNextAgreementHandler, "GET", "/next-agreement", nil)
+
+	var J struct {
+		Agreement string `json:"agreement"`
+	}
+
+	body := assert.HTTPBody(getNextAgreementHandler, "GET", "/next-agreement", nil)
+	err := json.NewDecoder(strings.NewReader(body)).Decode(&J)
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, J.Agreement)
+}
+
 func TestTryToRenewPayment(t *testing.T) {
 	user := User{
-		Paid:    false,
-		Name:    "Тестовый Тест Тестович126",
-		Phone:   "88005553126",
-		Login:   "renew.payment",
-		Balance: 300,
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович126",
+		Agreement: "П-010",
+		Phone:     "88005553126",
+		Login:     "renew.payment",
+		Balance:   300,
 		Tariff: Tariff{
 			ID:    1,
 			Price: 200,

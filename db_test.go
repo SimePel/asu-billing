@@ -298,12 +298,13 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Paid:    false,
-		Name:    "Тестовый Тест Тестович3",
-		Phone:   "88005553553",
-		Comment: "Серьезный",
-		Login:   "baloga.154",
-		ExtIP:   "82.200.46.10",
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович3",
+		Agreement: "П-003",
+		Phone:     "88005553553",
+		Comment:   "Серьезный",
+		Login:     "baloga.154",
+		ExtIP:     "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -314,7 +315,18 @@ func TestAddUser(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	actualID, err := mysql.AddUser(expectedUser)
 	require.NoError(t, err)
-	assert.Equal(t, 3, actualID)
+
+	actualUser, err := mysql.GetUserByID(actualID)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedUser.Name, actualUser.Name)
+	assert.Equal(t, expectedUser.Agreement, actualUser.Agreement)
+	assert.Equal(t, expectedUser.Login, actualUser.Login)
+	assert.Equal(t, expectedUser.Phone, actualUser.Phone)
+	assert.Equal(t, expectedUser.Room, actualUser.Room)
+	assert.Equal(t, expectedUser.Comment, actualUser.Comment)
+	assert.Equal(t, expectedUser.ConnectionPlace, actualUser.ConnectionPlace)
+	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -352,12 +364,13 @@ func TestProcessPayment(t *testing.T) {
 
 func TestGetPaymentsByID(t *testing.T) {
 	user := User{
-		Paid:    false,
-		Name:    "Тестовый Тест Тестович6",
-		Phone:   "88005553566",
-		Login:   "payment.166",
-		ExtIP:   "82.200.46.10",
-		Balance: 0,
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович6",
+		Agreement: "П-006",
+		Phone:     "88005553566",
+		Login:     "payment.166",
+		ExtIP:     "82.200.46.10",
+		Balance:   0,
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -415,11 +428,12 @@ func TestPayForNextMonth(t *testing.T) {
 func TestArchiveUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
-		Paid:  false,
-		Name:  "Тестовый Тест Тестович4",
-		Phone: "88005553441",
-		Login: "unknown.444",
-		ExtIP: "82.200.46.10",
+		Paid:      false,
+		Name:      "Тестовый Тест Тестович8",
+		Agreement: "П-008",
+		Phone:     "88005553881",
+		Login:     "unknown.888",
+		ExtIP:     "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -457,4 +471,11 @@ func TestGetAllMoneyWeHave(t *testing.T) {
 	money, err := mysql.GetAllMoneyWeHave()
 	require.NoError(t, err)
 	assert.NotZero(t, money)
+}
+
+func TestGetNextAgreement(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	agreement, err := mysql.GetNextAgreement()
+	require.NoError(t, err)
+	assert.NotEmpty(t, agreement)
 }
