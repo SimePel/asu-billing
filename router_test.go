@@ -315,12 +315,12 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	var payment struct {
-		UserID    int `json:"id"`
-		ReceiptID int `json:"receipt_id"`
-		Sum       int `json:"sum"`
+		UserID  int    `json:"id"`
+		Sum     int    `json:"sum"`
+		Receipt string `json:"receipt"`
 	}
 	payment.UserID = userID
-	payment.ReceiptID = 101
+	payment.Receipt = "№1001 от 27.09.2019"
 	payment.Sum = 100
 	b, err := json.Marshal(&payment)
 	require.NoError(t, err)
@@ -333,10 +333,10 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, payment.Sum, actualUser.Balance)
-	assert.Equal(t, payment.ReceiptID, actualUser.Payments[len(actualUser.Payments)-1].ReceiptID)
+	assert.Equal(t, payment.Receipt, actualUser.Payments[len(actualUser.Payments)-1].Receipt)
 	assert.Equal(t, user.Paid, actualUser.Paid)
 
-	payment.ReceiptID = 102
+	payment.Receipt = "№1002 от 27.09.2019"
 	b, err = json.Marshal(&payment)
 	require.NoError(t, err)
 
@@ -348,7 +348,7 @@ func TestPaymentPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, 0, actualUser.Balance)
-	assert.Equal(t, payment.ReceiptID, actualUser.Payments[len(actualUser.Payments)-1].ReceiptID)
+	assert.Equal(t, payment.Receipt, actualUser.Payments[len(actualUser.Payments)-1].Receipt)
 	assert.Equal(t, true, actualUser.Paid)
 
 	invalidJSON := []byte("{UserID: 10000, ReceiptID: 10000, Field true,}")
@@ -357,7 +357,7 @@ func TestPaymentPostHandler(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 
 	payment.UserID = 100000
-	payment.ReceiptID = 100000
+	payment.Receipt = "№100000 от 1.1.2"
 	payment.Sum = 100000
 	b, err = json.Marshal(&payment)
 	require.NoError(t, err)

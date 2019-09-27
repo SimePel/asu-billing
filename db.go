@@ -33,9 +33,9 @@ func initializeDB() *sql.DB {
 
 // Payment struct
 type Payment struct {
-	Sum       int       `json:"sum"`
-	Date      time.Time `json:"date"`
-	ReceiptID int       `json:"receipt_id"`
+	Sum     int       `json:"sum"`
+	Date    time.Time `json:"date"`
+	Receipt string    `json:"receipt"`
 }
 
 // Tariff struct
@@ -144,7 +144,7 @@ func (mysql MySQL) GetUserIDbyLogin(login string) (uint, error) {
 
 // GetPaymentsByID returns info about user payments
 func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
-	rows, err := mysql.db.Query(`SELECT receipt_id, sum, date FROM payments WHERE user_id= ?`, userID)
+	rows, err := mysql.db.Query(`SELECT receipt, sum, date FROM payments WHERE user_id= ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get payments by id: %v", err)
 	}
@@ -152,7 +152,7 @@ func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
 	var payment Payment
 	payments := make([]Payment, 0)
 	for rows.Next() {
-		err := rows.Scan(&payment.ReceiptID, &payment.Sum, &payment.Date)
+		err := rows.Scan(&payment.Receipt, &payment.Sum, &payment.Date)
 		if err != nil {
 			return nil, fmt.Errorf("cannot scan from row: %v", err)
 		}
@@ -239,14 +239,14 @@ func (mysql MySQL) UpdateUser(user User) error {
 }
 
 // ProcessPayment updates balance and insert record into payments table
-func (mysql MySQL) ProcessPayment(userID, receiptID, sum int) error {
+func (mysql MySQL) ProcessPayment(userID, sum int, receipt string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)
 	if err != nil {
 		return fmt.Errorf("cannot increase balance field: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, receipt_id, sum, date) VALUES (?,?,?,?)`,
-		userID, receiptID, sum, time.Now().Add(time.Hour*7))
+	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, receipt, sum, date) VALUES (?,?,?,?)`,
+		userID, receipt, sum, time.Now().Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)
 	}

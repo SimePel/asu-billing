@@ -18,7 +18,7 @@ function getUser(userID) {
         for (let payment of payments) {
             let tr = document.createElement("tr");
             let receiptTD = document.createElement("td");
-            receiptTD.append(payment.receipt_id);
+            receiptTD.append(payment.receipt);
             let sumTD = document.createElement("td");
             sumTD.append(payment.sum);
             let dateTD = document.createElement("td");
@@ -75,7 +75,7 @@ function deposit() {
         },
         body: JSON.stringify({
             id: parseInt(userID),
-            receipt_id: parseInt(document.querySelector("#receiptInput").value),
+            receipt: document.querySelector("#receiptInput").value,
             sum: parseInt(document.querySelector("#paymentInput").value),
         }),
     }).then(() => {
