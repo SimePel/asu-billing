@@ -12,7 +12,7 @@ footer {
     margin-top: auto;
 }
 
-table {
+div>.container>table {
     margin-top: 1.6rem;
 }
 
@@ -29,6 +29,18 @@ table {
 .table td[data-table-tag="name"],
 .table th[data-table-tag="name"] {
     text-align: left;
+}
+
+.table tr[data-is-sending="true"]::before {
+    content: "📨";
+    vertical-align: middle;
+    vertical-align: -moz-middle-with-baseline;
+}
+
+.table tr[data-is-sending="false"]::before {
+    content: "";
+    vertical-align: middle;
+    vertical-align: -moz-middle-with-baseline;
 }
 
 div>input.input,

@@ -30,6 +30,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/edit-user", editUserHandler)
 	r.With(checkJWTtoken).Get("/user", userHandler)
 	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
+	r.With(checkJWTtoken).Get("/send-mass-sms", sendMassSMSHandler)
 	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/next-agreement", getNextAgreementHandler)
@@ -81,6 +82,11 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 
 func notificationStatusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(strconv.FormatBool(smsNotificationStatus)))
+}
+
+func sendMassSMSHandler(w http.ResponseWriter, r *http.Request) {
+	b, _ := ioutil.ReadFile("templates/send-mass-sms.html")
+	w.Write(b)
 }
 
 func changeNotificationStatusHandler(w http.ResponseWriter, r *http.Request) {

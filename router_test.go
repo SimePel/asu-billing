@@ -74,6 +74,10 @@ func TestNotificationStatusHandler(t *testing.T) {
 	require.HTTPBodyContains(t, notificationStatusHandler, "GET", "/notification-status", nil, smsNotificationStatus)
 }
 
+func TestSendMassSMSHandler(t *testing.T) {
+	require.HTTPSuccess(t, sendMassSMSHandler, "GET", "/send-mass-sms", nil)
+}
+
 func TestChangeNotificationStatusHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		changeNotificationStatusHandler(w, r)
