@@ -98,8 +98,30 @@ function setTrueSendingStatusForInactiveUsers() {
     });
 }
 
+function sendSMSs() {
+    let phones = [];
+    document.querySelectorAll("tr[data-is-sending=\"true\"]>td[data-table-tag=\"phone\"]").forEach((td) => {
+        phones.push(td.textContent);
+    });
+
+    fetch("send-mass-sms", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify({
+            message: document.querySelector("#message").value,
+            phones: phones.toString(),
+        }),
+    }).then(() => {
+        window.location.href = "/";
+    });
+}
+
 getUsers();
 
 document.querySelector("#all").addEventListener("click", setTrueSendingStatusForAllUsers);
 document.querySelector("#active").addEventListener("click", setTrueSendingStatusForActiveUsers);
 document.querySelector("#inactive").addEventListener("click", setTrueSendingStatusForInactiveUsers);
+
+document.querySelector("#sendButton").addEventListener("click", sendSMSs);

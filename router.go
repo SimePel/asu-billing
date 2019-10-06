@@ -22,6 +22,7 @@ func newRouter() *chi.Mux {
 	r.With(jsonContentType).Post("/login", loginPostHandler)
 	r.With(checkJWTtoken).Post("/add-user", addUserPostHandler)
 	r.With(checkJWTtoken).Post("/edit-user", editUserPostHandler)
+	r.With(checkJWTtoken).Post("/send-mass-sms", sendMassSMSPostHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
 
 	r.With(checkJWTtoken).Get("/", indexHandler)
@@ -240,6 +241,26 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/user?id=%v", id), 303)
+}
+
+func sendMassSMSPostHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var j struct {
+		Message string `json:"message"`
+		Phones  string `json:"phones"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&j)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = sendSMS(phones, message)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
