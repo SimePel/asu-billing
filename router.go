@@ -256,7 +256,7 @@ func sendMassSMSPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = sendSMS(phones, message)
+	err = sendSMS(j.Phones, j.Message)
 	if err != nil {
 		log.Println(err)
 		return
