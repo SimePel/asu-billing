@@ -76,6 +76,10 @@ function setTrueSendingStatusForAllUsers() {
     document.querySelectorAll("tr.clickable").forEach((tr) => {
         tr.setAttribute("data-is-sending", "true");
     });
+
+    document.querySelector("#all").classList.add("is-dark");
+    document.querySelector("#active").classList.remove("is-dark");
+    document.querySelector("#inactive").classList.remove("is-dark");
 }
 
 function setTrueSendingStatusForActiveUsers() {
@@ -86,6 +90,10 @@ function setTrueSendingStatusForActiveUsers() {
     document.querySelectorAll("tr[data-is-active=\"false\"]").forEach((tr) => {
         tr.setAttribute("data-is-sending", "false");
     });
+
+    document.querySelector("#active").classList.add("is-dark");
+    document.querySelector("#all").classList.remove("is-dark");
+    document.querySelector("#inactive").classList.remove("is-dark");
 }
 
 function setTrueSendingStatusForInactiveUsers() {
@@ -96,6 +104,10 @@ function setTrueSendingStatusForInactiveUsers() {
     document.querySelectorAll("tr[data-is-active=\"true\"]").forEach((tr) => {
         tr.setAttribute("data-is-sending", "false");
     });
+
+    document.querySelector("#inactive").classList.add("is-dark");
+    document.querySelector("#active").classList.remove("is-dark");
+    document.querySelector("#all").classList.remove("is-dark");
 }
 
 function sendSMSs() {
