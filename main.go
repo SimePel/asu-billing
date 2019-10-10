@@ -35,7 +35,7 @@ func restorePaymentsTimers() error {
 			time.AfterFunc(time.Until(notificationDate), notificationFunc)
 			continue
 		}
-		tryToRenewPayment(mysql, user)
+		tryToRenewPayment(mysql, int(user.ID))
 	}
 
 	return nil

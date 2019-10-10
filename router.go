@@ -291,7 +291,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Paid == false {
-		tryToRenewPayment(mysql, user)
+		tryToRenewPayment(mysql, int(user.ID))
 	}
 }
 
@@ -317,19 +317,19 @@ func sendNotification(user User) error {
 
 func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
 	return func() {
-		tryToRenewPayment(mysql, u)
+		tryToRenewPayment(mysql, int(u.ID))
 	}
 }
 
-func tryToRenewPayment(mysql MySQL, user User) {
+func tryToRenewPayment(mysql MySQL, id int) {
+	user, err := mysql.GetUserByID(id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	if user.hasEnoughMoneyForPayment() {
 		expirationDate, err := mysql.PayForNextMonth(user)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		user, err = mysql.GetUserByID(int(user.ID))
 		if err != nil {
 			log.Println(err)
 			return

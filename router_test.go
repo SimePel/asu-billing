@@ -429,7 +429,7 @@ func TestTryToRenewPayment(t *testing.T) {
 	require.NoError(t, err)
 	user.ID = uint(id)
 
-	tryToRenewPayment(mysql, user)
+	tryToRenewPayment(mysql, int(user.ID))
 
 	updatedUser, err := mysql.GetUserByID(id)
 	require.NoError(t, err)
