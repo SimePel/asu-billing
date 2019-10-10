@@ -12,6 +12,10 @@ import (
 var smsNotificationStatus = true
 
 func sendSMS(phone, message string) error {
+	if !smsNotificationStatus {
+		return nil
+	}
+
 	user := os.Getenv("BEELINE_USER")
 	password := os.Getenv("BEELINE_PASS")
 
