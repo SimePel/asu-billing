@@ -132,6 +132,7 @@ function showStatistics() {
     }).then(stats => {
         document.querySelector("#countOfActiveUsers").textContent = stats.active_users_count;
         document.querySelector("#countOfInactiveUsers").textContent = stats.inactive_users_count;
+        document.querySelector("#cash").textContent = stats.cash + " руб.";
     });
 }
 

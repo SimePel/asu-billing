@@ -360,7 +360,7 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allMoney, err := mysql.GetAllMoneyWeHave()
+	cash, err := mysql.GetAllMoneyWeHave()
 	if err != nil {
 		log.Printf("cannot get sum of all money we have: %v", err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
@@ -370,11 +370,11 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 	J := struct {
 		ActiveUsersCount   int `json:"active_users_count"`
 		InactiveUsersCount int `json:"inactive_users_count"`
-		AllMoney           int `json:"all_money"`
+		Cash               int `json:"cash"`
 	}{
 		ActiveUsersCount:   activeUsersCount,
 		InactiveUsersCount: inactiveUsersCount,
-		AllMoney:           allMoney,
+		Cash:               cash,
 	}
 	json.NewEncoder(w).Encode(&J)
 }

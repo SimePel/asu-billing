@@ -384,7 +384,7 @@ func TestGetStatsAboutUsers(t *testing.T) {
 	var J struct {
 		ActiveUsersCount   int `json:"active_users_count"`
 		InactiveUsersCount int `json:"inactive_users_count"`
-		AllMoney           int `json:"all_money"`
+		Cash               int `json:"cash"`
 	}
 
 	body := assert.HTTPBody(getStatsAboutUsers, "GET", "/stats", nil)
@@ -393,7 +393,7 @@ func TestGetStatsAboutUsers(t *testing.T) {
 
 	assert.NotZero(t, J.ActiveUsersCount)
 	assert.NotZero(t, J.InactiveUsersCount)
-	assert.NotZero(t, J.AllMoney)
+	assert.NotZero(t, J.Cash)
 }
 
 func TestGetNextAgreementHandler(t *testing.T) {

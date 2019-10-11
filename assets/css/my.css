@@ -109,6 +109,33 @@ div>span>select {
     font-size: 1.06rem;
 }
 
+#walletPlace {
+    background-color: white;
+    position: absolute;
+    top: 0;
+    right: 7.22rem;
+    height: 24px;
+    z-index: 1;
+}
+
+#wallet {
+    width: 24px;
+    cursor: pointer;
+}
+
+#cash {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    right: .75rem;
+    z-index: 1;
+}
+
+#walletPlace:hover~#cash {
+    display: inline;
+}
+
 .active-link {
     color: #212121;
     font-weight: 500;
