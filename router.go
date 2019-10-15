@@ -290,7 +290,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Paid == false {
+	if !user.Paid {
 		tryToRenewPayment(mysql, int(user.ID))
 	}
 }

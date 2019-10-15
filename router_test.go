@@ -127,7 +127,7 @@ func TestLogoutHandler(t *testing.T) {
 
 	actualCookie := resp.Cookies()[0]
 	assert.Equal(t, "", actualCookie.Value)
-	assert.Greater(t, time.Now().Sub(actualCookie.Expires).Seconds(), float64(0))
+	assert.Greater(t, time.Since(actualCookie.Expires).Seconds(), float64(0))
 }
 
 func TestLoginPostHandler(t *testing.T) {

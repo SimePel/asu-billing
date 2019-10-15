@@ -29,7 +29,7 @@ func TestCreateJWTtoken(t *testing.T) {
 	err = os.Setenv("JWT_KEY", "")
 	require.NoError(t, err)
 
-	token, err = parseJWTtoken(tokenString)
+	_, err = parseJWTtoken(tokenString)
 	require.Error(t, err)
 
 	err = os.Setenv("JWT_KEY", "returnJWT_KEY")

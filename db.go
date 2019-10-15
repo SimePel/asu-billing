@@ -68,11 +68,7 @@ type User struct {
 }
 
 func (u User) hasEnoughMoneyForPayment() bool {
-	if u.Balance < u.Tariff.Price {
-		return false
-	}
-
-	return true
+	return !(u.Balance < u.Tariff.Price)
 }
 
 // GetAllUsers returns all users from db
