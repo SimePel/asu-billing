@@ -317,6 +317,10 @@ func createSendNotificationFunc(u User) func() {
 }
 
 func sendNotification(user User) error {
+	if user.Balance >= user.Tariff.Price {
+		return nil
+	}
+
 	message := fmt.Sprintf("На ЛС: %v %vр. Пополните счет за проводное подключение к сети АГУ", user.Agreement, user.Balance)
 	err := sendSMS(user.Phone, message)
 	if err != nil {
