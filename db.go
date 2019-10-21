@@ -35,7 +35,7 @@ func initializeDB() *sql.DB {
 type Payment struct {
 	Sum     int       `json:"sum"`
 	Date    time.Time `json:"date"`
-	Receipt string    `json:"receipt,omitempty"`
+	Receipt string    `json:"receipt"`
 	Admin   string    `json:"admin"`
 }
 
