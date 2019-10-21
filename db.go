@@ -252,7 +252,7 @@ func (mysql MySQL) ArchiveUserByID(id int) error {
 
 func (mysql MySQL) GetCountOfActiveUsers() (int, error) {
 	var count int
-	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=true`).Scan(&count)
+	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=true AND is_archived=false`).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("cannot do queryRow: %v", err)
 	}
@@ -262,7 +262,7 @@ func (mysql MySQL) GetCountOfActiveUsers() (int, error) {
 
 func (mysql MySQL) GetCountOfInactiveUsers() (int, error) {
 	var count int
-	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=false`).Scan(&count)
+	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=false AND is_archived=false`).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("cannot do queryRow: %v", err)
 	}
