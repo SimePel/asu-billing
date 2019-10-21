@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 )
 
@@ -269,16 +270,26 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 		UserID  int    `json:"id"`
 		Sum     int    `json:"sum"`
 		Receipt string `json:"receipt"`
+		Admin   string `json:"admin"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&payment)
+	token, err := getJWTtokenFromCookies(r.Cookies())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	payment.Admin = claims["login"].(string)
+
+	err = json.NewDecoder(r.Body).Decode(&payment)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err = mysql.ProcessPayment(payment.UserID, payment.Sum, payment.Receipt)
+	err = mysql.ProcessPayment(payment.UserID, payment.Sum, payment.Receipt, payment.Admin)
 	if err != nil {
 		log.Println(err)
 		return

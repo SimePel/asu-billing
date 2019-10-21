@@ -301,6 +301,15 @@ func TestEditUserPostHandler(t *testing.T) {
 
 func TestPaymentPostHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, err := createJWTtoken("login")
+		require.NoError(t, err)
+		cookie := http.Cookie{
+			Name:     "jwt",
+			Value:    token,
+			HttpOnly: true,
+			SameSite: 3,
+		}
+		r.AddCookie(&cookie)
 		paymentPostHandler(w, r)
 	}))
 	defer ts.Close()
@@ -327,10 +336,12 @@ func TestPaymentPostHandler(t *testing.T) {
 		UserID  int    `json:"id"`
 		Sum     int    `json:"sum"`
 		Receipt string `json:"receipt"`
+		Admin   string `json:"admin"`
 	}
 	payment.UserID = userID
-	payment.Receipt = "№1001 от 27.09.2019"
 	payment.Sum = 100
+	payment.Receipt = "№1001 от 27.09.2019"
+	payment.Admin = "rozhkov"
 	b, err := json.Marshal(&payment)
 	require.NoError(t, err)
 
@@ -343,6 +354,7 @@ func TestPaymentPostHandler(t *testing.T) {
 
 	assert.Equal(t, payment.Sum, actualUser.Balance)
 	assert.Equal(t, payment.Receipt, actualUser.Payments[len(actualUser.Payments)-1].Receipt)
+	assert.Equal(t, payment.Admin, actualUser.Payments[len(actualUser.Payments)-1].Admin)
 	assert.Equal(t, user.Paid, actualUser.Paid)
 
 	payment.Receipt = "№1002 от 27.09.2019"
@@ -358,6 +370,7 @@ func TestPaymentPostHandler(t *testing.T) {
 
 	assert.Equal(t, 0, actualUser.Balance)
 	assert.Equal(t, payment.Receipt, actualUser.Payments[len(actualUser.Payments)-1].Receipt)
+	assert.Equal(t, payment.Admin, actualUser.Payments[len(actualUser.Payments)-1].Admin)
 	assert.Equal(t, true, actualUser.Paid)
 
 	invalidJSON := []byte("{UserID: 10000, ReceiptID: 10000, Field true,}")
@@ -366,8 +379,9 @@ func TestPaymentPostHandler(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 
 	payment.UserID = 100000
-	payment.Receipt = "№100000 от 1.1.2"
 	payment.Sum = 100000
+	payment.Receipt = "№100000 от 1.1.2"
+	payment.Admin = "error"
 	b, err = json.Marshal(&payment)
 	require.NoError(t, err)
 

@@ -73,6 +73,7 @@ func prepareDB(db *sql.DB) error {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS payments (
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		user_id bigint(20) unsigned NOT NULL,
+		admin varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		receipt varchar(25) COLLATE utf8_unicode_ci NOT NULL,
 		sum smallint(6) NOT NULL,
 		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -126,7 +127,7 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`INSERT INTO payments (id, receipt, user_id, sum, date) VALUES (1, '№1111 от 27.09.2019' , 1, 200, '2019-06-07 07:32:50');`)
+	_, err = db.Exec(`INSERT INTO payments (id, admin, receipt, user_id, sum, date) VALUES (1, 'rozhkov', '№1111 от 27.09.2019' , 1, 200, '2019-06-07 07:32:50');`)
 	if err != nil {
 		return err
 	}
@@ -260,6 +261,7 @@ func TestGetUserByID(t *testing.T) {
 		ExpiredDate: time.Date(2019, time.June, 27, 4, 25, 26, 0, time.UTC),
 		Payments: []Payment{
 			Payment{
+				Admin:   "rozhkov",
 				Receipt: "№1111 от 27.09.2019",
 				Sum:     200,
 				Date:    time.Date(2019, time.June, 7, 7, 32, 50, 0, time.UTC),
@@ -348,7 +350,7 @@ func TestUpdateUser(t *testing.T) {
 
 func TestProcessPayment(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
-	err := mysql.ProcessPayment(1, 100, "№1112 от 28.09.2019")
+	err := mysql.ProcessPayment(1, 100, "№1112 от 28.09.2019", "rozhkov")
 	require.NoError(t, err)
 
 	user, err := mysql.GetUserByID(1)
@@ -357,7 +359,7 @@ func TestProcessPayment(t *testing.T) {
 	assert.Equal(t, 200, user.Balance)
 	assert.Equal(t, "№1112 от 28.09.2019", user.Payments[len(user.Payments)-1].Receipt)
 
-	err = mysql.ProcessPayment(100000, 100000, "№1 от 1.1.1")
+	err = mysql.ProcessPayment(100000, 100000, "№1 от 1.1.1", "error")
 	require.Error(t, err)
 	// Еще протестить, что создалась запись в табличке payments
 }
@@ -383,10 +385,10 @@ func TestGetPaymentsByID(t *testing.T) {
 	require.NoError(t, err)
 	user.ID = uint(id)
 
-	err = mysql.ProcessPayment(id, 200, "№6661 от 27.09.2019")
+	err = mysql.ProcessPayment(id, 200, "№6661 от 27.09.2019", "rozhkov")
 	require.NoError(t, err)
 
-	err = mysql.ProcessPayment(id, 100, "№6662 от 27.09.2019")
+	err = mysql.ProcessPayment(id, 100, "№6662 от 27.09.2019", "rozhkov")
 	require.NoError(t, err)
 
 	actualPayments, err := mysql.GetPaymentsByID(id)
@@ -395,8 +397,10 @@ func TestGetPaymentsByID(t *testing.T) {
 	assert.Equal(t, 2, len(actualPayments))
 	assert.Equal(t, 200, actualPayments[0].Sum)
 	assert.Equal(t, "№6661 от 27.09.2019", actualPayments[0].Receipt)
+	assert.Equal(t, "rozhkov", actualPayments[0].Admin)
 	assert.Equal(t, 100, actualPayments[1].Sum)
 	assert.Equal(t, "№6662 от 27.09.2019", actualPayments[1].Receipt)
+	assert.Equal(t, "rozhkov", actualPayments[1].Admin)
 }
 
 func TestPayForNextMonth(t *testing.T) {

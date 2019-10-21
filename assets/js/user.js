@@ -17,6 +17,8 @@ function getUser(userID) {
     function showPayments(payments) {
         for (let payment of payments) {
             let tr = document.createElement("tr");
+            let adminTD = document.createElement("td");
+            adminTD.append(payment.admin);
             let receiptTD = document.createElement("td");
             receiptTD.append(payment.receipt);
             let sumTD = document.createElement("td");
@@ -26,7 +28,7 @@ function getUser(userID) {
             const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
             dateTD.append(date);
             let tds = [];
-            tds.push(receiptTD, dateTD, sumTD);
+            tds.push(adminTD, receiptTD, dateTD, sumTD);
             tr.append(...tds);
             document.querySelector("#tbody").append(tr);
         }
