@@ -7,9 +7,63 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 var smsNotificationStatus = true
+
+func tryToRenewPayment(mysql MySQL, id int) {
+	user, err := mysql.GetUserByID(id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if user.hasEnoughMoneyForPayment() {
+		expirationDate, err := mysql.PayForNextMonth(user)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		paymentFunc := createTryToRenewPaymentFunc(mysql, user)
+		time.AfterFunc(time.Until(expirationDate), paymentFunc)
+
+		notificationDate := expirationDate.AddDate(0, 0, -3)
+		notificationFunc := createSendNotificationFunc(user)
+		time.AfterFunc(time.Until(notificationDate), notificationFunc)
+	}
+}
+
+func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
+	return func() {
+		tryToRenewPayment(mysql, int(u.ID))
+	}
+}
+
+func createSendNotificationFunc(u User) func() {
+	return func() {
+		err := sendNotification(u)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func sendNotification(user User) error {
+	if user.Balance >= user.Tariff.Price {
+		return nil
+	}
+
+	message := fmt.Sprintf("На ЛС: %v %vр. Пополните счет за проводное подключение к сети АГУ", user.Agreement, user.Balance)
+	err := sendSMS(user.Phone, message)
+	if err != nil {
+		return fmt.Errorf("cannot send sms: %v", err)
+	}
+
+	return nil
+}
 
 func sendSMS(phone, message string) error {
 	if !smsNotificationStatus {
