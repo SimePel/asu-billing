@@ -67,3 +67,12 @@ func archiveUser(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func restoreUser(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(userCtxKey("user")).(*User)
+	mysql := MySQL{db: initializeDB()}
+	err := mysql.RestoreUserByID(int(user.ID))
+	if err != nil {
+		log.Println(err)
+	}
+}

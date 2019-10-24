@@ -13,6 +13,9 @@ paymentButton.addEventListener("click", revealPaymentInputs);
 let archiveButton = document.querySelector("#archiveButton");
 archiveButton.addEventListener("click", archiveUser);
 
+let restoreButton = document.querySelector("#restoreButton");
+restoreButton.addEventListener("click", restoreUser);
+
 function getUser(userID) {
     function showPayments(payments) {
         for (let payment of payments) {
@@ -34,9 +37,17 @@ function getUser(userID) {
         }
     }
 
-    function displayArchiveButton() {
+    function replaceArchiveButtonToRestoreButton() {
         let archiveButtonGrandParent = archiveButton.parentElement.parentElement;
-        archiveButtonGrandParent.removeAttribute("hidden");
+        archiveButtonGrandParent.setAttribute("hidden", "");
+
+        let restoreButtonGrandParent = restoreButton.parentElement.parentElement;
+        restoreButtonGrandParent.removeAttribute("hidden");
+    }
+
+    function hidePaymentButton() {
+        let paymentButtonGrandParent = paymentButton.parentElement.parentElement;
+        paymentButtonGrandParent.setAttribute("hidden", "");
     }
 
     fetch("/users/" + userID).then((res) => {
@@ -52,6 +63,7 @@ function getUser(userID) {
         document.querySelector("#room").append(user.room);
         document.querySelector("#comment").append(user.comment);
         document.querySelector("#connectionPlace").append(user.connection_place);
+
         if (user.activity === true) {
             const d = new Date(user.expired_date);
             const expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
@@ -60,8 +72,10 @@ function getUser(userID) {
             document.querySelector("#expiredDate").parentElement.remove();
         }
         document.querySelector("#balance").append(user.balance);
-        if (!user.is_archived) {
-            displayArchiveButton();
+
+        if (user.is_archived) {
+            replaceArchiveButtonToRestoreButton();
+            hidePaymentButton();
         }
         if (user.payments !== undefined) {
             showPayments(user.payments);
@@ -111,6 +125,17 @@ function archiveUser() {
     if (answer === true) {
         fetch("users/" + userID, {
             method: "DELETE",
+        }).then(() => {
+            window.location.replace("/");
+        });
+    }
+}
+
+function restoreUser() {
+    let answer = confirm("Вы действительно хотите восстановить этого пользователя из архива?");
+    if (answer === true) {
+        fetch("users/" + userID, {
+            method: "PUT",
         }).then(() => {
             window.location.replace("/");
         });

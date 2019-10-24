@@ -143,6 +143,45 @@ func TestArchiveUserHandler(t *testing.T) {
 	req = req.WithContext(ctx)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-
 	assert.Equal(t, 200, rr.Code)
+
+	archivedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, archivedUser.IsArchived)
+}
+
+func TestRestoreUserHandler(t *testing.T) {
+	req, err := http.NewRequest("PUT", "/users/userID", nil)
+	require.Nil(t, err)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		restoreUser(w, r)
+	})
+
+	user := User{
+		Name:       "Восстановленный",
+		Login:      "Восстановленный",
+		Agreement:  "П-024",
+		IsArchived: true,
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, userCtxKey("user"), &user)
+	req = req.WithContext(ctx)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+
+	restoredUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, false, restoredUser.IsArchived)
 }

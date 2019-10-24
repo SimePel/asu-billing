@@ -44,6 +44,7 @@ func newRouter() *chi.Mux {
 		r.Route("/{userID}", func(r chi.Router) {
 			r.Use(userCtx)
 			r.Get("/", getUser)
+			r.Put("/", restoreUser)
 			r.Delete("/", archiveUser)
 		})
 		r.Get("/", getAllUsers)

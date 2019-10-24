@@ -250,6 +250,15 @@ func (mysql MySQL) ArchiveUserByID(id int) error {
 	return nil
 }
 
+func (mysql MySQL) RestoreUserByID(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET is_archived=0 WHERE id=?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot restore user: %v", err)
+	}
+
+	return nil
+}
+
 func (mysql MySQL) GetCountOfActiveUsers() (int, error) {
 	var count int
 	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=true AND is_archived=false`).Scan(&count)

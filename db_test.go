@@ -456,6 +456,30 @@ func TestArchiveUserByID(t *testing.T) {
 	assert.Equal(t, true, archivedUser.IsArchived)
 }
 
+func TestRestoreUserByID(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	user := User{
+		IsArchived: true,
+		Name:       "Тестовый Тест Тестович88",
+		Agreement:  "П-088",
+		Phone:      "88005558888",
+		Login:      "restored.88",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	err = mysql.RestoreUserByID(id)
+	require.NoError(t, err)
+
+	restoredUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+	assert.Equal(t, false, restoredUser.IsArchived)
+}
+
 func TestGetCountOfActiveUsers(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	count, err := mysql.GetCountOfActiveUsers()
