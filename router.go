@@ -220,6 +220,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	room := r.FormValue("room")
 	comment := r.FormValue("comment")
 	connectionPlace := r.FormValue("connectionPlace")
+	expiredDate, _ := time.Parse("2006-01-02", r.FormValue("expiredDate"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
 	user := User{
@@ -232,6 +233,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		Room:            room,
 		Comment:         comment,
 		ConnectionPlace: connectionPlace,
+		ExpiredDate:     expiredDate,
 	}
 
 	mysql := MySQL{db: initializeDB()}

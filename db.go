@@ -203,9 +203,9 @@ func (mysql MySQL) getUnusedInnerIPid() (int, error) {
 
 func (mysql MySQL) UpdateUser(user User) error {
 	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, login=?, tariff=?, phone=?, room=?, comment=?,
-	 	connection_place=? WHERE id=?`,
+	 	connection_place=?, expired_date=? WHERE id=?`,
 		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Room, user.Comment,
-		user.ConnectionPlace, user.ID)
+		user.ConnectionPlace, user.ExpiredDate, user.ID)
 	if err != nil {
 		return fmt.Errorf("cannot update user fields: %v", err)
 	}

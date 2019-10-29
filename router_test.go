@@ -260,8 +260,9 @@ func TestEditUserPostHandler(t *testing.T) {
 		Phone           string
 		Room            string
 		Comment         string
-		Tariff          int
 		ConnectionPlace string
+		ExpiredDate     time.Time
+		Tariff          int
 	}{
 		"Tестовый Тест Тестович128",
 		"П-128",
@@ -269,8 +270,9 @@ func TestEditUserPostHandler(t *testing.T) {
 		"88005553128",
 		"128",
 		"улетел",
-		1,
 		"рандом",
+		time.Now().AddDate(0, 1, 0),
+		1,
 	}
 
 	formValues := url.Values{}
@@ -283,6 +285,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	formValues.Add("comment", expected.Comment)
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
+	formValues.Add("expiredDate", expected.ExpiredDate.Format("2006-01-02"))
 
 	require.HTTPRedirect(t, editUserPostHandler, "POST", "/edit-user", formValues)
 
@@ -297,6 +300,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Comment, updatedUser.Comment)
 	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
 	assert.Equal(t, expected.ConnectionPlace, updatedUser.ConnectionPlace)
+	assert.Equal(t, expected.ExpiredDate.Format("2006-01-02"), updatedUser.ExpiredDate.Format("2006-01-02"))
 }
 
 func TestPaymentPostHandler(t *testing.T) {

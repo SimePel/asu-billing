@@ -19,6 +19,10 @@ func tryToRenewPayment(mysql MySQL, id int) {
 		return
 	}
 
+	if user.ExpiredDate.After(time.Now()) {
+		return
+	}
+
 	if user.hasEnoughMoneyForPayment() {
 		expirationDate, err := mysql.PayForNextMonth(user)
 		if err != nil {
@@ -30,7 +34,7 @@ func tryToRenewPayment(mysql MySQL, id int) {
 		time.AfterFunc(time.Until(expirationDate), paymentFunc)
 
 		notificationDate := expirationDate.AddDate(0, 0, -3)
-		notificationFunc := createSendNotificationFunc(user)
+		notificationFunc := createSendNotificationFunc(mysql, user)
 		time.AfterFunc(time.Until(notificationDate), notificationFunc)
 	}
 }
@@ -41,9 +45,9 @@ func createTryToRenewPaymentFunc(mysql MySQL, u User) func() {
 	}
 }
 
-func createSendNotificationFunc(u User) func() {
+func createSendNotificationFunc(mysql MySQL, u User) func() {
 	return func() {
-		err := sendNotification(u)
+		err := sendNotification(mysql, int(u.ID))
 		if err != nil {
 			log.Println(err)
 			return
@@ -51,13 +55,22 @@ func createSendNotificationFunc(u User) func() {
 	}
 }
 
-func sendNotification(user User) error {
+func sendNotification(mysql MySQL, id int) error {
+	user, err := mysql.GetUserByID(id)
+	if err != nil {
+		return fmt.Errorf("cannot get user by id: %v", err)
+	}
+
 	if user.Balance >= user.Tariff.Price {
 		return nil
 	}
 
+	if user.ExpiredDate.After(time.Now().AddDate(0, 0, 3)) {
+		return nil
+	}
+
 	message := fmt.Sprintf("На ЛС: %v %vр. Пополните счет за проводное подключение к сети АГУ", user.Agreement, user.Balance)
-	err := sendSMS(user.Phone, message)
+	err = sendSMS(user.Phone, message)
 	if err != nil {
 		return fmt.Errorf("cannot send sms: %v", err)
 	}

@@ -33,17 +33,17 @@ func TestTryToRenewPayment(t *testing.T) {
 
 	assert.Equal(t, user.Balance-200, updatedUser.Balance)
 	assert.Equal(t, !user.Paid, updatedUser.Paid)
+
+	tryToRenewPayment(mysql, int(user.ID))
 }
 
 func TestSendNotification(t *testing.T) {
 	user := User{
-		Activity:  true,
-		Paid:      true,
 		Name:      "Тестовый Тест Тестович18",
 		Agreement: "П-180",
 		Phone:     "89039496867",
 		Login:     "checkNotification",
-		Balance:   300,
+		Balance:   400,
 		Tariff: Tariff{
 			ID: 1,
 		},
@@ -53,16 +53,15 @@ func TestSendNotification(t *testing.T) {
 	actualID, err := mysql.AddUser(user)
 	require.NoError(t, err)
 
-	actualUser, err := mysql.GetUserByID(actualID)
+	user.ID = uint(actualID)
+	_, err = mysql.PayForNextMonth(user)
 	require.NoError(t, err)
 
-	// sms will not be sent, because user balance is greater than tariff price
-	err = sendNotification(actualUser)
+	// sms will not be sent, because user is able to pay for the next month
+	err = sendNotification(mysql, actualID)
 	require.NoError(t, err)
 
-	actualUser.Balance = 100
-	err = sendNotification(actualUser)
-	require.NoError(t, err)
+	// Нужно доделать тест
 }
 
 func TestSendSMS(t *testing.T) {

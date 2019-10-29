@@ -31,7 +31,7 @@ func restorePaymentsTimers() error {
 			// Если оказались внутри периода из трех дней, то ничего страшного не произойдет
 			// Until вернет отрицательное число и функция выполниться в этот же момент
 			notificationDate := user.ExpiredDate.AddDate(0, 0, -3)
-			notificationFunc := createSendNotificationFunc(user)
+			notificationFunc := createSendNotificationFunc(mysql, user)
 			time.AfterFunc(time.Until(notificationDate), notificationFunc)
 			continue
 		}
