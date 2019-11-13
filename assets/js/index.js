@@ -1,4 +1,15 @@
 function getUsers() {
+    fetch("users")
+        .then(res => {
+            return res.json();
+        })
+        .then(users => {
+            fillUsersToTheTable(users);
+            displayTable();
+        });
+}
+
+function fillUsersToTheTable(users) {
     function createTD(tableTag, value) {
         let td = document.createElement("td");
         td.setAttribute("hidden", "");
@@ -38,68 +49,61 @@ function getUsers() {
         return td;
     }
 
-    function displayTable() {
-        let elemsToDisplay = JSON.parse(localStorage.getItem("elemsToDisplay"));
-        let defaultTable = ["name", "login", "tariff", "balance", "activity"];
+    users.forEach(user => {
+        let tds = [];
 
-        if (elemsToDisplay === null) {
-            localStorage.setItem("elemsToDisplay", JSON.stringify(defaultTable));
-            elemsToDisplay = defaultTable;
+        tds.push(createTD("name", user.name));
+        tds.push(createTD("agreement", user.agreement));
+        tds.push(createTD("login", user.login));
+        let expiredDate = "Не подключен";
+        if (user.paid === true) {
+            const d = new Date(user.expired_date);
+            expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+        }
+        tds.push(createTD("expiredDate", expiredDate));
+        tds.push(createTD("ip", user.inner_ip));
+        tds.push(createTD("phone", user.phone));
+        tds.push(createTD("room", user.room));
+        tds.push(createTD("tariff", user.tariff.name));
+        tds.push(createTD("connectionPlace", user.connection_place));
+        tds.push(createTD("balance", user.balance));
+        tds.push(createStatusTD(user.paid, user.activity, user.is_archived));
+
+        let tr = document.createElement("tr");
+        tr.append(...tds);
+        tr.classList.add("clickable");
+        tr.addEventListener("click", e => {
+            window.location.href = "/user?id=" + user.id;
+        });
+        if (user.is_archived) {
+            tr.setAttribute("data-is-archive", "true");
+            tr.setAttribute("hidden", "");
+        } else {
+            tr.setAttribute("data-is-active", "false");
+            if (user.activity) {
+                tr.setAttribute("data-is-active", "true");
+            }
         }
 
-        for (let elem of elemsToDisplay) {
-            document.querySelectorAll(`[data-table-tag="${elem}"]`).forEach((td) => {
-                td.removeAttribute("hidden");
-            });
-            document.querySelector(`[data-menu-item="${elem}"]`).classList.add("active");
-        }
+        document.getElementById("tbody").append(tr);
+    });
+}
+
+function displayTable() {
+    let elemsToDisplay = JSON.parse(localStorage.getItem("elemsToDisplay"));
+    let defaultTable = ["name", "login", "tariff", "balance", "activity"];
+
+    if (elemsToDisplay === null) {
+        localStorage.setItem("elemsToDisplay", JSON.stringify(defaultTable));
+        elemsToDisplay = defaultTable;
     }
 
-    fetch("users")
-        .then(res => {
-            return res.json();
-        })
-        .then(users => {
-            users.forEach(user => {
-                let tds = [];
-
-                tds.push(createTD("name", user.name));
-                tds.push(createTD("agreement", user.agreement));
-                tds.push(createTD("login", user.login));
-                let expiredDate = "Не подключен";
-                if (user.paid === true) {
-                    const d = new Date(user.expired_date);
-                    expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
-                }
-                tds.push(createTD("expiredDate", expiredDate));
-                tds.push(createTD("ip", user.inner_ip));
-                tds.push(createTD("phone", user.phone));
-                tds.push(createTD("room", user.room));
-                tds.push(createTD("tariff", user.tariff.name));
-                tds.push(createTD("connectionPlace", user.connection_place));
-                tds.push(createTD("balance", user.balance));
-                tds.push(createStatusTD(user.paid, user.activity, user.is_archived));
-
-                let tr = document.createElement("tr");
-                tr.append(...tds);
-                tr.classList.add("clickable");
-                tr.addEventListener("click", e => {
-                    window.location.href = "/user?id=" + user.id;
-                });
-                if (user.is_archived) {
-                    tr.setAttribute("data-is-archive", "true");
-                    tr.setAttribute("hidden", "");
-                } else {
-                    tr.setAttribute("data-is-active", "false");
-                    if (user.activity) {
-                        tr.setAttribute("data-is-active", "true");
-                    }
-                }
-
-                document.getElementById("tbody").append(tr);
-                displayTable();
-            });
+    for (let elem of elemsToDisplay) {
+        document.querySelectorAll(`[data-table-tag="${elem}"]`).forEach((td) => {
+            td.removeAttribute("hidden");
         });
+        document.querySelector(`[data-menu-item="${elem}"]`).classList.add("active");
+    }
 }
 
 function addEventListenersToMenuItems() {
@@ -240,6 +244,157 @@ function searchThroughTheTable() {
     }
 }
 
+function sortTheTableByNameAscending() {
+    document.getElementById("tbody").innerHTML = "";
+    let imgNodes = document.querySelectorAll("thead>tr>th>img");
+    if (imgNodes !== null) {
+        imgNodes.forEach(img => {
+            img.remove();
+        });
+    }
+
+    let arrow = document.createElement("img");
+    arrow.src = "../assets/img/icons8-down-arrow-20.png";
+    document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
+
+    fetch("users")
+        .then(res => {
+            return res.json();
+        })
+        .then(users => {
+            users.sort(function (a, b) {
+                var nameA = a.name;
+                var nameB = b.name;
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+                return 0;
+            });
+            fillUsersToTheTable(users);
+            displayTable();
+        });
+
+    let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+    nameButton.removeEventListener("click", sortTheTableByNameAscending);
+    nameButton.addEventListener("click", sortTheTableByNameDescending);
+}
+
+function sortTheTableByNameDescending() {
+    document.getElementById("tbody").innerHTML = "";
+    let imgNodes = document.querySelectorAll("thead>tr>th>img");
+    if (imgNodes !== null) {
+        imgNodes.forEach(img => {
+            img.remove();
+        });
+    }
+
+    let arrow = document.createElement("img");
+    arrow.src = "../assets/img/icons8-up-20.png";
+    document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
+
+    fetch("users")
+        .then(res => {
+            return res.json();
+        })
+        .then(users => {
+            users.sort(function (a, b) {
+                var nameA = a.name;
+                var nameB = b.name;
+                if (nameA < nameB) {
+                    return 1;
+                }
+                if (nameA > nameB) {
+                    return -1;
+                }
+                return 0;
+            });
+            fillUsersToTheTable(users);
+            displayTable();
+        });
+
+    let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+    nameButton.removeEventListener("click", sortTheTableByNameDescending);
+    nameButton.addEventListener("click", sortTheTableByNameAscending);
+}
+
+function sortTheTableByAgreementAscending() {
+    document.getElementById("tbody").innerHTML = "";
+    let imgNodes = document.querySelectorAll("thead>tr>th>img");
+    if (imgNodes !== null) {
+        imgNodes.forEach(img => {
+            img.remove();
+        });
+    }
+    let arrow = document.createElement("img");
+    arrow.src = "../assets/img/icons8-down-arrow-20.png";
+    document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
+
+    fetch("users")
+        .then(res => {
+            return res.json();
+        })
+        .then(users => {
+            users.sort(function (a, b) {
+                var agreementA = a.agreement;
+                var agreementB = b.agreement;
+                if (agreementA < agreementB) {
+                    return -1;
+                }
+                if (agreementA > agreementB) {
+                    return 1;
+                }
+                return 0;
+            });
+            fillUsersToTheTable(users);
+            displayTable();
+        });
+
+    let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+    agreementButton.removeEventListener("click", sortTheTableByAgreementAscending);
+    agreementButton.addEventListener("click", sortTheTableByAgreementDescending);
+}
+
+function sortTheTableByAgreementDescending() {
+    document.getElementById("tbody").innerHTML = "";
+    let imgNodes = document.querySelectorAll("thead>tr>th>img");
+    if (imgNodes !== null) {
+        imgNodes.forEach(img => {
+            img.remove();
+        });
+    }
+
+    let arrow = document.createElement("img");
+    arrow.src = "../assets/img/icons8-up-20.png";
+    document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
+
+    fetch("users")
+        .then(res => {
+            return res.json();
+        })
+        .then(users => {
+            users.sort(function (a, b) {
+                var agreementA = a.agreement;
+                var agreementB = b.agreement;
+                if (agreementA < agreementB) {
+                    return 1;
+                }
+                if (agreementA > agreementB) {
+                    return -1;
+                }
+                return 0;
+            });
+            fillUsersToTheTable(users);
+            displayTable();
+        });
+
+    let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+    agreementButton.removeEventListener("click", sortTheTableByAgreementDescending);
+    agreementButton.addEventListener("click", sortTheTableByAgreementAscending);
+}
+
 function getNotificationStatus() {
     fetch("notification-status").then(res => res.text()).then(status => {
         if (status === "false") {
@@ -272,6 +427,12 @@ displayInactiveUsersButton.addEventListener("click", displayOnlyInactiveUsers);
 
 let displayArchiveUsersButton = document.querySelector("#archive");
 displayArchiveUsersButton.addEventListener("click", displayOnlyArchiveUsers);
+
+let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+nameButton.addEventListener("click", sortTheTableByNameAscending);
+
+let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+agreementButton.addEventListener("click", sortTheTableByAgreementAscending);
 
 let searchButton = document.querySelector("#searchButton");
 searchButton.addEventListener("click", searchThroughTheTable);

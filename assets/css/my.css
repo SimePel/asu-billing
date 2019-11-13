@@ -233,3 +233,7 @@ h4 {
 .footer {
     padding: 2rem 1.5rem 2rem;
 }
+
+th>img {
+    vertical-align: text-bottom;
+}
