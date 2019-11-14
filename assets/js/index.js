@@ -5,6 +5,7 @@ function getUsers() {
         })
         .then(users => {
             fillUsersToTheTable(users);
+            displayAllUsers();
             displayTable();
         });
 }
@@ -77,7 +78,6 @@ function fillUsersToTheTable(users) {
         });
         if (user.is_archived) {
             tr.setAttribute("data-is-archive", "true");
-            tr.setAttribute("hidden", "");
         } else {
             tr.setAttribute("data-is-active", "false");
             if (user.activity) {
@@ -140,6 +140,26 @@ function showStatistics() {
     });
 }
 
+function sortIfItIsNeeded() {
+    let nameTH = document.querySelector("thead>tr>th[data-table-tag=\"name\"]");
+    if (nameTH.childElementCount === 2) {
+        if (nameTH.children.item(1).getAttribute("src").includes("down")) {
+            sortTheTableByNameAscending();
+        } else {
+            sortTheTableByNameDescending();
+        }
+    }
+
+    let agreementTH = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]");
+    if (agreementTH.childElementCount === 2) {
+        if (agreementTH.children.item(1).getAttribute("src").includes("down")) {
+            sortTheTableByAgreementAscending();
+        } else {
+            sortTheTableByAgreementDescending();
+        }
+    }
+}
+
 function displayAllUsers() {
     let activeLink = document.querySelector(".active-link");
     if (activeLink) {
@@ -153,6 +173,8 @@ function displayAllUsers() {
     for (let tr of archiveUsers) {
         tr.setAttribute("hidden", "");
     }
+
+    sortIfItIsNeeded();
 }
 
 function displayOnlyActiveUsers() {
@@ -168,6 +190,8 @@ function displayOnlyActiveUsers() {
     for (let tr of activeUsers) {
         tr.removeAttribute("hidden");
     }
+
+    sortIfItIsNeeded();
 }
 
 function displayOnlyInactiveUsers() {
@@ -183,6 +207,8 @@ function displayOnlyInactiveUsers() {
     for (let tr of inactiveUsers) {
         tr.removeAttribute("hidden");
     }
+
+    sortIfItIsNeeded();
 }
 
 function displayOnlyArchiveUsers() {
@@ -198,6 +224,8 @@ function displayOnlyArchiveUsers() {
     for (let tr of archiveUsers) {
         tr.removeAttribute("hidden");
     }
+
+    sortIfItIsNeeded();
 }
 
 function removeHiddenAttributeForAllTRs() {
@@ -244,38 +272,122 @@ function searchThroughTheTable() {
     }
 }
 
-function sortTheTableByNameAscending() {
-    document.getElementById("tbody").innerHTML = "";
+function getUsersFromTheTable() {
+    let users = [];
+
+    document.querySelectorAll("#tbody>tr").forEach(tr => {
+        if (tr.getAttribute("hidden") === "") {
+            return;
+        }
+
+        let user = {
+            name: "",
+            agreement: "",
+            login: "",
+            expired_date: "Не подключен",
+            inner_ip: "",
+            phone: "",
+            room: "",
+            tariff: {
+                name: "",
+            },
+            connection_place: "",
+            balance: 0,
+            is_archived: false,
+            paid: false,
+            activity: false,
+        };
+        tr.querySelectorAll("td").forEach(td => {
+            if (td.getAttribute("data-table-tag") === "name") {
+                user.name = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "agreement") {
+                user.agreement = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "login") {
+                user.login = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "expiredDate") {
+                user.expired_date = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "ip") {
+                user.inner_ip = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "phone") {
+                user.phone = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "room") {
+                user.room = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "tariff") {
+                user.tariff.name = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "connectionPlace") {
+                user.connection_place = td.textContent;
+            }
+            if (td.getAttribute("data-table-tag") === "balance") {
+                user.balance = parseInt(td.textContent);
+            }
+            if (td.getAttribute("data-table-tag") === "activity") {
+                if (td.textContent === "Оплачено.") {
+                    user.paid = true;
+                } else if (td.textContent === "В архиве") {
+                    user.is_archived = true;
+                }
+                let spanClassList = td.lastChild.classList;
+                if (spanClassList !== undefined) {
+                    if (spanClassList.contains("has-text-success")) {
+                        user.activity = true;
+                    }
+                }
+            }
+        });
+        users.push(user);
+    });
+
+    return users;
+}
+
+function removeOnlyVisibleTRs() {
+    document.querySelectorAll("#tbody>tr").forEach(tr => {
+        if (tr.getAttribute("hidden") !== "") {
+            tr.remove();
+        }
+    });
+}
+
+function removeAllImgsInTheTHs() {
     let imgNodes = document.querySelectorAll("thead>tr>th>img");
     if (imgNodes !== null) {
         imgNodes.forEach(img => {
             img.remove();
         });
     }
+}
+
+function sortTheTableByNameAscending() {
+    let users = getUsersFromTheTable();
+    removeOnlyVisibleTRs();
+    removeAllImgsInTheTHs();
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
     document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
 
-    fetch("users")
-        .then(res => {
-            return res.json();
-        })
-        .then(users => {
-            users.sort(function (a, b) {
-                var nameA = a.name;
-                var nameB = b.name;
-                if (nameA < nameB) {
-                    return -1;
-                }
-                if (nameA > nameB) {
-                    return 1;
-                }
-                return 0;
-            });
-            fillUsersToTheTable(users);
-            displayTable();
-        });
+    users.sort(function (a, b) {
+        var nameA = a.name;
+        var nameB = b.name;
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+        return 0;
+    });
+    fillUsersToTheTable(users);
+    displayTable();
+
 
     let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
     nameButton.removeEventListener("click", sortTheTableByNameAscending);
@@ -283,37 +395,27 @@ function sortTheTableByNameAscending() {
 }
 
 function sortTheTableByNameDescending() {
-    document.getElementById("tbody").innerHTML = "";
-    let imgNodes = document.querySelectorAll("thead>tr>th>img");
-    if (imgNodes !== null) {
-        imgNodes.forEach(img => {
-            img.remove();
-        });
-    }
+    let users = getUsersFromTheTable();
+    removeOnlyVisibleTRs();
+    removeAllImgsInTheTHs();
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-up-20.png";
     document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
 
-    fetch("users")
-        .then(res => {
-            return res.json();
-        })
-        .then(users => {
-            users.sort(function (a, b) {
-                var nameA = a.name;
-                var nameB = b.name;
-                if (nameA < nameB) {
-                    return 1;
-                }
-                if (nameA > nameB) {
-                    return -1;
-                }
-                return 0;
-            });
-            fillUsersToTheTable(users);
-            displayTable();
-        });
+    users.sort(function (a, b) {
+        var nameA = a.name;
+        var nameB = b.name;
+        if (nameA < nameB) {
+            return 1;
+        }
+        if (nameA > nameB) {
+            return -1;
+        }
+        return 0;
+    });
+    fillUsersToTheTable(users);
+    displayTable();
 
     let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
     nameButton.removeEventListener("click", sortTheTableByNameDescending);
@@ -321,36 +423,27 @@ function sortTheTableByNameDescending() {
 }
 
 function sortTheTableByAgreementAscending() {
-    document.getElementById("tbody").innerHTML = "";
-    let imgNodes = document.querySelectorAll("thead>tr>th>img");
-    if (imgNodes !== null) {
-        imgNodes.forEach(img => {
-            img.remove();
-        });
-    }
+    let users = getUsersFromTheTable();
+    removeOnlyVisibleTRs();
+    removeAllImgsInTheTHs();
+
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
     document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
 
-    fetch("users")
-        .then(res => {
-            return res.json();
-        })
-        .then(users => {
-            users.sort(function (a, b) {
-                var agreementA = a.agreement;
-                var agreementB = b.agreement;
-                if (agreementA < agreementB) {
-                    return -1;
-                }
-                if (agreementA > agreementB) {
-                    return 1;
-                }
-                return 0;
-            });
-            fillUsersToTheTable(users);
-            displayTable();
-        });
+    users.sort(function (a, b) {
+        var agreementA = a.agreement;
+        var agreementB = b.agreement;
+        if (agreementA < agreementB) {
+            return -1;
+        }
+        if (agreementA > agreementB) {
+            return 1;
+        }
+        return 0;
+    });
+    fillUsersToTheTable(users);
+    displayTable();
 
     let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
     agreementButton.removeEventListener("click", sortTheTableByAgreementAscending);
@@ -358,37 +451,27 @@ function sortTheTableByAgreementAscending() {
 }
 
 function sortTheTableByAgreementDescending() {
-    document.getElementById("tbody").innerHTML = "";
-    let imgNodes = document.querySelectorAll("thead>tr>th>img");
-    if (imgNodes !== null) {
-        imgNodes.forEach(img => {
-            img.remove();
-        });
-    }
+    let users = getUsersFromTheTable();
+    removeOnlyVisibleTRs();
+    removeAllImgsInTheTHs();
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-up-20.png";
     document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
 
-    fetch("users")
-        .then(res => {
-            return res.json();
-        })
-        .then(users => {
-            users.sort(function (a, b) {
-                var agreementA = a.agreement;
-                var agreementB = b.agreement;
-                if (agreementA < agreementB) {
-                    return 1;
-                }
-                if (agreementA > agreementB) {
-                    return -1;
-                }
-                return 0;
-            });
-            fillUsersToTheTable(users);
-            displayTable();
-        });
+    users.sort(function (a, b) {
+        var agreementA = a.agreement;
+        var agreementB = b.agreement;
+        if (agreementA < agreementB) {
+            return 1;
+        }
+        if (agreementA > agreementB) {
+            return -1;
+        }
+        return 0;
+    });
+    fillUsersToTheTable(users);
+    displayTable();
 
     let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
     agreementButton.removeEventListener("click", sortTheTableByAgreementDescending);
@@ -411,13 +494,13 @@ function changeNotificationStatus(newStatus) {
     });
 }
 
+let displayAllUsersButton = document.querySelector("#all");
+displayAllUsersButton.addEventListener("click", displayAllUsers);
+
 getUsers();
 showStatistics();
 addEventListenersToMenuItems();
 getNotificationStatus();
-
-let displayAllUsersButton = document.querySelector("#all");
-displayAllUsersButton.addEventListener("click", displayAllUsers);
 
 let displayActiveUsersButton = document.querySelector("#active");
 displayActiveUsersButton.addEventListener("click", displayOnlyActiveUsers);
