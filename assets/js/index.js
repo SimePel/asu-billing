@@ -73,6 +73,7 @@ function fillUsersToTheTable(users) {
         let tr = document.createElement("tr");
         tr.append(...tds);
         tr.classList.add("clickable");
+        tr.setAttribute("data-id", user.id);
         tr.addEventListener("click", e => {
             window.location.href = "/user?id=" + user.id;
         });
@@ -281,6 +282,7 @@ function getUsersFromTheTable() {
         }
 
         let user = {
+            id: 0,
             name: "",
             agreement: "",
             login: "",
@@ -297,6 +299,7 @@ function getUsersFromTheTable() {
             paid: false,
             activity: false,
         };
+        user.id = parseInt(tr.getAttribute("data-id"));
         tr.querySelectorAll("td").forEach(td => {
             if (td.getAttribute("data-table-tag") === "name") {
                 user.name = td.textContent;

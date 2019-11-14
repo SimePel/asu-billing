@@ -54,7 +54,11 @@ func archiveOldUsers() {
 
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	for _, user := range users {
-		if user.ExpiredDate.Before(threeMonthsAgo) {
+		if len(user.Payments) <= 0 {
+			continue
+		}
+
+		if user.Payments[len(user.Payments)-1].Date.Before(threeMonthsAgo) {
 			err = mysql.ArchiveUserByID(int(user.ID))
 			if err != nil {
 				log.Println(err)
