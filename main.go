@@ -12,6 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	archiveOldUsers()
+
 	r := newRouter()
 	log.Fatal(http.ListenAndServe(":8081", r))
 }
@@ -39,4 +42,26 @@ func restorePaymentsTimers() error {
 	}
 
 	return nil
+}
+
+func archiveOldUsers() {
+	mysql := MySQL{db: initializeDB()}
+	users, err := mysql.GetAllUsers()
+	if err != nil {
+		log.Println("cannot get all users: ", err)
+		return
+	}
+
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	for _, user := range users {
+		if user.ExpiredDate.Before(threeMonthsAgo) {
+			err = mysql.ArchiveUserByID(int(user.ID))
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
+
+	nextCheck := time.Now().AddDate(0, 1, 0)
+	time.AfterFunc(time.Until(nextCheck), archiveOldUsers)
 }
