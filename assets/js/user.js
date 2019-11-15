@@ -50,44 +50,46 @@ function getUser(userID) {
         paymentButtonGrandParent.setAttribute("hidden", "");
     }
 
-    fetch("/users/" + userID).then((res) => {
-        return res.json()
-    }).then((user) => {
-        document.querySelector("#name").append(user.name);
-        document.querySelector("#agreement").append(user.agreement);
-        document.querySelector("#login").append(user.login);
-        document.querySelector("#tariff").append(user.tariff.name);
-        document.querySelector("#innerIP").append(user.inner_ip);
-        document.querySelector("#extIP").append(user.ext_ip);
-        document.querySelector("#phone").append(user.phone);
-        document.querySelector("#room").append(user.room);
-        document.querySelector("#comment").append(user.comment);
-        document.querySelector("#connectionPlace").append(user.connection_place);
+    fetch("/users/" + userID)
+        .then(res => {
+            return res.json();
+        })
+        .then(user => {
+            document.querySelector("#name").append(user.name);
+            document.querySelector("#agreement").append(user.agreement);
+            document.querySelector("#login").append(user.login);
+            document.querySelector("#tariff").append(user.tariff.name);
+            document.querySelector("#innerIP").append(user.inner_ip);
+            document.querySelector("#extIP").append(user.ext_ip);
+            document.querySelector("#phone").append(user.phone);
+            document.querySelector("#room").append(user.room);
+            document.querySelector("#comment").append(user.comment);
+            document.querySelector("#connectionPlace").append(user.connection_place);
 
-        if (user.activity === true) {
-            const d = new Date(user.expired_date);
-            const expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
-            document.querySelector("#expiredDate").append(expiredDate);
-        } else {
-            document.querySelector("#expiredDate").parentElement.remove();
-        }
-        document.querySelector("#balance").append(user.balance);
+            if (user.activity === true) {
+                const d = new Date(user.expired_date);
+                const expiredDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+                document.querySelector("#expiredDate").append(expiredDate);
+            } else {
+                document.querySelector("#expiredDate").parentElement.remove();
+            }
+            document.querySelector("#balance").append(user.balance);
 
-        if (user.is_archived) {
-            replaceArchiveButtonToRestoreButton();
-            hidePaymentButton();
-        }
-        if (user.payments !== undefined) {
-            showPayments(user.payments);
-        }
-    })
+            if (user.is_archived) {
+                replaceArchiveButtonToRestoreButton();
+                hidePaymentButton();
+            }
+            if (user.payments !== undefined) {
+                showPayments(user.payments);
+            }
+        });
 }
 
 function deposit() {
     fetch("payment", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json; charset=utf-8"
+            "Content-Type": "application/json; charset=utf-8",
         },
         body: JSON.stringify({
             id: parseInt(userID),

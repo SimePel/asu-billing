@@ -73,7 +73,7 @@ function getUsers() {
 }
 
 function setTrueSendingStatusForAllUsers() {
-    document.querySelectorAll("tr.clickable").forEach((tr) => {
+    document.querySelectorAll("tr.clickable").forEach(tr => {
         tr.setAttribute("data-is-sending", "true");
     });
 
@@ -83,11 +83,11 @@ function setTrueSendingStatusForAllUsers() {
 }
 
 function setTrueSendingStatusForActiveUsers() {
-    document.querySelectorAll("tr[data-is-active=\"true\"]").forEach((tr) => {
+    document.querySelectorAll('tr[data-is-active="true"]').forEach(tr => {
         tr.setAttribute("data-is-sending", "true");
     });
 
-    document.querySelectorAll("tr[data-is-active=\"false\"]").forEach((tr) => {
+    document.querySelectorAll('tr[data-is-active="false"]').forEach(tr => {
         tr.setAttribute("data-is-sending", "false");
     });
 
@@ -97,11 +97,11 @@ function setTrueSendingStatusForActiveUsers() {
 }
 
 function setTrueSendingStatusForInactiveUsers() {
-    document.querySelectorAll("tr[data-is-active=\"false\"]").forEach((tr) => {
+    document.querySelectorAll('tr[data-is-active="false"]').forEach(tr => {
         tr.setAttribute("data-is-sending", "true");
     });
 
-    document.querySelectorAll("tr[data-is-active=\"true\"]").forEach((tr) => {
+    document.querySelectorAll('tr[data-is-active="true"]').forEach(tr => {
         tr.setAttribute("data-is-sending", "false");
     });
 
@@ -112,14 +112,14 @@ function setTrueSendingStatusForInactiveUsers() {
 
 function sendSMSs() {
     let phones = [];
-    document.querySelectorAll("tr[data-is-sending=\"true\"]>td[data-table-tag=\"phone\"]").forEach((td) => {
+    document.querySelectorAll('tr[data-is-sending="true"]>td[data-table-tag="phone"]').forEach(td => {
         phones.push(td.textContent);
     });
 
     fetch("send-mass-sms", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json; charset=utf-8"
+            "Content-Type": "application/json; charset=utf-8",
         },
         body: JSON.stringify({
             message: document.querySelector("#message").value,

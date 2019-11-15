@@ -100,7 +100,7 @@ function displayTable() {
     }
 
     for (let elem of elemsToDisplay) {
-        document.querySelectorAll(`[data-table-tag="${elem}"]`).forEach((td) => {
+        document.querySelectorAll(`[data-table-tag="${elem}"]`).forEach(td => {
             td.removeAttribute("hidden");
         });
         document.querySelector(`[data-menu-item="${elem}"]`).classList.add("active");
@@ -115,15 +115,15 @@ function addEventListenersToMenuItems() {
         item.classList.toggle("active");
         let menuItemName = item.getAttribute("data-menu-item");
         if (item.classList.contains("active")) {
-            document.querySelectorAll(`[data-table-tag="${menuItemName}"]`).forEach((td) => {
+            document.querySelectorAll(`[data-table-tag="${menuItemName}"]`).forEach(td => {
                 td.removeAttribute("hidden");
             });
             currentTable.push(`${menuItemName}`);
         } else {
-            document.querySelectorAll(`[data-table-tag="${menuItemName}"]`).forEach((td) => {
+            document.querySelectorAll(`[data-table-tag="${menuItemName}"]`).forEach(td => {
                 td.setAttribute("hidden", "");
             });
-            currentTable = currentTable.filter((value) => {
+            currentTable = currentTable.filter(value => {
                 return value !== menuItemName;
             });
         }
@@ -132,28 +132,40 @@ function addEventListenersToMenuItems() {
 }
 
 function showStatistics() {
-    fetch("stats").then(res => {
-        return res.json();
-    }).then(stats => {
-        document.querySelector("#countOfActiveUsers").textContent = stats.active_users_count;
-        document.querySelector("#countOfInactiveUsers").textContent = stats.inactive_users_count;
-        document.querySelector("#cash").textContent = stats.cash + " руб.";
-    });
+    fetch("stats")
+        .then(res => {
+            return res.json();
+        })
+        .then(stats => {
+            document.querySelector("#countOfActiveUsers").textContent = stats.active_users_count;
+            document.querySelector("#countOfInactiveUsers").textContent = stats.inactive_users_count;
+            document.querySelector("#cash").textContent = stats.cash + " руб.";
+        });
 }
 
 function sortIfItIsNeeded() {
-    let nameTH = document.querySelector("thead>tr>th[data-table-tag=\"name\"]");
+    let nameTH = document.querySelector('thead>tr>th[data-table-tag="name"]');
     if (nameTH.childElementCount === 2) {
-        if (nameTH.children.item(1).getAttribute("src").includes("down")) {
+        if (
+            nameTH.children
+                .item(1)
+                .getAttribute("src")
+                .includes("down")
+        ) {
             sortTheTableByNameAscending();
         } else {
             sortTheTableByNameDescending();
         }
     }
 
-    let agreementTH = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]");
+    let agreementTH = document.querySelector('thead>tr>th[data-table-tag="agreement"]');
     if (agreementTH.childElementCount === 2) {
-        if (agreementTH.children.item(1).getAttribute("src").includes("down")) {
+        if (
+            agreementTH.children
+                .item(1)
+                .getAttribute("src")
+                .includes("down")
+        ) {
             sortTheTableByAgreementAscending();
         } else {
             sortTheTableByAgreementDescending();
@@ -246,16 +258,13 @@ function setHiddenAttribiteForAllTRs() {
 function searchThroughTheTable() {
     let whatToSearch = document.querySelector("#search").value;
     whatToSearch = whatToSearch.toLowerCase();
-    let treeWalker = document.createTreeWalker(
-        document.getElementById("tbody"),
-        NodeFilter.SHOW_ELEMENT, {
-            acceptNode: function (node) {
-                if (node.textContent.toLowerCase().includes(whatToSearch)) {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
+    let treeWalker = document.createTreeWalker(document.getElementById("tbody"), NodeFilter.SHOW_ELEMENT, {
+        acceptNode: function(node) {
+            if (node.textContent.toLowerCase().includes(whatToSearch)) {
+                return NodeFilter.FILTER_ACCEPT;
             }
-        }
-    );
+        },
+    });
 
     setHiddenAttribiteForAllTRs();
     let activeLink = document.querySelector(".active-link");
@@ -263,7 +272,7 @@ function searchThroughTheTable() {
         activeLink.classList.remove("active-link");
     }
 
-    for (let node = treeWalker.nextNode();; node = treeWalker.nextSibling()) {
+    for (let node = treeWalker.nextNode(); ; node = treeWalker.nextSibling()) {
         if (node == null) {
             break;
         }
@@ -375,9 +384,9 @@ function sortTheTableByNameAscending() {
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
-    document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
+    document.querySelector('thead>tr>th[data-table-tag="name"]').appendChild(arrow);
 
-    users.sort(function (a, b) {
+    users.sort(function(a, b) {
         var nameA = a.name;
         var nameB = b.name;
         if (nameA < nameB) {
@@ -391,8 +400,7 @@ function sortTheTableByNameAscending() {
     fillUsersToTheTable(users);
     displayTable();
 
-
-    let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+    let nameButton = document.querySelector('thead>tr>th[data-table-tag="name"]>a');
     nameButton.removeEventListener("click", sortTheTableByNameAscending);
     nameButton.addEventListener("click", sortTheTableByNameDescending);
 }
@@ -404,9 +412,9 @@ function sortTheTableByNameDescending() {
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-up-20.png";
-    document.querySelector("thead>tr>th[data-table-tag=\"name\"]").appendChild(arrow);
+    document.querySelector('thead>tr>th[data-table-tag="name"]').appendChild(arrow);
 
-    users.sort(function (a, b) {
+    users.sort(function(a, b) {
         var nameA = a.name;
         var nameB = b.name;
         if (nameA < nameB) {
@@ -420,7 +428,7 @@ function sortTheTableByNameDescending() {
     fillUsersToTheTable(users);
     displayTable();
 
-    let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+    let nameButton = document.querySelector('thead>tr>th[data-table-tag="name"]>a');
     nameButton.removeEventListener("click", sortTheTableByNameDescending);
     nameButton.addEventListener("click", sortTheTableByNameAscending);
 }
@@ -432,9 +440,9 @@ function sortTheTableByAgreementAscending() {
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
-    document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
+    document.querySelector('thead>tr>th[data-table-tag="agreement"]').appendChild(arrow);
 
-    users.sort(function (a, b) {
+    users.sort(function(a, b) {
         var agreementA = a.agreement;
         var agreementB = b.agreement;
         if (agreementA < agreementB) {
@@ -448,7 +456,7 @@ function sortTheTableByAgreementAscending() {
     fillUsersToTheTable(users);
     displayTable();
 
-    let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+    let agreementButton = document.querySelector('thead>tr>th[data-table-tag="agreement"]>a');
     agreementButton.removeEventListener("click", sortTheTableByAgreementAscending);
     agreementButton.addEventListener("click", sortTheTableByAgreementDescending);
 }
@@ -460,9 +468,9 @@ function sortTheTableByAgreementDescending() {
 
     let arrow = document.createElement("img");
     arrow.src = "../assets/img/icons8-up-20.png";
-    document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]").appendChild(arrow);
+    document.querySelector('thead>tr>th[data-table-tag="agreement"]').appendChild(arrow);
 
-    users.sort(function (a, b) {
+    users.sort(function(a, b) {
         var agreementA = a.agreement;
         var agreementB = b.agreement;
         if (agreementA < agreementB) {
@@ -476,18 +484,20 @@ function sortTheTableByAgreementDescending() {
     fillUsersToTheTable(users);
     displayTable();
 
-    let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+    let agreementButton = document.querySelector('thead>tr>th[data-table-tag="agreement"]>a');
     agreementButton.removeEventListener("click", sortTheTableByAgreementDescending);
     agreementButton.addEventListener("click", sortTheTableByAgreementAscending);
 }
 
 function getNotificationStatus() {
-    fetch("notification-status").then(res => res.text()).then(status => {
-        if (status === "false") {
-            smsStatus.classList.add("disable");
-            smsStatus.textContent = "Выключены";
-        }
-    });
+    fetch("notification-status")
+        .then(res => res.text())
+        .then(status => {
+            if (status === "false") {
+                smsStatus.classList.add("disable");
+                smsStatus.textContent = "Выключены";
+            }
+        });
 }
 
 function changeNotificationStatus(newStatus) {
@@ -514,10 +524,10 @@ displayInactiveUsersButton.addEventListener("click", displayOnlyInactiveUsers);
 let displayArchiveUsersButton = document.querySelector("#archive");
 displayArchiveUsersButton.addEventListener("click", displayOnlyArchiveUsers);
 
-let nameButton = document.querySelector("thead>tr>th[data-table-tag=\"name\"]>a");
+let nameButton = document.querySelector('thead>tr>th[data-table-tag="name"]>a');
 nameButton.addEventListener("click", sortTheTableByNameAscending);
 
-let agreementButton = document.querySelector("thead>tr>th[data-table-tag=\"agreement\"]>a");
+let agreementButton = document.querySelector('thead>tr>th[data-table-tag="agreement"]>a');
 agreementButton.addEventListener("click", sortTheTableByAgreementAscending);
 
 let searchButton = document.querySelector("#searchButton");
@@ -532,9 +542,7 @@ searchInput.addEventListener("keyup", event => {
 let smsStatus = document.querySelector("#sms-status");
 smsStatus.addEventListener("click", () => {
     let newStatus = !smsStatus.classList.toggle("disable");
-    smsStatus.textContent == "Включены" ?
-        (smsStatus.textContent = "Выключены") :
-        (smsStatus.textContent = "Включены");
+    smsStatus.textContent == "Включены" ? (smsStatus.textContent = "Выключены") : (smsStatus.textContent = "Включены");
 
     changeNotificationStatus(newStatus);
 });

@@ -12,7 +12,7 @@ footer {
     margin-top: auto;
 }
 
-div>.container>table {
+div > .container > table {
     margin-top: 1.6rem;
 }
 
@@ -43,14 +43,14 @@ div>.container>table {
     vertical-align: -moz-middle-with-baseline;
 }
 
-div>input.input,
-div>span>input.input,
-div>span>select {
+div > input.input,
+div > span > input.input,
+div > span > select {
     margin-left: 3px;
 }
 
 .is-spaced {
-    padding: .5rem .75rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .has-bottom-shadow {
@@ -78,7 +78,7 @@ div>span>select {
 }
 
 .is-active {
-    background-color: #33FF33;
+    background-color: #33ff33;
 }
 
 .settings-panel.settings-panel.settings-panel {
@@ -104,7 +104,7 @@ div>span>select {
     z-index: 1;
 }
 
-#tableSettings>p {
+#tableSettings > p {
     padding-left: 0.75rem;
     font-size: 1.06rem;
 }
@@ -128,11 +128,11 @@ div>span>select {
     background-color: white;
     position: absolute;
     top: 0;
-    right: .75rem;
+    right: 0.75rem;
     z-index: 1;
 }
 
-#walletPlace:hover~#cash {
+#walletPlace:hover ~ #cash {
     display: inline;
 }
 
@@ -143,43 +143,43 @@ div>span>select {
     text-decoration: none;
 }
 
-#tableSettings>p>a:hover {
+#tableSettings > p > a:hover {
     font-weight: 500;
 }
 
-.open:checked~.settings-panel {
+.open:checked ~ .settings-panel {
     transform: translateX(-100%);
-    transition: 0.35s
+    transition: 0.35s;
 }
 
-.open:not(:checked)~.settings-panel {
-    transition: 0.35s
+.open:not(:checked) ~ .settings-panel {
+    transition: 0.35s;
 }
 
-nav.navbar+section.section {
+nav.navbar + section.section {
     padding: 1.5rem 1.5rem;
 }
 
-div.column>ul>li {
+div.column > ul > li {
     margin-bottom: 1rem;
     font-size: 1.4rem;
 }
 
-div.column>form>div {
+div.column > form > div {
     margin-bottom: 1rem;
     font-size: 1.4rem;
     font-weight: 500;
 }
 
-div.column>form>div>input {
+div.column > form > div > input {
     width: 16rem;
 }
 
-div.column>ul>li {
+div.column > ul > li {
     font-weight: 500;
 }
 
-div.column>ul>li>span {
+div.column > ul > li > span {
     font-weight: 400;
 }
 
@@ -195,7 +195,7 @@ div.column>ul>li>span {
 .menu .menu-list li a {
     line-height: 18px;
     border-radius: 0;
-    transition: background-color .3s ease;
+    transition: background-color 0.3s ease;
 }
 
 .menu .menu-list li a.active {
@@ -234,6 +234,6 @@ h4 {
     padding: 2rem 1.5rem 2rem;
 }
 
-th>img {
+th > img {
     vertical-align: text-bottom;
 }
