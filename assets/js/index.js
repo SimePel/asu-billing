@@ -197,7 +197,7 @@ function displayOnlyActiveUsers() {
     }
     displayActiveUsersButton.classList.add("active-link");
 
-    setHiddenAttribiteForAllTRs();
+    setHiddenAttribiteForAll("#tbody>tr");
 
     let activeUsers = document.querySelectorAll(`tr[data-is-active="true"]`);
     for (let tr of activeUsers) {
@@ -214,7 +214,7 @@ function displayOnlyInactiveUsers() {
     }
     displayInactiveUsersButton.classList.add("active-link");
 
-    setHiddenAttribiteForAllTRs();
+    setHiddenAttribiteForAll("#tbody>tr");
 
     let inactiveUsers = document.querySelectorAll(`tr[data-is-active="false"]`);
     for (let tr of inactiveUsers) {
@@ -231,7 +231,7 @@ function displayOnlyArchiveUsers() {
     }
     displayArchiveUsersButton.classList.add("active-link");
 
-    setHiddenAttribiteForAllTRs();
+    setHiddenAttribiteForAll("#tbody>tr");
 
     let archiveUsers = document.querySelectorAll(`tr[data-is-archive="true"]`);
     for (let tr of archiveUsers) {
@@ -247,12 +247,11 @@ const removeHiddenAttributeFromAll = selector => {
     });
 };
 
-function setHiddenAttribiteForAllTRs() {
-    let allTRs = document.querySelectorAll(`tbody>tr`);
-    for (let tr of allTRs) {
-        tr.setAttribute("hidden", "");
-    }
-}
+const setHiddenAttribiteForAll = selector => {
+    document.querySelectorAll(selector).forEach(elem => {
+        elem.setAttribute("hidden", "");
+    });
+};
 
 function searchThroughTheTable() {
     let whatToSearch = document.querySelector("#search").value;
@@ -265,7 +264,7 @@ function searchThroughTheTable() {
         },
     });
 
-    setHiddenAttribiteForAllTRs();
+    setHiddenAttribiteForAll("#tbody>tr");
     let activeLink = document.querySelector(".active-link");
     if (activeLink) {
         activeLink.classList.remove("active-link");
