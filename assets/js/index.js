@@ -253,11 +253,10 @@ const setHiddenAttribiteForAll = selector => {
     });
 };
 
-function searchThroughTheTable() {
-    let whatToSearch = document.querySelector("#search").value;
-    whatToSearch = whatToSearch.toLowerCase();
+const searchThroughTheTable = () => {
+    let whatToSearch = document.querySelector("#search").value.toLowerCase();
     let treeWalker = document.createTreeWalker(document.getElementById("tbody"), NodeFilter.SHOW_ELEMENT, {
-        acceptNode: function(node) {
+        acceptNode: node => {
             if (node.textContent.toLowerCase().includes(whatToSearch)) {
                 return NodeFilter.FILTER_ACCEPT;
             }
@@ -278,7 +277,7 @@ function searchThroughTheTable() {
         let elem = node.firstChild.parentElement;
         elem.removeAttribute("hidden");
     }
-}
+};
 
 function getUsersFromTheTable() {
     let users = [];
