@@ -383,17 +383,7 @@ function sortTheTableByNameAscending() {
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
     document.querySelector('thead>tr>th[data-table-tag="name"]').appendChild(arrow);
 
-    users.sort(function(a, b) {
-        var nameA = a.name;
-        var nameB = b.name;
-        if (nameA < nameB) {
-            return -1;
-        }
-        if (nameA > nameB) {
-            return 1;
-        }
-        return 0;
-    });
+    users.sort(by("name", ascending));
     fillUsersToTheTable(users);
     displayTable();
 
@@ -411,17 +401,7 @@ function sortTheTableByNameDescending() {
     arrow.src = "../assets/img/icons8-up-20.png";
     document.querySelector('thead>tr>th[data-table-tag="name"]').appendChild(arrow);
 
-    users.sort(function(a, b) {
-        var nameA = a.name;
-        var nameB = b.name;
-        if (nameA < nameB) {
-            return 1;
-        }
-        if (nameA > nameB) {
-            return -1;
-        }
-        return 0;
-    });
+    users.sort(by("name", descending));
     fillUsersToTheTable(users);
     displayTable();
 
@@ -439,17 +419,7 @@ function sortTheTableByAgreementAscending() {
     arrow.src = "../assets/img/icons8-down-arrow-20.png";
     document.querySelector('thead>tr>th[data-table-tag="agreement"]').appendChild(arrow);
 
-    users.sort(function(a, b) {
-        var agreementA = a.agreement;
-        var agreementB = b.agreement;
-        if (agreementA < agreementB) {
-            return -1;
-        }
-        if (agreementA > agreementB) {
-            return 1;
-        }
-        return 0;
-    });
+    users.sort(by("agreement", ascending));
     fillUsersToTheTable(users);
     displayTable();
 
@@ -467,17 +437,7 @@ function sortTheTableByAgreementDescending() {
     arrow.src = "../assets/img/icons8-up-20.png";
     document.querySelector('thead>tr>th[data-table-tag="agreement"]').appendChild(arrow);
 
-    users.sort(function(a, b) {
-        var agreementA = a.agreement;
-        var agreementB = b.agreement;
-        if (agreementA < agreementB) {
-            return 1;
-        }
-        if (agreementA > agreementB) {
-            return -1;
-        }
-        return 0;
-    });
+    users.sort(by("agreement", descending));
     fillUsersToTheTable(users);
     displayTable();
 
@@ -485,6 +445,24 @@ function sortTheTableByAgreementDescending() {
     agreementButton.removeEventListener("click", sortTheTableByAgreementDescending);
     agreementButton.addEventListener("click", sortTheTableByAgreementAscending);
 }
+
+const ascending = 1;
+const descending = -1;
+
+// helper function for sorting
+const by = (prop, direction) => {
+    return (a, b) => {
+        let propA = a[prop];
+        let propB = b[prop];
+        if (propA < propB) {
+            return -1 * direction;
+        }
+        if (propA > propB) {
+            return 1 * direction;
+        }
+        return 0;
+    };
+};
 
 function getNotificationStatus() {
     fetch("notification-status")
