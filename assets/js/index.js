@@ -180,7 +180,7 @@ function displayAllUsers() {
     }
     displayAllUsersButton.classList.add("active-link");
 
-    removeHiddenAttributeForAllTRs();
+    removeHiddenAttributeFromAll("tr");
 
     let archiveUsers = document.querySelectorAll(`tr[data-is-archive="true"]`);
     for (let tr of archiveUsers) {
@@ -241,12 +241,11 @@ function displayOnlyArchiveUsers() {
     sortIfItIsNeeded();
 }
 
-function removeHiddenAttributeForAllTRs() {
-    let allTRs = document.querySelectorAll(`tr`);
-    for (let tr of allTRs) {
-        tr.removeAttribute("hidden");
-    }
-}
+const removeHiddenAttributeFromAll = selector => {
+    document.querySelectorAll(selector).forEach(elem => {
+        elem.removeAttribute("hidden");
+    });
+};
 
 function setHiddenAttribiteForAllTRs() {
     let allTRs = document.querySelectorAll(`tbody>tr`);
