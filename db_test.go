@@ -24,6 +24,7 @@ func prepareDB(db *sql.DB) error {
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
 		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
 		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+		is_employee tinyint(1) NOT NULL DEFAULT '0',
 		is_archived tinyint(1) NOT NULL DEFAULT '0',
 		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',

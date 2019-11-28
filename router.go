@@ -181,6 +181,10 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
+	isEmployee, err := strconv.ParseBool(r.FormValue("isEmployee"))
+	if err != nil {
+		log.Println(err)
+	}
 	agreement := r.FormValue("agreement")
 	login := r.FormValue("login") + "@stud.asu.ru"
 	phone := r.FormValue("phone")
@@ -191,6 +195,7 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := User{
 		Name:            name,
+		IsEmployee:      isEmployee,
 		Agreement:       agreement,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
@@ -206,6 +211,13 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("cannot add user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
+	}
+
+	if user.IsEmployee {
+		err = mysql.FreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot make free payment for one year: %v", err)
+		}
 	}
 
 	http.Redirect(w, r, "/", 303)

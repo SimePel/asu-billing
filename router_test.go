@@ -193,6 +193,7 @@ func TestLoginPostHandler(t *testing.T) {
 func TestAddUserPostHandler(t *testing.T) {
 	expected := struct {
 		Name            string
+		IsEmployee      string
 		Agreement       string
 		Login           string
 		Phone           string
@@ -202,6 +203,7 @@ func TestAddUserPostHandler(t *testing.T) {
 		ConnectionPlace string
 	}{
 		"Tестовый Тест Тестович4",
+		"false",
 		"П-004",
 		"aloha.125",
 		"88005553554",
@@ -213,6 +215,7 @@ func TestAddUserPostHandler(t *testing.T) {
 
 	formValues := url.Values{}
 	formValues.Add("name", expected.Name)
+	formValues.Add("isEmployee", expected.IsEmployee)
 	formValues.Add("agreement", expected.Agreement)
 	formValues.Add("login", expected.Login)
 	formValues.Add("phone", expected.Phone)
@@ -231,6 +234,7 @@ func TestAddUserPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.IsEmployee, strconv.FormatBool(user.IsEmployee))
 	assert.Equal(t, expected.Agreement, user.Agreement)
 	assert.Equal(t, expected.Login+"@stud.asu.ru", user.Login)
 	assert.Equal(t, expected.Phone, user.Phone)
@@ -238,6 +242,62 @@ func TestAddUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Comment, user.Comment)
 	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
 	assert.Equal(t, expected.Tariff, user.Tariff.ID)
+}
+
+func TestAddEmployeeUserPostHandler(t *testing.T) {
+	expected := struct {
+		Name            string
+		IsEmployee      string
+		Agreement       string
+		Login           string
+		Phone           string
+		Room            string
+		Comment         string
+		Tariff          int
+		ConnectionPlace string
+	}{
+		"Employee",
+		"true",
+		"П-558",
+		"employee.558",
+		"",
+		"",
+		"Наш сотрудник",
+		1,
+		"",
+	}
+
+	formValues := url.Values{}
+	formValues.Add("name", expected.Name)
+	formValues.Add("isEmployee", expected.IsEmployee)
+	formValues.Add("agreement", expected.Agreement)
+	formValues.Add("login", expected.Login)
+	formValues.Add("phone", expected.Phone)
+	formValues.Add("room", expected.Room)
+	formValues.Add("comment", expected.Comment)
+	formValues.Add("connectionPlace", expected.ConnectionPlace)
+	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+
+	require.HTTPRedirect(t, addUserPostHandler, "POST", "/add-user", formValues)
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.GetUserIDbyLogin(expected.Login + "@stud.asu.ru")
+	require.NoError(t, err)
+
+	user, err := mysql.GetUserByID(int(id))
+	require.NoError(t, err)
+
+	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.IsEmployee, strconv.FormatBool(user.IsEmployee))
+	assert.Equal(t, expected.Agreement, user.Agreement)
+	assert.Equal(t, expected.Login+"@stud.asu.ru", user.Login)
+	assert.Equal(t, expected.Phone, user.Phone)
+	assert.Equal(t, expected.Room, user.Room)
+	assert.Equal(t, expected.Comment, user.Comment)
+	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
+	assert.Equal(t, expected.Tariff, user.Tariff.ID)
+	assert.Equal(t, true, user.Paid)
+	assert.NotEmpty(t, user.ExpiredDate)
 }
 
 func TestEditUserPostHandler(t *testing.T) {

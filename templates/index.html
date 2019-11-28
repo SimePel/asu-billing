@@ -1,114 +1,118 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Панель администратора</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
+    <script type="module" src="../assets/js/index.js"></script>
+    <script src="../assets/js/awesome.min.js"></script>
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Панель администратора</title>
-  <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
-  <script type="module" src="../assets/js/index.js"></script>
-  <script src="../assets/js/awesome.min.js"></script>
-</head>
-
-<body>
-  <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
-    <div class="navbar-menu">
-      <div class="navbar-start">
-        <div id="tableSettings">
-          <p>Показать: <a class="active-link" id="all">всех</a>, <a id="active">активных</a>, <a
-              id="inactive">неактивных</a>, <a id="archive">в архиве</a></p>
-          <span id="walletPlace"><img id="wallet" src="../assets/img/wallet.png" alt="Кэш"></span>
-          <span id="cash"></span>
-        </div>
-        <div class="navbar-item">
-          <div class="field has-addons">
-            <p class="control">
-              <input id="search" class="input" type="search" placeholder="ищи">
+  <body>
+    <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <div id="tableSettings">
+            <p>
+              Показать: <a class="active-link" id="all">всех</a>, <a id="active">активных</a>,
+              <a id="inactive">неактивных</a>, <a id="archive">в архиве</a>
             </p>
-            <p class="control">
-              <button id="searchButton" class="button is-link">
-                Найти
-              </button>
-            </p>
+            <span id="walletPlace"><img id="wallet" src="../assets/img/wallet.png" alt="Кэш"/></span>
+            <span id="cash"></span>
           </div>
-        </div>
-        <div class="navbar-item">
-          <a class="button is-success" href="/add-user">Добавить пользователя</a>
-        </div>
-        <div class="navbar-item">
-          <a class="button is-info" href="/send-mass-sms">Разослать СМС</a>
-        </div>
-      </div>
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <input class="open" id="settings" type="checkbox" hidden>
-          <button class="button is-light" style="width: 36px; height: 36px; padding: 0;">
-            <label for="settings">
-              <span class="icon" style="width: 36px; height: 36px;">
-                <i class="fas fa-cog"></i>
-              </span>
-            </label>
-          </button>
-          <div class="settings-panel">
-            <div class="menu">
-              <p class="menu-label">
-                Что показывать в таблице
+          <div class="navbar-item">
+            <div class="field has-addons">
+              <p class="control">
+                <input id="search" class="input" type="search" placeholder="ищи" />
               </p>
-              <ul id="menu-list" class="menu-list">
-                <li><a data-menu-item="name">ФИО</a></li>
-                <li><a data-menu-item="agreement">Договор</a></li>
-                <li><a data-menu-item="login">Логин</a></li>
-                <li><a data-menu-item="expiredDate">Дата отключения</a></li>
-                <li><a data-menu-item="ip">Внутренний IP</a></li>
-                <li><a data-menu-item="phone">Телефон</a></li>
-                <li><a data-menu-item="room">Комната</a></li>
-                <li><a data-menu-item="tariff">Тариф</a></li>
-                <li><a data-menu-item="connectionPlace">Точка подключения</a></li>
-                <li><a data-menu-item="balance">Баланс</a></li>
-                <li><a data-menu-item="activity">Статус</a></li>
-              </ul>
-              <p class="menu-label">
-                СМС оповещения
+              <p class="control">
+                <button id="searchButton" class="button is-link">
+                  Найти
+                </button>
               </p>
-              <ul class="menu-list">
-                <li><a id="sms-status">Включены</a></li>
-              </ul>
             </div>
           </div>
+          <div class="navbar-item">
+            <a class="button is-success" href="/add-user">Добавить пользователя</a>
+          </div>
+          <div class="navbar-item">
+            <a class="button is-info" href="/send-mass-sms">Разослать СМС</a>
+          </div>
         </div>
-        <div class="navbar-item">
-          <a class="button is-warning" href="/logout">Выйти</a>
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <input class="open" id="settings" type="checkbox" hidden />
+            <button class="button is-light" style="width: 36px; height: 36px; padding: 0;">
+              <label for="settings">
+                <span class="icon" style="width: 36px; height: 36px;">
+                  <i class="fas fa-cog"></i>
+                </span>
+              </label>
+            </button>
+            <div class="settings-panel">
+              <div class="menu">
+                <p class="menu-label">
+                  Что показывать в таблице
+                </p>
+                <ul id="menu-list" class="menu-list">
+                  <li><a data-menu-item="name">ФИО</a></li>
+                  <li><a data-menu-item="agreement">Договор</a></li>
+                  <li><a data-menu-item="login">Логин</a></li>
+                  <li><a data-menu-item="expiredDate">Дата отключения</a></li>
+                  <li><a data-menu-item="ip">Внутренний IP</a></li>
+                  <li><a data-menu-item="phone">Телефон</a></li>
+                  <li><a data-menu-item="room">Комната</a></li>
+                  <li><a data-menu-item="tariff">Тариф</a></li>
+                  <li><a data-menu-item="connectionPlace">Точка подключения</a></li>
+                  <li><a data-menu-item="balance">Баланс</a></li>
+                  <li><a data-menu-item="activity">Статус</a></li>
+                </ul>
+                <p class="menu-label">
+                  СМС оповещения
+                </p>
+                <ul class="menu-list">
+                  <li><a id="sms-status">Включены</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item">
+            <a class="button is-warning" href="/logout">Выйти</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="columns">
+      <div class="column">
+        <div class="container is-fluid">
+          <table class="table is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th data-table-tag="name" hidden><a>ФИО</a></th>
+                <th data-table-tag="agreement" hidden><a>Договор</a></th>
+                <th data-table-tag="login" hidden>Логин</th>
+                <th data-table-tag="expiredDate" hidden>Дата отключения</th>
+                <th data-table-tag="ip" hidden>Внутренний IP</th>
+                <th data-table-tag="phone" hidden>Телефон</th>
+                <th data-table-tag="room" hidden>Комната</th>
+                <th data-table-tag="tariff" hidden>Тариф</th>
+                <th data-table-tag="connectionPlace" hidden>Точка подключения</th>
+                <th data-table-tag="balance" hidden>Баланс</th>
+                <th data-table-tag="activity" hidden>
+                  Статус(<span class="has-text-success" id="countOfActiveUsers"></span>/<span
+                    class="has-text-danger"
+                    id="countOfInactiveUsers"
+                  ></span
+                  >)
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
-  </nav>
-  <div class="columns">
-    <div class="column">
-      <div class="container is-fluid">
-        <table class="table is-hoverable is-fullwidth">
-          <thead>
-            <tr>
-              <th data-table-tag="name" hidden><a>ФИО</a></th>
-              <th data-table-tag="agreement" hidden><a>Договор</a></th>
-              <th data-table-tag="login" hidden>Логин</th>
-              <th data-table-tag="expiredDate" hidden>Дата отключения</th>
-              <th data-table-tag="ip" hidden>Внутренний IP</th>
-              <th data-table-tag="phone" hidden>Телефон</th>
-              <th data-table-tag="room" hidden>Комната</th>
-              <th data-table-tag="tariff" hidden>Тариф</th>
-              <th data-table-tag="connectionPlace" hidden>Точка подключения</th>
-              <th data-table-tag="balance" hidden>Баланс</th>
-              <th data-table-tag="activity" hidden>Статус(<span class="has-text-success"
-                  id="countOfActiveUsers"></span>/<span class="has-text-danger" id="countOfInactiveUsers"></span>)</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</body>
-
+  </body>
 </html>
