@@ -303,8 +303,9 @@ func (mysql MySQL) GetCountOfInactiveUsers() (int, error) {
 
 func (mysql MySQL) GetAllMoneyWeHave() (int, error) {
 	var sum int
-	err := mysql.db.QueryRow(`SELECT SUM(sum)+SUM(balance) FROM (users
-		INNER JOIN payments ON users.id = payments.user_id) WHERE users.is_employee=0`).Scan(&sum)
+	err := mysql.db.QueryRow(`SELECT SUM(money) FROM ( SELECT SUM(payments.sum) AS money FROM payments
+	 	WHERE payments.user_id IN (SELECT id FROM users WHERE users.is_employee=0) UNION
+		SELECT SUM(users.balance) FROM users WHERE users.is_employee=0) AS a`).Scan(&sum)
 	if err != nil {
 		return 0, fmt.Errorf("cannot do queryRow: %v", err)
 	}
