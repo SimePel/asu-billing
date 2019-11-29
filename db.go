@@ -213,10 +213,20 @@ func (mysql MySQL) FreePaymentForOneYear(id int) error {
 	return nil
 }
 
+func (mysql MySQL) ResetFreePaymentForOneYear(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET paid=0, expired_date=? WHERE id=?`,
+		time.Now().AddDate(0, 0, -1), id)
+	if err != nil {
+		return fmt.Errorf("cannot update values in db: %v", err)
+	}
+
+	return nil
+}
+
 func (mysql MySQL) UpdateUser(user User) error {
-	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, login=?, tariff=?, phone=?, room=?, comment=?,
-	 	connection_place=?, expired_date=? WHERE id=?`,
-		user.Name, user.Agreement, user.Login, user.Tariff.ID, user.Phone, user.Room, user.Comment,
+	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, is_employee=?, login=?, tariff=?, phone=?, room=?,
+	 		comment=?, connection_place=?, expired_date=? WHERE id=?`,
+		user.Name, user.Agreement, user.IsEmployee, user.Login, user.Tariff.ID, user.Phone, user.Room, user.Comment,
 		user.ConnectionPlace, user.ExpiredDate, user.ID)
 	if err != nil {
 		return fmt.Errorf("cannot update user fields: %v", err)

@@ -332,6 +332,56 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
 }
 
+func TestFreePaymentForOneYear(t *testing.T) {
+	expectedUser := User{
+		Name:      "Free Payment",
+		Agreement: "П-997",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	actualID, err := mysql.AddUser(expectedUser)
+	require.NoError(t, err)
+
+	err = mysql.FreePaymentForOneYear(actualID)
+	require.NoError(t, err)
+
+	actualUser, err := mysql.GetUserByID(actualID)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, actualUser.Paid)
+	assert.WithinDuration(t, actualUser.ExpiredDate, time.Now().Add(time.Second), time.Until(actualUser.ExpiredDate))
+	assert.Equal(t, expectedUser.Agreement, actualUser.Agreement)
+}
+
+func TestResetFreePaymentForOneYear(t *testing.T) {
+	expectedUser := User{
+		Paid:        true,
+		Name:        "Reset Free Payment",
+		Agreement:   "П-996",
+		ExpiredDate: time.Now().AddDate(0, 1, 0),
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	actualID, err := mysql.AddUser(expectedUser)
+	require.NoError(t, err)
+
+	err = mysql.ResetFreePaymentForOneYear(actualID)
+	require.NoError(t, err)
+
+	actualUser, err := mysql.GetUserByID(actualID)
+	require.NoError(t, err)
+
+	assert.Equal(t, !expectedUser.Paid, actualUser.Paid)
+	assert.WithinDuration(t, actualUser.ExpiredDate, time.Now().Add(time.Second), time.Hour*24+time.Second*2)
+	assert.Equal(t, expectedUser.Agreement, actualUser.Agreement)
+}
+
 func TestUpdateUser(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user, err := mysql.GetUserByID(2)

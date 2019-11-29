@@ -363,6 +363,119 @@ func TestEditUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.ExpiredDate.Format("2006-01-02"), updatedUser.ExpiredDate.Format("2006-01-02"))
 }
 
+func TestNotEmployeeUserBecomeEmployeeEditPostHandler(t *testing.T) {
+	user := User{
+		Name:  "Employee2",
+		Login: "Employee.2",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	expected := struct {
+		Name       string
+		IsEmployee string
+		Agreement  string
+		Phone      string
+		Room       string
+		Comment    string
+		Tariff     int
+	}{
+		"Employee2",
+		"true",
+		"Е-103",
+		"88005553128",
+		"Е103",
+		"админ Л корпуса",
+		1,
+	}
+
+	formValues := url.Values{}
+	formValues.Add("id", strconv.Itoa(id))
+	formValues.Add("name", expected.Name)
+	formValues.Add("isEmployee", expected.IsEmployee)
+	formValues.Add("agreement", expected.Agreement)
+	formValues.Add("phone", expected.Phone)
+	formValues.Add("room", expected.Room)
+	formValues.Add("comment", expected.Comment)
+	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+
+	require.HTTPRedirect(t, editUserPostHandler, "POST", "/edit-user", formValues)
+
+	updatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, expected.Name, updatedUser.Name)
+	assert.Equal(t, expected.IsEmployee, strconv.FormatBool(updatedUser.IsEmployee))
+	assert.Equal(t, true, updatedUser.Paid)
+	assert.Equal(t, expected.Agreement, updatedUser.Agreement)
+	assert.Equal(t, expected.Phone, updatedUser.Phone)
+	assert.Equal(t, expected.Room, updatedUser.Room)
+	assert.Equal(t, expected.Comment, updatedUser.Comment)
+	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
+}
+
+func TestEmployeeUserBecomeNotEmployeeEditPostHandler(t *testing.T) {
+	user := User{
+		Name:       "Employee3",
+		IsEmployee: true,
+		Login:      "Employee.3",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	expected := struct {
+		Name       string
+		IsEmployee string
+		Agreement  string
+		Phone      string
+		Room       string
+		Comment    string
+		Tariff     int
+	}{
+		"Employee3",
+		"false",
+		"Е-104",
+		"88005123128",
+		"Е104",
+		"админ M корпуса",
+		1,
+	}
+
+	formValues := url.Values{}
+	formValues.Add("id", strconv.Itoa(id))
+	formValues.Add("name", expected.Name)
+	formValues.Add("isEmployee", expected.IsEmployee)
+	formValues.Add("agreement", expected.Agreement)
+	formValues.Add("phone", expected.Phone)
+	formValues.Add("room", expected.Room)
+	formValues.Add("comment", expected.Comment)
+	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+
+	require.HTTPRedirect(t, editUserPostHandler, "POST", "/edit-user", formValues)
+
+	updatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, expected.Name, updatedUser.Name)
+	assert.Equal(t, expected.IsEmployee, strconv.FormatBool(updatedUser.IsEmployee))
+	assert.Equal(t, false, updatedUser.Paid)
+	assert.Equal(t, expected.Agreement, updatedUser.Agreement)
+	assert.Equal(t, expected.Phone, updatedUser.Phone)
+	assert.Equal(t, expected.Room, updatedUser.Room)
+	assert.Equal(t, expected.Comment, updatedUser.Comment)
+	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
+}
+
 func TestPaymentPostHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := createJWTtoken("login")

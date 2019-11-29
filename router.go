@@ -21,24 +21,23 @@ func newRouter() *chi.Mux {
 
 	r.Get("/login", loginHandler)
 	r.With(jsonContentType).Post("/login", loginPostHandler)
-	r.With(checkJWTtoken).Post("/add-user", addUserPostHandler)
-	r.With(checkJWTtoken).Post("/edit-user", editUserPostHandler)
-	r.With(checkJWTtoken).Post("/send-mass-sms", sendMassSMSPostHandler)
-	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
+	r.Post("/add-user", addUserPostHandler)
+	r.Post("/edit-user", editUserPostHandler)
+	r.Post("/send-mass-sms", sendMassSMSPostHandler)
+	r.With(jsonContentType).Post("/payment", paymentPostHandler)
 
-	r.With(checkJWTtoken).Get("/", indexHandler)
-	r.With(checkJWTtoken).Get("/logout", logoutHandler)
-	r.With(checkJWTtoken).Get("/add-user", addUserHandler)
-	r.With(checkJWTtoken).Get("/edit-user", editUserHandler)
-	r.With(checkJWTtoken).Get("/user", userHandler)
-	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
-	r.With(checkJWTtoken).Get("/send-mass-sms", sendMassSMSHandler)
-	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
-	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
-	r.With(checkJWTtoken).With(jsonContentType).Get("/next-agreement", getNextAgreementHandler)
+	r.Get("/", indexHandler)
+	r.Get("/logout", logoutHandler)
+	r.Get("/add-user", addUserHandler)
+	r.Get("/edit-user", editUserHandler)
+	r.Get("/user", userHandler)
+	r.Get("/notification-status", notificationStatusHandler)
+	r.Get("/send-mass-sms", sendMassSMSHandler)
+	r.Post("/change-notification-status", changeNotificationStatusHandler)
+	r.With(jsonContentType).Get("/stats", getStatsAboutUsers)
+	r.With(jsonContentType).Get("/next-agreement", getNextAgreementHandler)
 
 	r.Route("/users", func(r chi.Router) {
-		r.Use(checkJWTtoken)
 		r.Use(jsonContentType)
 		r.Use(setDBtoCtx)
 		r.Route("/{userID}", func(r chi.Router) {
@@ -227,6 +226,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
 	name := r.FormValue("name")
 	agreement := r.FormValue("agreement")
+	isEmployee, _ := strconv.ParseBool(r.FormValue("isEmployee"))
 	login := r.FormValue("login")
 	phone := r.FormValue("phone")
 	room := r.FormValue("room")
@@ -239,6 +239,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		ID:              uint(id),
 		Name:            name,
 		Agreement:       agreement,
+		IsEmployee:      isEmployee,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
@@ -249,11 +250,30 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err := mysql.UpdateUser(user)
+	oldUser, err := mysql.GetUserByID(id)
+	if err != nil {
+		log.Printf("cannot get user: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	err = mysql.UpdateUser(user)
 	if err != nil {
 		log.Printf("cannot edit user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
+	}
+
+	if !oldUser.IsEmployee && user.IsEmployee {
+		err = mysql.FreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot make free payment for one year: %v", err)
+		}
+	} else if oldUser.IsEmployee && !user.IsEmployee {
+		err = mysql.ResetFreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot reset free payment for one year: %v", err)
+		}
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/user?id=%v", id), 303)
