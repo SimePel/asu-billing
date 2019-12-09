@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -180,17 +181,17 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
+	name := strings.TrimSpace(r.FormValue("name"))
 	isEmployee, err := strconv.ParseBool(r.FormValue("isEmployee"))
 	if err != nil {
 		log.Println(err)
 	}
-	agreement := r.FormValue("agreement")
-	login := r.FormValue("login") + "@stud.asu.ru"
-	phone := r.FormValue("phone")
-	room := r.FormValue("room")
-	comment := r.FormValue("comment")
-	connectionPlace := r.FormValue("connectionPlace")
+	agreement := strings.TrimSpace(r.FormValue("agreement"))
+	login := strings.TrimSpace(r.FormValue("login")) + "@stud.asu.ru"
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	room := strings.TrimSpace(r.FormValue("room"))
+	comment := strings.TrimSpace(r.FormValue("comment"))
+	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
 	user := User{
@@ -225,14 +226,14 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	name := r.FormValue("name")
-	agreement := r.FormValue("agreement")
+	name := strings.TrimSpace(r.FormValue("name"))
+	agreement := strings.TrimSpace(r.FormValue("agreement"))
 	isEmployee, _ := strconv.ParseBool(r.FormValue("isEmployee"))
-	login := r.FormValue("login")
-	phone := r.FormValue("phone")
-	room := r.FormValue("room")
-	comment := r.FormValue("comment")
-	connectionPlace := r.FormValue("connectionPlace")
+	login := strings.TrimSpace(r.FormValue("login"))
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	room := strings.TrimSpace(r.FormValue("room"))
+	comment := strings.TrimSpace(r.FormValue("comment"))
+	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
 	expiredDate, _ := time.Parse("2006-01-02", r.FormValue("expiredDate"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
