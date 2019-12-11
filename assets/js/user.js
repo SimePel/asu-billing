@@ -103,7 +103,7 @@ function deposit() {
       sum: parseInt(document.querySelector("#paymentInput").value),
     }),
   }).then(() => {
-    goBack();
+    location.replace("/user?id=" + userID);
   });
 }
 
