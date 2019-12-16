@@ -1,5 +1,3 @@
-import goBack from "./goBack.js";
-
 const urlParams = new URLSearchParams(window.location.search);
 const userID = urlParams.get("id");
 getUser(userID);
