@@ -1,89 +1,87 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>СМС рассылка</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
+        <script src="../assets/js/awesome.min.js"></script>
+        <script type="module" src="../assets/js/send-mass-sms.js"></script>
+    </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>СМС рассылка</title>
-  <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/bulma.min.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/my.css" />
-  <script src="../assets/js/awesome.min.js"></script>
-  <script type="module" src="../assets/js/send-mass-sms.js"></script>
-</head>
-
-<body>
-  <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <div class="navbar-item">
-        <a class="logo" href="/">
-          <span class="icon">
-            <i class="fas fa-home"></i>
-          </span>
-        </a>
-      </div>
-    </div>
-    <div class="navbar-menu">
-      <div class="navbar-start">
-        <div class="navbar-item">
-          <h3 class="title is-size-4">СМС рассылка</h3>
-        </div>
-      </div>
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <a class="button is-warning" href="/logout">Выйти</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <section class="section">
-    <div class="columns">
-      <div class="column is-4">
-        <h4>Текст сообщения</h4>
-        <div class="field">
-          <div class="control">
-            <textarea id="message" class="textarea is-medium has-fixed-size" rows="4"></textarea>
-          </div>
-        </div>
-        <div class="field is-grouped">
-          <div class="control">
-            <button id="sendButton" type="button" class="button is-success">Отправить</button>
-          </div>
-          <div class="control">
-            <a class="button" href="/">Отменить</a>
-          </div>
-        </div>
-      </div>
-      <div class="column is-2">
-      </div>
-      <div class="column is-5">
-        <h4>Кому отправлять</h4>
-        <div class="field is-grouped">
-          <div class="control">
-            <button id="all" class="button">Всем</button>
-          </div>
-          <div class="control">
-            <button id="active" class="button is-dark">Активным</button>
-          </div>
-          <div class="control">
-            <button id="inactive" class="button">Неактивным</button>
-          </div>
-        </div>
-        <table class="table is-hoverable is-fullwidth">
-          <thead>
-            <tr>
-              <th></th>
-              <th data-table-tag="name">ФИО</th>
-              <th data-table-tag="phone">Телефон</th>
-              <th data-table-tag="activity">Статус</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-</body>
-
+    <body>
+        <nav class="navbar has-bottom-shadow" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <div class="navbar-item">
+                    <a class="logo" href="/">
+                        <span class="icon">
+                            <i class="fas fa-home"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-start">
+                    <div class="navbar-item">
+                        <h3 class="title is-size-4">СМС рассылка</h3>
+                    </div>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <a class="button is-warning" href="/logout">Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <section class="section">
+            <div class="columns">
+                <div class="column is-4">
+                    <h4>Текст сообщения</h4>
+                    <div class="field">
+                        <div class="control">
+                            <textarea id="message" class="textarea is-medium has-fixed-size" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button id="sendButton" type="button" class="button is-success">Отправить</button>
+                        </div>
+                        <div class="control">
+                            <a class="button" href="/">Отменить</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-2"></div>
+                <div class="column is-5">
+                    <h4>Кому отправлять</h4>
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button id="all" class="button">Всем</button>
+                        </div>
+                        <div class="control">
+                            <button id="nobody" class="button">Никому</button>
+                        </div>
+                        <div class="control">
+                            <button id="active" class="button is-dark">Активным</button>
+                        </div>
+                        <div class="control">
+                            <button id="inactive" class="button">Неактивным</button>
+                        </div>
+                    </div>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th data-table-tag="name">ФИО</th>
+                                <th data-table-tag="phone">Телефон</th>
+                                <th data-table-tag="activity">Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </body>
 </html>

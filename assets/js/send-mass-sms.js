@@ -78,6 +78,18 @@ function setTrueSendingStatusForAllUsers() {
     });
 
     document.querySelector("#all").classList.add("is-dark");
+    document.querySelector("#nobody").classList.remove("is-dark");
+    document.querySelector("#active").classList.remove("is-dark");
+    document.querySelector("#inactive").classList.remove("is-dark");
+}
+
+function setFalseSendingStatusForAllUsers() {
+    document.querySelectorAll("tr.clickable").forEach(tr => {
+        tr.setAttribute("data-is-sending", "false");
+    });
+
+    document.querySelector("#nobody").classList.add("is-dark");
+    document.querySelector("#all").classList.remove("is-dark");
     document.querySelector("#active").classList.remove("is-dark");
     document.querySelector("#inactive").classList.remove("is-dark");
 }
@@ -92,6 +104,7 @@ function setTrueSendingStatusForActiveUsers() {
     });
 
     document.querySelector("#active").classList.add("is-dark");
+    document.querySelector("#nobody").classList.remove("is-dark");
     document.querySelector("#all").classList.remove("is-dark");
     document.querySelector("#inactive").classList.remove("is-dark");
 }
@@ -106,6 +119,7 @@ function setTrueSendingStatusForInactiveUsers() {
     });
 
     document.querySelector("#inactive").classList.add("is-dark");
+    document.querySelector("#nobody").classList.remove("is-dark");
     document.querySelector("#active").classList.remove("is-dark");
     document.querySelector("#all").classList.remove("is-dark");
 }
@@ -133,6 +147,7 @@ function sendSMSs() {
 getUsers();
 
 document.querySelector("#all").addEventListener("click", setTrueSendingStatusForAllUsers);
+document.querySelector("#nobody").addEventListener("click", setFalseSendingStatusForAllUsers);
 document.querySelector("#active").addEventListener("click", setTrueSendingStatusForActiveUsers);
 document.querySelector("#inactive").addEventListener("click", setTrueSendingStatusForInactiveUsers);
 
