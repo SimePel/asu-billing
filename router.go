@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -180,17 +181,22 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
-	agreement := r.FormValue("agreement")
-	login := r.FormValue("login") + "@stud.asu.ru"
-	phone := r.FormValue("phone")
-	room := r.FormValue("room")
-	comment := r.FormValue("comment")
-	connectionPlace := r.FormValue("connectionPlace")
+	name := strings.TrimSpace(r.FormValue("name"))
+	isEmployee, err := strconv.ParseBool(r.FormValue("isEmployee"))
+	if err != nil {
+		log.Println(err)
+	}
+	agreement := strings.TrimSpace(r.FormValue("agreement"))
+	login := strings.TrimSpace(r.FormValue("login")) + "@stud.asu.ru"
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	room := strings.TrimSpace(r.FormValue("room"))
+	comment := strings.TrimSpace(r.FormValue("comment"))
+	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
 	user := User{
 		Name:            name,
+		IsEmployee:      isEmployee,
 		Agreement:       agreement,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
@@ -208,18 +214,26 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.IsEmployee {
+		err = mysql.FreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot make free payment for one year: %v", err)
+		}
+	}
+
 	http.Redirect(w, r, "/", 303)
 }
 
 func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	name := r.FormValue("name")
-	agreement := r.FormValue("agreement")
-	login := r.FormValue("login")
-	phone := r.FormValue("phone")
-	room := r.FormValue("room")
-	comment := r.FormValue("comment")
-	connectionPlace := r.FormValue("connectionPlace")
+	name := strings.TrimSpace(r.FormValue("name"))
+	agreement := strings.TrimSpace(r.FormValue("agreement"))
+	isEmployee, _ := strconv.ParseBool(r.FormValue("isEmployee"))
+	login := strings.TrimSpace(r.FormValue("login"))
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	room := strings.TrimSpace(r.FormValue("room"))
+	comment := strings.TrimSpace(r.FormValue("comment"))
+	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
 	expiredDate, _ := time.Parse("2006-01-02", r.FormValue("expiredDate"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
@@ -227,6 +241,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		ID:              uint(id),
 		Name:            name,
 		Agreement:       agreement,
+		IsEmployee:      isEmployee,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,
@@ -237,11 +252,30 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err := mysql.UpdateUser(user)
+	oldUser, err := mysql.GetUserByID(id)
+	if err != nil {
+		log.Printf("cannot get user: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	err = mysql.UpdateUser(user)
 	if err != nil {
 		log.Printf("cannot edit user with id=%v: %v", id, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
+	}
+
+	if !oldUser.IsEmployee && user.IsEmployee {
+		err = mysql.FreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot make free payment for one year: %v", err)
+		}
+	} else if oldUser.IsEmployee && !user.IsEmployee {
+		err = mysql.ResetFreePaymentForOneYear(id)
+		if err != nil {
+			log.Printf("cannot reset free payment for one year: %v", err)
+		}
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/user?id=%v", id), 303)

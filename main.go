@@ -52,9 +52,9 @@ func archiveOldUsers() {
 		return
 	}
 
-	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0) //
 	for _, user := range users {
-		if len(user.Payments) <= 0 {
+		if len(user.Payments) <= 0 || user.IsEmployee {
 			continue
 		}
 

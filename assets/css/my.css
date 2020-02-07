@@ -1,239 +1,244 @@
 html,
 body {
-    height: 100%;
+  height: 100%;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 footer {
-    margin-top: auto;
+  margin-top: auto;
 }
 
 div > .container > table {
-    margin-top: 1.6rem;
+  margin-top: 1.6rem;
 }
 
 .table td,
 .table th {
-    border: 1px solid #f3f3f3;
+  border: 1px solid #f3f3f3;
 }
 
 .table th:not([align]),
 .table td:not([align]) {
-    text-align: center;
+  text-align: center;
 }
 
 .table td[data-table-tag="name"],
 .table th[data-table-tag="name"] {
-    text-align: left;
+  text-align: left;
 }
 
 .table tr[data-is-sending="true"]::before {
-    content: "📨";
-    vertical-align: middle;
-    vertical-align: -moz-middle-with-baseline;
+  content: "📨";
+  vertical-align: middle;
+  vertical-align: -moz-middle-with-baseline;
 }
 
 .table tr[data-is-sending="false"]::before {
-    content: "";
-    vertical-align: middle;
-    vertical-align: -moz-middle-with-baseline;
+  content: "";
+  vertical-align: middle;
+  vertical-align: -moz-middle-with-baseline;
 }
 
 div > input.input,
 div > span > input.input,
 div > span > select {
-    margin-left: 3px;
+  margin-left: 3px;
 }
 
 .is-spaced {
-    padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .has-bottom-shadow {
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
 }
 
 .has-border-top {
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .invisible {
-    display: none;
+  display: none;
 }
 
 .margin-4px-right {
-    margin-right: 4px;
+  margin-right: 4px;
 }
 
 .menu {
-    padding: 1rem;
-    border: 2px solid #f3f3f3;
-    border-top: none;
-    border-left: none;
-    border-radius: 6px;
+  padding: 1rem;
+  border: 2px solid #f3f3f3;
+  border-top: none;
+  border-left: none;
+  border-radius: 6px;
 }
 
 .is-active {
-    background-color: #33ff33;
+  background-color: #33ff33;
 }
 
 .settings-panel.settings-panel.settings-panel {
-    background-color: white;
-    position: absolute;
-    top: 52px;
-    left: 10rem;
-    padding: 0;
-    box-sizing: border-box;
-    z-index: 100;
-    width: 15rem;
+  background-color: white;
+  position: absolute;
+  top: 52px;
+  left: 10rem;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 100;
+  width: 15rem;
 }
 
 #tableSettings {
-    background-color: white;
-    position: absolute;
-    width: 100%;
-    top: 53px;
-    left: 0;
-    padding: 0;
-    box-sizing: border-box;
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
-    z-index: 1;
+  background-color: white;
+  position: absolute;
+  width: 100%;
+  top: 53px;
+  left: 0;
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px 0px;
+  z-index: 1;
 }
 
 #tableSettings > p {
-    padding-left: 0.75rem;
-    font-size: 1.06rem;
+  padding-left: 0.75rem;
+  font-size: 1.06rem;
 }
 
 #walletPlace {
-    background-color: white;
-    position: absolute;
-    top: 0;
-    right: 7.22rem;
-    height: 24px;
-    z-index: 1;
+  background-color: white;
+  position: absolute;
+  top: 0;
+  right: 7.22rem;
+  height: 24px;
+  z-index: 1;
 }
 
 #wallet {
-    width: 24px;
-    cursor: pointer;
+  width: 24px;
+  cursor: pointer;
 }
 
 #cash {
-    display: none;
-    background-color: white;
-    position: absolute;
-    top: 0;
-    right: 0.75rem;
-    z-index: 1;
+  display: none;
+  background-color: white;
+  position: absolute;
+  top: 0;
+  right: 0.75rem;
+  z-index: 1;
 }
 
 #walletPlace:hover ~ #cash {
-    display: inline;
+  display: inline;
 }
 
 .active-link {
-    color: #212121;
-    font-weight: 500;
-    cursor: default;
-    text-decoration: none;
+  color: #212121;
+  font-weight: 500;
+  cursor: default;
+  text-decoration: none;
 }
 
 #tableSettings > p > a:hover {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .open:checked ~ .settings-panel {
-    transform: translateX(-100%);
-    transition: 0.35s;
+  transform: translateX(-100%);
+  transition: 0.35s;
 }
 
 .open:not(:checked) ~ .settings-panel {
-    transition: 0.35s;
+  transition: 0.35s;
 }
 
 nav.navbar + section.section {
-    padding: 1.5rem 1.5rem;
+  padding: 1.5rem 1.5rem;
 }
 
 div.column > ul > li {
-    margin-bottom: 1rem;
-    font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
 }
 
 div.column > form > div {
-    margin-bottom: 1rem;
-    font-size: 1.4rem;
-    font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 500;
 }
 
 div.column > form > div > input {
-    width: 16rem;
+  width: 16rem;
+}
+
+div.column > form > div > input[type="radio"] {
+  width: 2rem;
+  vertical-align: middle;
 }
 
 div.column > ul > li {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 div.column > ul > li > span {
-    font-weight: 400;
+  font-weight: 400;
 }
 
 .logo {
-    color: hsl(217, 71%, 53%);
-    transform: scale(1.5, 1.5);
+  color: hsl(217, 71%, 53%);
+  transform: scale(1.5, 1.5);
 }
 
 .clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .menu .menu-list li a {
-    line-height: 18px;
-    border-radius: 0;
-    transition: background-color 0.3s ease;
+  line-height: 18px;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 
 .menu .menu-list li a.active {
-    background-color: #e4e4e4;
+  background-color: #e4e4e4;
 }
 
 .menu .menu-list .toggle a:hover {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 #sms-status.disable {
-    color: #fff;
-    background-color: #ff3860;
+  color: #fff;
+  background-color: #ff3860;
 }
 
 #sms-status {
-    background-color: #23d160;
-    color: #fff;
+  background-color: #23d160;
+  color: #fff;
 }
 
 #receiptInput {
-    width: 12rem;
+  width: 12rem;
 }
 
 #paymentInput {
-    width: 6rem;
+  width: 6rem;
 }
 
 h4 {
-    font-weight: 500;
-    font-size: 1.4rem;
-    margin-bottom: 0.85rem;
+  font-weight: 500;
+  font-size: 1.4rem;
+  margin-bottom: 0.85rem;
 }
 
 .footer {
-    padding: 2rem 1.5rem 2rem;
+  padding: 2rem 1.5rem 2rem;
 }
 
 th > img {
-    vertical-align: text-bottom;
+  vertical-align: text-bottom;
 }

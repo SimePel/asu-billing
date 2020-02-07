@@ -292,7 +292,7 @@ function getUsersFromTheTable() {
             name: "",
             agreement: "",
             login: "",
-            expired_date: "Не подключен",
+            expired_date: new Date(),
             inner_ip: "",
             phone: "",
             room: "",
@@ -317,7 +317,11 @@ function getUsersFromTheTable() {
                 user.login = td.textContent;
             }
             if (td.getAttribute("data-table-tag") === "expiredDate") {
-                user.expired_date = td.textContent;
+                if (td.textContent === "Не подключен") {
+                    return;
+                }
+                let date = td.textContent.split(".");
+                user.expired_date = new Date(parseInt(date[2]), parseInt(date[1]) - 1, parseInt(date[0]));
             }
             if (td.getAttribute("data-table-tag") === "ip") {
                 user.inner_ip = td.textContent;
@@ -338,7 +342,7 @@ function getUsersFromTheTable() {
                 user.balance = parseInt(td.textContent);
             }
             if (td.getAttribute("data-table-tag") === "activity") {
-                if (td.textContent === "Оплачено.") {
+                if (td.textContent.includes("Оплачено.")) {
                     user.paid = true;
                 } else if (td.textContent === "В архиве") {
                     user.is_archived = true;
