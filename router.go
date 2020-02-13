@@ -290,13 +290,15 @@ func sendMassSMSPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&j)
 	if err != nil {
-		log.Println(err)
+		log.Printf("cannot decode json: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
 	}
 
 	err = sendSMS(j.Phones, j.Message)
 	if err != nil {
-		log.Println(err)
+		log.Printf("cannot send mass sms: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
 		return
 	}
 }
