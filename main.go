@@ -27,6 +27,10 @@ func restorePaymentsTimers() error {
 	}
 
 	for _, user := range users {
+		if user.IsDeactivated || user.IsArchived {
+			continue
+		}
+
 		if user.ExpiredDate.After(time.Now()) {
 			paymentFunc := createTryToRenewPaymentFunc(mysql, user)
 			time.AfterFunc(time.Until(user.ExpiredDate), paymentFunc)
@@ -52,7 +56,7 @@ func archiveOldUsers() {
 		return
 	}
 
-	threeMonthsAgo := time.Now().AddDate(0, -3, 0) //
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	for _, user := range users {
 		if len(user.Payments) <= 0 || user.IsEmployee {
 			continue
