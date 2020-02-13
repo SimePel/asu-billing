@@ -63,6 +63,7 @@ type User struct {
 	Payments  []Payment `json:"payments,omitempty"`
 	Agreement string    `json:"agreement"`
 	// separate for a more beautiful view
+	IsDeactivated   bool      `json:"is_deactivated"`
 	IsEmployee      bool      `json:"is_employee"`
 	IsArchived      bool      `json:"is_archived"`
 	ExpiredDate     time.Time `json:"expired_date"`
@@ -109,14 +110,15 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
 	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, login, agreement, expired_date, connection_place,
-		activity, paid, room, comment, is_employee, is_archived, phone, tariffs.id AS tariff_id,
+		activity, paid, room, comment, is_deactivated, is_employee, is_archived, phone, tariffs.id AS tariff_id,
 		tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
 	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Login, &user.Agreement, &user.ExpiredDate,
-		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.IsEmployee,
-		&user.IsArchived, &user.Phone, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+		&user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment, &user.IsDeactivated,
+		&user.IsEmployee, &user.IsArchived, &user.Phone, &user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price,
+		&user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
@@ -261,6 +263,15 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	}
 
 	return t, nil
+}
+
+func (mysql MySQL) DeactivateUserByID(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=1 WHERE id=?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot deactivate user: %v", err)
+	}
+
+	return nil
 }
 
 func (mysql MySQL) ArchiveUserByID(id int) error {

@@ -59,6 +59,16 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func deactivateUser(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(userCtxKey("user")).(*User)
+	mysql := MySQL{db: initializeDB()}
+	err := mysql.DeactivateUserByID(int(user.ID))
+	if err != nil {
+		log.Printf("cannot deactivate user with id=%v: %v", user.ID, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+	}
+}
+
 func archiveUser(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(userCtxKey("user")).(*User)
 	mysql := MySQL{db: initializeDB()}

@@ -9,16 +9,32 @@ let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInputs);
 
 let deactivateButton = document.querySelector("#deactivateButton");
-deactivateButton.setAttribute("href", "/deactivate-user?id=" + userID);
+deactivateButton.addEventListener("click", deactivateUser);
 
 let activateButton = document.querySelector("#activateButton");
-activateButton.setAttribute("href", "/activate-user?id=" + userID);
+activateButton.addEventListener("click", activateUser);
 
 let archiveButton = document.querySelector("#archiveButton");
 archiveButton.addEventListener("click", archiveUser);
 
 let restoreButton = document.querySelector("#restoreButton");
 restoreButton.addEventListener("click", restoreUser);
+
+function deactivateUser() {
+  fetch("users/" + userID + "/deactivate", {
+    method: "POST",
+  }).then(() => {
+    window.location.replace("/user?id=" + userID);
+  });
+}
+
+function activateUser() {
+  fetch("users/" + userID + "/activate", {
+    method: "POST",
+  }).then(() => {
+    window.location.replace("/user?id=" + userID);
+  });
+}
 
 function replaceArchiveButtonToRestoreButton() {
   let archiveButtonGrandParent = archiveButton.parentElement.parentElement;
@@ -104,7 +120,7 @@ function getUser(userID) {
         hideDeactivateButton();
       }
 
-      if (user.is_stopped) {
+      if (user.is_deactivated) {
         replaceDeactivateButtonToActivateButton();
       }
 
