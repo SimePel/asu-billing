@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,6 +39,11 @@ func TestTryToRenewPayment(t *testing.T) {
 }
 
 func TestSendNotification(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	notExistsID := 991
+	err := sendNotification(mysql, notExistsID)
+	require.Error(t, err)
+
 	user := User{
 		Name:      "Тестовый Тест Тестович18",
 		Agreement: "П-180",
@@ -49,11 +55,9 @@ func TestSendNotification(t *testing.T) {
 		},
 	}
 
-	mysql := MySQL{db: openTestDBconnection()}
 	actualID, err := mysql.AddUser(user)
 	require.NoError(t, err)
 
-	user.ID = uint(actualID)
 	_, err = mysql.PayForNextMonth(user)
 	require.NoError(t, err)
 
@@ -61,7 +65,51 @@ func TestSendNotification(t *testing.T) {
 	err = sendNotification(mysql, actualID)
 	require.NoError(t, err)
 
-	// Нужно доделать тест
+	{
+		user := User{
+			Name:        "Тестовый Тест Тестович19",
+			Agreement:   "П-190",
+			Phone:       "89039496867",
+			Login:       "checkNotification",
+			Balance:     0,
+			ExpiredDate: time.Now().AddDate(0, 1, 0),
+			Activity:    true,
+			Paid:        true,
+			Tariff: Tariff{
+				ID: 1,
+			},
+		}
+
+		actualID, err := mysql.AddUser(user)
+		require.NoError(t, err)
+
+		// sms will not be sent, because expired date is going after current time + 3 days
+		err = sendNotification(mysql, actualID)
+		require.NoError(t, err)
+	}
+
+	{
+		user := User{
+			Name:        "Тестовый Тест Тестович20",
+			Agreement:   "П-200",
+			Phone:       "89039496867",
+			Login:       "checkNotification",
+			Balance:     0,
+			ExpiredDate: time.Now().AddDate(0, 0, 1),
+			Activity:    true,
+			Paid:        true,
+			Tariff: Tariff{
+				ID: 1,
+			},
+		}
+
+		actualID, err := mysql.AddUser(user)
+		require.NoError(t, err)
+
+		// sms will be sent
+		err = sendNotification(mysql, actualID)
+		require.NoError(t, err)
+	}
 }
 
 func TestSendSMS(t *testing.T) {
