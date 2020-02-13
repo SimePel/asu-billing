@@ -8,8 +8,8 @@ editButton.setAttribute("href", "/edit-user?id=" + userID);
 let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInputs);
 
-let stopButton = document.querySelector("#stopButton");
-stopButton.setAttribute("href", "/stop-user?id=" + userID);
+let deactivateButton = document.querySelector("#deactivateButton");
+deactivateButton.setAttribute("href", "/deactivate-user?id=" + userID);
 
 let activateButton = document.querySelector("#activateButton");
 activateButton.setAttribute("href", "/activate-user?id=" + userID);
@@ -28,9 +28,9 @@ function replaceArchiveButtonToRestoreButton() {
   restoreButtonGrandParent.removeAttribute("hidden");
 }
 
-function replaceStopButtonToActivateButton() {
-  let stopButtonGrandParent = stopButton.parentElement.parentElement;
-  stopButtonGrandParent.setAttribute("hidden", "");
+function replaceDeactivateButtonToActivateButton() {
+  let deactivateButtonGrandParent = deactivateButton.parentElement.parentElement;
+  deactivateButtonGrandParent.setAttribute("hidden", "");
 
   let activateButtonGrandParent = activateButton.parentElement.parentElement;
   activateButtonGrandParent.removeAttribute("hidden");
@@ -41,9 +41,9 @@ function hidePaymentButton() {
   paymentButtonGrandParent.setAttribute("hidden", "");
 }
 
-function hideStopButton() {
-  let stopButtonGrandParent = stopButton.parentElement.parentElement;
-  stopButtonGrandParent.setAttribute("hidden", "");
+function hideDeactivateButton() {
+  let deactivateButtonGrandParent = deactivateButton.parentElement.parentElement;
+  deactivateButtonGrandParent.setAttribute("hidden", "");
 }
 
 function getUser(userID) {
@@ -101,11 +101,11 @@ function getUser(userID) {
       if (user.is_archived) {
         replaceArchiveButtonToRestoreButton();
         hidePaymentButton();
-        hideStopButton();
+        hideDeactivateButton();
       }
 
       if (user.is_stopped) {
-        replaceStopButtonToActivateButton();
+        replaceDeactivateButtonToActivateButton();
       }
 
       if (user.payments !== undefined) {
