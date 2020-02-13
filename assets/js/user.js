@@ -8,11 +8,43 @@ editButton.setAttribute("href", "/edit-user?id=" + userID);
 let paymentButton = document.querySelector("#paymentButton");
 paymentButton.addEventListener("click", revealPaymentInputs);
 
+let stopButton = document.querySelector("#stopButton");
+stopButton.setAttribute("href", "/stop-user?id=" + userID);
+
+let activateButton = document.querySelector("#activateButton");
+activateButton.setAttribute("href", "/activate-user?id=" + userID);
+
 let archiveButton = document.querySelector("#archiveButton");
 archiveButton.addEventListener("click", archiveUser);
 
 let restoreButton = document.querySelector("#restoreButton");
 restoreButton.addEventListener("click", restoreUser);
+
+function replaceArchiveButtonToRestoreButton() {
+  let archiveButtonGrandParent = archiveButton.parentElement.parentElement;
+  archiveButtonGrandParent.setAttribute("hidden", "");
+
+  let restoreButtonGrandParent = restoreButton.parentElement.parentElement;
+  restoreButtonGrandParent.removeAttribute("hidden");
+}
+
+function replaceStopButtonToActivateButton() {
+  let stopButtonGrandParent = stopButton.parentElement.parentElement;
+  stopButtonGrandParent.setAttribute("hidden", "");
+
+  let activateButtonGrandParent = activateButton.parentElement.parentElement;
+  activateButtonGrandParent.removeAttribute("hidden");
+}
+
+function hidePaymentButton() {
+  let paymentButtonGrandParent = paymentButton.parentElement.parentElement;
+  paymentButtonGrandParent.setAttribute("hidden", "");
+}
+
+function hideStopButton() {
+  let stopButtonGrandParent = stopButton.parentElement.parentElement;
+  stopButtonGrandParent.setAttribute("hidden", "");
+}
 
 function getUser(userID) {
   function showPayments(payments) {
@@ -33,19 +65,6 @@ function getUser(userID) {
       tr.append(...tds);
       document.querySelector("#tbody").append(tr);
     }
-  }
-
-  function replaceArchiveButtonToRestoreButton() {
-    let archiveButtonGrandParent = archiveButton.parentElement.parentElement;
-    archiveButtonGrandParent.setAttribute("hidden", "");
-
-    let restoreButtonGrandParent = restoreButton.parentElement.parentElement;
-    restoreButtonGrandParent.removeAttribute("hidden");
-  }
-
-  function hidePaymentButton() {
-    let paymentButtonGrandParent = paymentButton.parentElement.parentElement;
-    paymentButtonGrandParent.setAttribute("hidden", "");
   }
 
   fetch("/users/" + userID)
@@ -82,7 +101,13 @@ function getUser(userID) {
       if (user.is_archived) {
         replaceArchiveButtonToRestoreButton();
         hidePaymentButton();
+        hideStopButton();
       }
+
+      if (user.is_stopped) {
+        replaceStopButtonToActivateButton();
+      }
+
       if (user.payments !== undefined) {
         showPayments(user.payments);
       }
