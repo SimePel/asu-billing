@@ -476,6 +476,34 @@ func TestEmployeeUserBecomeNotEmployeeEditPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
 }
 
+func TestSendMassSMSPostHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sendMassSMSPostHandler(w, r)
+	}))
+	defer ts.Close()
+
+	invalidJson := bytes.NewReader([]byte("{ \"message\": \"alo\", \"sdf\"::\"asdf\" }"))
+	resp, err := http.Post(ts.URL+"/send-mass-sms", "application/json; charset=utf-8", invalidJson)
+	require.Nil(t, err)
+	assert.Equal(t, 500, resp.StatusCode)
+
+	{
+		var j struct {
+			Message string `json:"message"`
+			Phones  string `json:"phones"`
+		}
+		j.Message = "test"
+		j.Phones = "89039496867,+79029995361"
+
+		b, err := json.Marshal(&j)
+		require.Nil(t, err)
+
+		resp, err := http.Post(ts.URL+"/send-mass-sms", "application/json; charset=utf-8", bytes.NewReader(b))
+		require.Nil(t, err)
+		assert.Equal(t, 200, resp.StatusCode)
+	}
+}
+
 func TestPaymentPostHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := createJWTtoken("login")
