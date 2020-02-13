@@ -23,6 +23,10 @@ func tryToRenewPayment(mysql MySQL, id int) {
 		return
 	}
 
+	if user.IsDeactivated {
+		return
+	}
+
 	if user.hasEnoughMoneyForPayment() {
 		expirationDate, err := mysql.PayForNextMonth(user)
 		if err != nil {
