@@ -481,6 +481,34 @@ func TestPayForNextMonth(t *testing.T) {
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
 
+func TestDeactivateUserByID(t *testing.T) {
+	user := User{
+		Paid:        true,
+		Activity:    true,
+		ExpiredDate: time.Now().AddDate(0, 0, 20),
+		Name:        "Check deactivating1",
+		Agreement:   "П-115",
+		Login:       "deactivated.1",
+		ExtIP:       "82.200.46.10",
+		Tariff: Tariff{
+			ID:    1,
+			Name:  "Базовый-30",
+			Price: 200,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	err = mysql.DeactivateUserByID(id)
+	require.NoError(t, err)
+
+	deactivatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+	assert.Equal(t, true, deactivatedUser.IsDeactivated)
+}
+
 func TestArchiveUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
