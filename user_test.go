@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
@@ -115,6 +116,43 @@ func TestGetAllUsersHandler(t *testing.T) {
 
 	assert.Equal(t, 200, rr.Code)
 	assert.NotNil(t, actualUsers)
+}
+
+func TestDeactivateUserHandler(t *testing.T) {
+	req, err := http.NewRequest("POST", "/users/userID/deactivate", nil)
+	require.Nil(t, err)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		deactivateUser(w, r)
+	})
+
+	user := User{
+		Paid:        true,
+		Activity:    true,
+		ExpiredDate: time.Now().AddDate(0, 0, 20),
+		Name:        "deactivateUser2",
+		Login:       "deactivateUser.2",
+		Agreement:   "П-132",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, userCtxKey("user"), &user)
+	req = req.WithContext(ctx)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+
+	archivedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, archivedUser.IsDeactivated)
 }
 
 func TestArchiveUserHandler(t *testing.T) {
