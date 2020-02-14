@@ -111,6 +111,7 @@ function getUser(userID) {
         document.querySelector("#expiredDate").append(expiredDate);
       } else {
         document.querySelector("#expiredDate").parentElement.remove();
+        hideDeactivateButton();
       }
       document.querySelector("#balance").append(user.balance);
 
