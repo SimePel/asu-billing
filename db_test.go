@@ -72,6 +72,18 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS operations (
+		id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) UNSIGNED NOT NULL,
+		type enum('deactivate','activate') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'deactivate',
+		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS payments (
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		user_id bigint(20) unsigned NOT NULL,
@@ -149,6 +161,11 @@ func clearDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`TRUNCATE TABLE tariffs;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`TRUNCATE TABLE operations;`)
 	if err != nil {
 		return err
 	}
@@ -455,6 +472,35 @@ func TestGetPaymentsByID(t *testing.T) {
 	assert.Equal(t, "rozhkov", actualPayments[1].Admin)
 }
 
+func TestGetOperationsByID(t *testing.T) {
+	user := User{
+		Paid:      true,
+		Activity:  true,
+		Name:      "Operations1",
+		Agreement: "O-001",
+		Login:     "operation.1",
+		ExtIP:     "82.200.46.10",
+		Balance:   0,
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	err = mysql.DeactivateUserByID(id)
+	require.NoError(t, err)
+
+	actualOperations, err := mysql.GetOperationsByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, len(actualOperations))
+	assert.Equal(t, "deactivate", actualOperations[0].Type)
+}
+
 func TestPayForNextMonth(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user, err := mysql.GetUserByID(2)
@@ -503,6 +549,12 @@ func TestDeactivateUserByID(t *testing.T) {
 
 	err = mysql.DeactivateUserByID(id)
 	require.NoError(t, err)
+
+	operations, err := mysql.GetOperationsByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, 1, len(operations))
+	assert.Equal(t, "deactivate", operations[0].Type)
 
 	deactivatedUser, err := mysql.GetUserByID(id)
 	require.NoError(t, err)
