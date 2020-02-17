@@ -527,6 +527,44 @@ func TestPayForNextMonth(t *testing.T) {
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
 
+func TestActivateUserByID(t *testing.T) {
+	user := User{
+		Paid:          true,
+		Activity:      false,
+		IsDeactivated: true,
+		ExpiredDate:   time.Now().AddDate(0, 0, 20),
+		Name:          "Check activating1",
+		Agreement:     "A-001",
+		Login:         "activated.1",
+		ExtIP:         "82.200.46.10",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now().AddDate(0, 0, -8))
+	require.NoError(t, err)
+
+	err = mysql.ActivateUserByID(id)
+	require.NoError(t, err)
+
+	opers, err := mysql.GetOperationsByID(id)
+	require.NoError(t, err)
+
+	updatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, 2, len(opers))
+	assert.Equal(t, false, updatedUser.IsDeactivated)
+	delta := updatedUser.ExpiredDate.Sub(user.ExpiredDate)
+	assert.Greater(t, delta.Hours(), float64(24*7))
+	assert.Less(t, delta.Hours(), float64(24*9))
+}
+
 func TestDeactivateUserByID(t *testing.T) {
 	user := User{
 		Paid:        true,
