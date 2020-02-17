@@ -39,6 +39,12 @@ type Payment struct {
 	Admin   string    `json:"admin"`
 }
 
+// Operation struct
+type Operation struct {
+	Type string    `json:"type"`
+	Date time.Time `json:"date"`
+}
+
 // Tariff struct
 type Tariff struct {
 	ID    int    `json:"id"`
@@ -167,6 +173,29 @@ func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
 	return payments, nil
 }
 
+func (mysql MySQL) GetOperationsByID(userID int) ([]Operation, error) {
+	rows, err := mysql.db.Query(`SELECT type, date FROM operations WHERE user_id = ?`, userID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get operations by user id: %v", err)
+	}
+
+	var operation Operation
+	operations := make([]Operation, 0)
+	for rows.Next() {
+		err := rows.Scan(&operation.Type, &operation.Date)
+		if err != nil {
+			return nil, fmt.Errorf("cannot scan from row: %v", err)
+		}
+		operations = append(operations, operation)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return operations, nil
+}
+
 // AddUser adds user to db
 func (mysql MySQL) AddUser(user User) (int, error) {
 	innerIPid, err := mysql.getUnusedInnerIPid()
@@ -269,6 +298,11 @@ func (mysql MySQL) DeactivateUserByID(id int) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=1 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot deactivate user: %v", err)
+	}
+
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now())
+	if err != nil {
+		return fmt.Errorf("cannot add 'deactivate' operation: %v", err)
 	}
 
 	return nil
