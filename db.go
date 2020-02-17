@@ -300,7 +300,7 @@ func (mysql MySQL) DeactivateUserByID(id int) error {
 		return fmt.Errorf("cannot deactivate user: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now())
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now().Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("cannot add 'deactivate' operation: %v", err)
 	}
