@@ -294,6 +294,37 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	return t, nil
 }
 
+func (mysql MySQL) ActivateUserByID(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=0 WHERE id=?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot activate user: %v", err)
+	}
+
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "activate", time.Now().Add(time.Hour*7))
+	if err != nil {
+		return fmt.Errorf("cannot add 'activate' operation: %v", err)
+	}
+
+	user, err := mysql.GetUserByID(id)
+	if err != nil {
+		return fmt.Errorf("cannot get user by id: %v", err)
+	}
+
+	operations, err := mysql.GetOperationsByID(id)
+	if err != nil {
+		return fmt.Errorf("cannot get operations by user id: %v", err)
+	}
+
+	//	Берем предпоследнюю запись, так как последняя запись включения
+	remainDurationForUser := user.ExpiredDate.Sub(operations[len(operations)-2].Date)
+	_, err = mysql.db.Exec(`UPDATE users SET expired_date=? WHERE id=?`, operations[len(operations)-1].Date.Add(remainDurationForUser), id)
+	if err != nil {
+		return fmt.Errorf("cannot update expired_date: %v", err)
+	}
+
+	return nil
+}
+
 func (mysql MySQL) DeactivateUserByID(id int) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=1 WHERE id=?`, id)
 	if err != nil {
