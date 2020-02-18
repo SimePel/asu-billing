@@ -154,9 +154,47 @@ func TestDeactivateUserHandler(t *testing.T) {
 
 	assert.Equal(t, true, deactivatedUser.IsDeactivated)
 }
+
+func TestActivateUserHandler(t *testing.T) {
+	req, err := http.NewRequest("POST", "/users/userID/activate", nil)
+	require.Nil(t, err)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		activateUser(w, r)
+	})
+
+	user := User{
+		Paid:          true,
+		Activity:      false,
+		IsDeactivated: true,
+		ExpiredDate:   time.Now().AddDate(0, 0, 20),
+		Name:          "activateUser2",
+		Login:         "activateUser.2",
+		Agreement:     "A-002",
+		Tariff: Tariff{
+			ID: 1,
+		},
+	}
+	mysql := MySQL{db: openTestDBconnection()}
+	id, err := mysql.AddUser(user)
+	require.NoError(t, err)
+	user.ID = uint(id)
+
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now().AddDate(0, 0, -8))
 	require.NoError(t, err)
 
-	assert.Equal(t, true, archivedUser.IsDeactivated)
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, userCtxKey("user"), &user)
+	req = req.WithContext(ctx)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+
+	activatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, false, activatedUser.IsDeactivated)
+	assert.NotEqual(t, activatedUser.ExpiredDate, user.ExpiredDate)
 }
 
 func TestArchiveUserHandler(t *testing.T) {
