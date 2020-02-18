@@ -54,20 +54,21 @@ type Tariff struct {
 
 // User struct
 type User struct {
-	ID        uint      `json:"id"`
-	Balance   int       `json:"balance"`
-	Activity  bool      `json:"activity"`
-	Paid      bool      `json:"paid"`
-	Name      string    `json:"name"`
-	Room      string    `json:"room"`
-	Login     string    `json:"login"`
-	Phone     string    `json:"phone"`
-	Comment   string    `json:"comment"`
-	ExtIP     string    `json:"ext_ip"`
-	InnerIP   string    `json:"inner_ip"`
-	Tariff    Tariff    `json:"tariff"`
-	Payments  []Payment `json:"payments,omitempty"`
-	Agreement string    `json:"agreement"`
+	ID         uint        `json:"id"`
+	Balance    int         `json:"balance"`
+	Activity   bool        `json:"activity"`
+	Paid       bool        `json:"paid"`
+	Name       string      `json:"name"`
+	Room       string      `json:"room"`
+	Login      string      `json:"login"`
+	Phone      string      `json:"phone"`
+	Comment    string      `json:"comment"`
+	ExtIP      string      `json:"ext_ip"`
+	InnerIP    string      `json:"inner_ip"`
+	Tariff     Tariff      `json:"tariff"`
+	Payments   []Payment   `json:"payments,omitempty"`
+	Operations []Operation `json:"operations,omitempty"`
+	Agreement  string      `json:"agreement"`
 	// separate for a more beautiful view
 	IsDeactivated   bool      `json:"is_deactivated"`
 	IsEmployee      bool      `json:"is_employee"`
@@ -134,6 +135,12 @@ func (mysql MySQL) GetUserByID(id int) (User, error) {
 		return user, fmt.Errorf("cannot get payments with id=%v: %v", id, err)
 	}
 	user.Payments = payments
+
+	operations, err := mysql.GetOperationsByID(id)
+	if err != nil {
+		return user, fmt.Errorf("cannot get operations with user id=%v: %v", id, err)
+	}
+	user.Operations = operations
 
 	return user, nil
 }
