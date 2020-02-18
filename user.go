@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 )
 
@@ -60,9 +61,18 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func deactivateUser(w http.ResponseWriter, r *http.Request) {
+	token, err := getJWTtokenFromCookies(r.Cookies())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	admin := claims["login"].(string)
+
 	user := r.Context().Value(userCtxKey("user")).(*User)
 	mysql := MySQL{db: initializeDB()}
-	err := mysql.DeactivateUserByID(int(user.ID))
+	err = mysql.DeactivateUserByID(int(user.ID), admin)
 	if err != nil {
 		log.Printf("cannot deactivate user with id=%v: %v", user.ID, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
@@ -70,9 +80,18 @@ func deactivateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func activateUser(w http.ResponseWriter, r *http.Request) {
+	token, err := getJWTtokenFromCookies(r.Cookies())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	admin := claims["login"].(string)
+
 	user := r.Context().Value(userCtxKey("user")).(*User)
 	mysql := MySQL{db: initializeDB()}
-	err := mysql.ActivateUserByID(int(user.ID))
+	err = mysql.ActivateUserByID(int(user.ID), admin)
 	if err != nil {
 		log.Printf("cannot activate user with id=%v: %v", user.ID, err)
 		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)

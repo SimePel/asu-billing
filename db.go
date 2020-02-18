@@ -41,8 +41,9 @@ type Payment struct {
 
 // Operation struct
 type Operation struct {
-	Type string    `json:"type"`
-	Date time.Time `json:"date"`
+	Admin string    `json:"admin"`
+	Type  string    `json:"type"`
+	Date  time.Time `json:"date"`
 }
 
 // Tariff struct
@@ -181,7 +182,7 @@ func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
 }
 
 func (mysql MySQL) GetOperationsByID(userID int) ([]Operation, error) {
-	rows, err := mysql.db.Query(`SELECT type, date FROM operations WHERE user_id = ?`, userID)
+	rows, err := mysql.db.Query(`SELECT admin, type, date FROM operations WHERE user_id = ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get operations by user id: %v", err)
 	}
@@ -189,7 +190,7 @@ func (mysql MySQL) GetOperationsByID(userID int) ([]Operation, error) {
 	var operation Operation
 	operations := make([]Operation, 0)
 	for rows.Next() {
-		err := rows.Scan(&operation.Type, &operation.Date)
+		err := rows.Scan(&operation.Admin, &operation.Type, &operation.Date)
 		if err != nil {
 			return nil, fmt.Errorf("cannot scan from row: %v", err)
 		}
@@ -301,13 +302,13 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	return t, nil
 }
 
-func (mysql MySQL) ActivateUserByID(id int) error {
+func (mysql MySQL) ActivateUserByID(id int, admin string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=0 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot activate user: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "activate", time.Now().Add(time.Hour*7))
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "activate", time.Now().Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("cannot add 'activate' operation: %v", err)
 	}
@@ -332,13 +333,13 @@ func (mysql MySQL) ActivateUserByID(id int) error {
 	return nil
 }
 
-func (mysql MySQL) DeactivateUserByID(id int) error {
+func (mysql MySQL) DeactivateUserByID(id int, admin string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_deactivated=1 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot deactivate user: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now().Add(time.Hour*7))
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "deactivate", time.Now().Add(time.Hour*7))
 	if err != nil {
 		return fmt.Errorf("cannot add 'deactivate' operation: %v", err)
 	}

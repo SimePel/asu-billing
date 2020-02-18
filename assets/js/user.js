@@ -62,27 +62,52 @@ function hideDeactivateButton() {
   deactivateButtonGrandParent.setAttribute("hidden", "");
 }
 
-function getUser(userID) {
-  function showPayments(payments) {
-    for (let payment of payments) {
-      let tr = document.createElement("tr");
-      let adminTD = document.createElement("td");
-      adminTD.append(payment.admin);
-      let receiptTD = document.createElement("td");
-      receiptTD.append(payment.receipt);
-      let sumTD = document.createElement("td");
-      sumTD.append(payment.sum);
-      let dateTD = document.createElement("td");
-      const d = new Date(payment.date);
-      const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
-      dateTD.append(date);
-      let tds = [];
-      tds.push(adminTD, receiptTD, dateTD, sumTD);
-      tr.append(...tds);
-      document.querySelector("#tbody").append(tr);
-    }
+function showPayments(payments) {
+  for (let payment of payments) {
+    let tr = document.createElement("tr");
+    let adminTD = document.createElement("td");
+    adminTD.append(payment.admin);
+    let receiptTD = document.createElement("td");
+    receiptTD.append(payment.receipt);
+    let sumTD = document.createElement("td");
+    sumTD.append(payment.sum);
+    let dateTD = document.createElement("td");
+    const d = new Date(payment.date);
+    const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+    dateTD.append(date);
+    let tds = [];
+    tds.push(adminTD, receiptTD, dateTD, sumTD);
+    tr.append(...tds);
+    document.querySelector("#tbody").append(tr);
   }
+}
 
+function showOperations(operations) {
+  for (let operation of operations) {
+    let tr = document.createElement("tr");
+    let adminTD = document.createElement("td");
+    adminTD.append(operation.admin);
+    let actionTD = document.createElement("td");
+    if (operation.type === "deactivate") {
+      actionTD.append("Выключил");
+    } else if (operation.type === "activate") {
+      actionTD.append("Включил");
+    }
+    if (operation.admin === "ssn") {
+      actionTD.append("а");
+    }
+    let dateTD = document.createElement("td");
+    const d = new Date(operation.date);
+    const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+    dateTD.append(date);
+    let tds = [];
+    tds.push(adminTD, actionTD, dateTD);
+    tr.append(...tds);
+    document.querySelector("#operations").append(tr);
+  }
+}
+
+function getUser(userID) {
   fetch("/users/" + userID)
     .then(res => {
       return res.json();
@@ -127,6 +152,10 @@ function getUser(userID) {
 
       if (user.payments !== undefined) {
         showPayments(user.payments);
+      }
+
+      if (user.operations !== undefined) {
+        showOperations(user.operations);
       }
     });
 }
