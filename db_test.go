@@ -293,6 +293,7 @@ func TestGetUserByID(t *testing.T) {
 				Date:    time.Date(2019, time.June, 7, 7, 32, 50, 0, time.UTC),
 			},
 		},
+		Operations: []Operation{},
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -498,7 +499,7 @@ func TestGetOperationsByID(t *testing.T) {
 	require.NoError(t, err)
 	user.ID = uint(id)
 
-	err = mysql.DeactivateUserByID(id)
+	err = mysql.DeactivateUserByID(id, "rozhkov")
 	require.NoError(t, err)
 
 	actualOperations, err := mysql.GetOperationsByID(id)
@@ -506,6 +507,7 @@ func TestGetOperationsByID(t *testing.T) {
 
 	assert.Equal(t, 1, len(actualOperations))
 	assert.Equal(t, "deactivate", actualOperations[0].Type)
+	assert.Equal(t, "rozhkov", actualOperations[0].Admin)
 }
 
 func TestPayForNextMonth(t *testing.T) {
@@ -556,7 +558,7 @@ func TestActivateUserByID(t *testing.T) {
 	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, type, date) VALUES (?,?,?)`, id, "deactivate", time.Now().AddDate(0, 0, -8))
 	require.NoError(t, err)
 
-	err = mysql.ActivateUserByID(id)
+	err = mysql.ActivateUserByID(id, "rozhkov")
 	require.NoError(t, err)
 
 	updatedUser, err := mysql.GetUserByID(id)
@@ -589,7 +591,7 @@ func TestDeactivateUserByID(t *testing.T) {
 	id, err := mysql.AddUser(user)
 	require.NoError(t, err)
 
-	err = mysql.DeactivateUserByID(id)
+	err = mysql.DeactivateUserByID(id, "rozhkov")
 	require.NoError(t, err)
 
 	deactivatedUser, err := mysql.GetUserByID(id)
@@ -597,6 +599,7 @@ func TestDeactivateUserByID(t *testing.T) {
 
 	assert.Equal(t, 1, len(deactivatedUser.Operations))
 	assert.Equal(t, "deactivate", deactivatedUser.Operations[0].Type)
+	assert.Equal(t, "rozhkov", deactivatedUser.Operations[0].Admin)
 	assert.Equal(t, true, deactivatedUser.IsDeactivated)
 }
 

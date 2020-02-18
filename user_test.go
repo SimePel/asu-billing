@@ -123,6 +123,15 @@ func TestDeactivateUserHandler(t *testing.T) {
 	require.Nil(t, err)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		expectedToken, err := createJWTtoken("login")
+		require.Nil(t, err)
+		c := http.Cookie{
+			Name:     "jwt",
+			Value:    expectedToken,
+			HttpOnly: true,
+			SameSite: 3,
+		}
+		r.AddCookie(&c)
 		deactivateUser(w, r)
 	})
 
@@ -160,6 +169,15 @@ func TestActivateUserHandler(t *testing.T) {
 	require.Nil(t, err)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		expectedToken, err := createJWTtoken("login")
+		require.Nil(t, err)
+		c := http.Cookie{
+			Name:     "jwt",
+			Value:    expectedToken,
+			HttpOnly: true,
+			SameSite: 3,
+		}
+		r.AddCookie(&c)
 		activateUser(w, r)
 	})
 
