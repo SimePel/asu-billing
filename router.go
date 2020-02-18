@@ -48,6 +48,7 @@ func newRouter() *chi.Mux {
 			r.Put("/", restoreUser)
 			r.Delete("/", archiveUser)
 			r.Post("/deactivate", deactivateUser)
+			r.Post("/activate", activateUser)
 		})
 		r.Get("/", getAllUsers)
 	})
