@@ -149,7 +149,11 @@ func TestDeactivateUserHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 200, rr.Code)
 
-	archivedUser, err := mysql.GetUserByID(id)
+	deactivatedUser, err := mysql.GetUserByID(id)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, deactivatedUser.IsDeactivated)
+}
 	require.NoError(t, err)
 
 	assert.Equal(t, true, archivedUser.IsDeactivated)
