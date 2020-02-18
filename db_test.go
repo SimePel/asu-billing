@@ -559,13 +559,10 @@ func TestActivateUserByID(t *testing.T) {
 	err = mysql.ActivateUserByID(id)
 	require.NoError(t, err)
 
-	opers, err := mysql.GetOperationsByID(id)
-	require.NoError(t, err)
-
 	updatedUser, err := mysql.GetUserByID(id)
 	require.NoError(t, err)
 
-	assert.Equal(t, 2, len(opers))
+	assert.Equal(t, 2, len(updatedUser.Operations))
 	assert.Equal(t, false, updatedUser.IsDeactivated)
 	delta := updatedUser.ExpiredDate.Sub(user.ExpiredDate)
 	assert.Greater(t, delta.Hours(), float64(24*7))
@@ -595,14 +592,11 @@ func TestDeactivateUserByID(t *testing.T) {
 	err = mysql.DeactivateUserByID(id)
 	require.NoError(t, err)
 
-	operations, err := mysql.GetOperationsByID(id)
-	require.NoError(t, err)
-
-	assert.Equal(t, 1, len(operations))
-	assert.Equal(t, "deactivate", operations[0].Type)
-
 	deactivatedUser, err := mysql.GetUserByID(id)
 	require.NoError(t, err)
+
+	assert.Equal(t, 1, len(deactivatedUser.Operations))
+	assert.Equal(t, "deactivate", deactivatedUser.Operations[0].Type)
 	assert.Equal(t, true, deactivatedUser.IsDeactivated)
 }
 
