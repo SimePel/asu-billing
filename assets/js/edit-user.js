@@ -22,7 +22,12 @@ function insertValuesInInputs() {
       document.getElementsByName("connectionPlace")[0].value = user.connection_place;
       document.getElementsByName("comment")[0].value = user.comment;
       const d = new Date(user.expired_date);
-      let expiredDate = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+      let day = d.getDate();
+      if (day < 10) day = "0" + day;
+      let month = d.getMonth() + 1;
+      if (month < 10) month = "0" + month;
+      const year = d.getFullYear();
+      let expiredDate = year + "-" + month + "-" + day;
       document.getElementsByName("expiredDate")[0].value = expiredDate;
     });
 }
