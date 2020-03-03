@@ -81,6 +81,17 @@ div > span > select {
   background-color: #33ff33;
 }
 
+.income-panel.income-panel.income-panel {
+  background-color: white;
+  position: absolute;
+  top: 52px;
+  left: 18.6rem;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 100;
+  width: 16rem;
+}
+
 .settings-panel.settings-panel.settings-panel {
   background-color: white;
   position: absolute;
@@ -88,8 +99,20 @@ div > span > select {
   left: 10rem;
   padding: 0;
   box-sizing: border-box;
-  z-index: 100;
+  z-index: 101;
   width: 16rem;
+}
+
+.small-input {
+  width: 10rem;
+  display: inline-block;
+  padding-bottom: 0.75rem;
+}
+
+.menu-head {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-bottom: 1rem;
 }
 
 #tableSettings {
@@ -119,8 +142,8 @@ div > span > select {
 }
 
 #wallet {
-  width: 24px;
-  cursor: pointer;
+  width: 34px;
+  min-height: 33px;
 }
 
 #cash {
@@ -145,6 +168,15 @@ div > span > select {
 
 #tableSettings > p > a:hover {
   font-weight: 500;
+}
+
+.open:checked ~ .income-panel {
+  transform: translateX(-130%);
+  transition: 0.35s;
+}
+
+.open:not(:checked) ~ .income-panel {
+  transition: 0.35s;
 }
 
 .open:checked ~ .settings-panel {

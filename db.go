@@ -396,6 +396,18 @@ func (mysql MySQL) GetAllMoneyWeHave() (int, error) {
 	return sum, nil
 }
 
+func (mysql MySQL) GetIncomeForPeriod(from, to string) (int, error) {
+	var sum int
+	err := mysql.db.QueryRow(`SELECT SUM(money) FROM ( SELECT SUM(payments.sum) AS money FROM payments
+		WHERE payments.user_id IN (SELECT id FROM users WHERE users.is_employee=0)
+		AND payments.date >= ? AND payments.date < ? ) AS a`, from, to).Scan(&sum)
+	if err != nil {
+		return 0, fmt.Errorf("cannot do queryRow. From: %v, To: %v. Error: %v", from, to, err)
+	}
+
+	return sum, nil
+}
+
 // GetNextAgreement returns next agreement
 func (mysql MySQL) GetNextAgreement() (string, error) {
 	var lastAgreement string

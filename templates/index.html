@@ -19,8 +19,6 @@
               Показать: <a class="active-link" id="all">всех</a>, <a id="active">активных</a>,
               <a id="inactive">неактивных</a>, <a id="archive">в архиве</a>
             </p>
-            <span id="walletPlace"><img id="wallet" src="../assets/img/wallet.png" alt="Кэш"/></span>
-            <span id="cash"></span>
           </div>
           <div class="navbar-item">
             <div class="field has-addons">
@@ -42,6 +40,32 @@
           </div>
         </div>
         <div class="navbar-end">
+          <div class="navbar-item">
+            <input class="open" id="income-input" type="checkbox" hidden />
+            <button class="button is-light" style="padding: 0;">
+              <label for="income-input" style="height: 36px;">
+                <img id="wallet" src="../assets/img/wallet.png" alt="Кэш" />
+              </label>
+            </button>
+            <div class="income-panel">
+              <div class="menu">
+                <p class="menu-head">Всего: <span id="income"></span></p>
+                <div class="control">
+                  C:
+                  <div class="small-input">
+                    <input class="input is-small" type="date" min="2019-03-19" name="from" id="fromDate" />
+                  </div>
+                </div>
+                <div class="control">
+                  ПО:
+                  <p class="small-input">
+                    <input class="input is-small" type="date" min="2019-03-20" name="to" id="toDate" />
+                  </p>
+                </div>
+                <p>За данный промежуток поступило <span id="incomeForPeriod"></span></p>
+              </div>
+            </div>
+          </div>
           <div class="navbar-item">
             <input class="open" id="settings" type="checkbox" hidden />
             <button class="button is-light" style="width: 36px; height: 36px; padding: 0;">

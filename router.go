@@ -25,6 +25,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Post("/add-user", addUserPostHandler)
 	r.With(checkJWTtoken).Post("/edit-user", editUserPostHandler)
 	r.With(checkJWTtoken).Post("/send-mass-sms", sendMassSMSPostHandler)
+	r.With(checkJWTtoken).Post("/income-for-period", getIncomeForPeriodHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
 
 	r.With(checkJWTtoken).Get("/", indexHandler)
@@ -380,6 +381,31 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 		Cash:               cash,
 	}
 	json.NewEncoder(w).Encode(&J)
+}
+
+func getIncomeForPeriodHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var j struct {
+		From time.Time `json:"from"`
+		To   time.Time `json:"to"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&j)
+	if err != nil {
+		log.Printf("cannot decode json: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	mysql := MySQL{db: initializeDB()}
+	income, err := mysql.GetIncomeForPeriod(j.From.Format("20060102"), j.To.Format("20060102"))
+	if err != nil {
+		log.Printf("cannot get income for period: %v", err)
+		http.Error(w, "0", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, income)
 }
 
 func getNextAgreementHandler(w http.ResponseWriter, r *http.Request) {
