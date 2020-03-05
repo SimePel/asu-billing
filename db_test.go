@@ -668,6 +668,12 @@ func TestGetCountOfInactiveUsers(t *testing.T) {
 	assert.NotZero(t, count)
 }
 
+func TestGetCountOfArchivedUsers(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	_, err := mysql.GetCountOfArchivedUsers()
+	require.NoError(t, err)
+}
+
 func TestGetAllMoneyWeHave(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	money, err := mysql.GetAllMoneyWeHave()

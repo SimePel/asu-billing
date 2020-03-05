@@ -603,6 +603,7 @@ func TestGetStatsAboutUsers(t *testing.T) {
 	var J struct {
 		ActiveUsersCount   int `json:"active_users_count"`
 		InactiveUsersCount int `json:"inactive_users_count"`
+		ArchivedUsersCount int `json:"archived_users_count"`
 		Cash               int `json:"cash"`
 	}
 
@@ -612,6 +613,7 @@ func TestGetStatsAboutUsers(t *testing.T) {
 
 	assert.NotZero(t, J.ActiveUsersCount)
 	assert.NotZero(t, J.InactiveUsersCount)
+	assert.NotZero(t, J.ArchivedUsersCount)
 	assert.NotZero(t, J.Cash)
 }
 

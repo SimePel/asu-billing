@@ -385,6 +385,16 @@ func (mysql MySQL) GetCountOfInactiveUsers() (int, error) {
 	return count, nil
 }
 
+func (mysql MySQL) GetCountOfArchivedUsers() (int, error) {
+	var count int
+	err := mysql.db.QueryRow(`SELECT COUNT(*) FROM users WHERE activity=false AND is_archived=true`).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("cannot do queryRow: %v", err)
+	}
+
+	return count, nil
+}
+
 func (mysql MySQL) GetAllMoneyWeHave() (int, error) {
 	var sum int
 	err := mysql.db.QueryRow(`SELECT SUM(money) FROM ( SELECT SUM(payments.sum) AS money FROM payments

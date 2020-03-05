@@ -174,7 +174,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "jwt",
 		Value:    token,
 		HttpOnly: false, // for js interaction
-		Secure:   true,
+		Secure:   false,
 		Expires:  time.Now().AddDate(0, 1, 0),
 		SameSite: 3,
 	}
@@ -364,6 +364,13 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	archivedUsersCount, err := mysql.GetCountOfArchivedUsers()
+	if err != nil {
+		log.Printf("cannot get count of archived users: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
 	cash, err := mysql.GetAllMoneyWeHave()
 	if err != nil {
 		log.Printf("cannot get sum of all money we have: %v", err)
@@ -374,10 +381,12 @@ func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
 	J := struct {
 		ActiveUsersCount   int `json:"active_users_count"`
 		InactiveUsersCount int `json:"inactive_users_count"`
+		ArchivedUsersCount int `json:"archived_users_count"`
 		Cash               int `json:"cash"`
 	}{
 		ActiveUsersCount:   activeUsersCount,
 		InactiveUsersCount: inactiveUsersCount,
+		ArchivedUsersCount: archivedUsersCount,
 		Cash:               cash,
 	}
 	json.NewEncoder(w).Encode(&J)
