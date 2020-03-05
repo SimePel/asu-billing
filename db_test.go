@@ -675,6 +675,17 @@ func TestGetAllMoneyWeHave(t *testing.T) {
 	assert.NotZero(t, money)
 }
 
+func TestGetIncomeForPeriod(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	money, err := mysql.GetIncomeForPeriod("20190101", "20230101")
+	require.NoError(t, err)
+	assert.NotZero(t, money)
+
+	money, err = mysql.GetIncomeForPeriod("20230101", "20230102")
+	require.Error(t, err)
+	assert.Zero(t, money)
+}
+
 func TestGetNextAgreement(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	agreement, err := mysql.GetNextAgreement()

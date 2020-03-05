@@ -615,6 +615,34 @@ func TestGetStatsAboutUsers(t *testing.T) {
 	assert.NotZero(t, J.Cash)
 }
 
+func TestGetIncomeForPeriodHandler(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		getIncomeForPeriodHandler(w, r)
+	}))
+	defer ts.Close()
+
+	invalidJson := bytes.NewReader([]byte("{ \"from\": \"nottime\", \"to\"::\"2019.01.01\" }"))
+	resp, err := http.Post(ts.URL+"/income-for-period", "application/json; charset=utf-8", invalidJson)
+	require.Nil(t, err)
+	assert.Equal(t, 500, resp.StatusCode)
+
+	{
+		var j struct {
+			From time.Time `json:"from"`
+			To   time.Time `json:"to"`
+		}
+		j.From = time.Now().AddDate(-1, 0, 0)
+		j.To = time.Now()
+
+		b, err := json.Marshal(&j)
+		require.Nil(t, err)
+
+		resp, err := http.Post(ts.URL+"/income-for-period", "application/json; charset=utf-8", bytes.NewReader(b))
+		require.Nil(t, err)
+		assert.Equal(t, 200, resp.StatusCode)
+	}
+}
+
 func TestGetNextAgreementHandler(t *testing.T) {
 	require.HTTPSuccess(t, getNextAgreementHandler, "GET", "/next-agreement", nil)
 
