@@ -19,6 +19,7 @@ func prepareDB(db *sql.DB) error {
 		agreement varchar(6) COLLATE utf8_unicode_ci NOT NULL,
 		create_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		expired_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		mac varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		login varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
@@ -139,11 +140,11 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, login, 
+	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, mac, login,
 		connection_place, phone, room, comment, is_archived, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
-		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', 'blabla.123', '', '88005553550', '', 'игрок', 0, 1, 1, 
+		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', '00:0e:c6:58:fd:b4', 'blabla.123', '', '88005553550', '', 'игрок', 0, 1, 1, 
 		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, 1, 2, '82.200.46.10');`)
+		'0000-00-00 00:00:00', '00:0e:c6:60:fa:f1', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
@@ -237,6 +238,7 @@ func TestGetAllUsers(t *testing.T) {
 			Agreement:   "П-001",
 			Phone:       "88005553550",
 			Comment:     "игрок",
+			Mac:         "00:0e:c6:58:fd:b4",
 			Login:       "blabla.123",
 			InnerIP:     "10.1.108.1",
 			ExtIP:       "82.200.46.10",
@@ -254,6 +256,7 @@ func TestGetAllUsers(t *testing.T) {
 			Agreement: "П-002",
 			Room:      "501c",
 			Comment:   "комментарий",
+			Mac:       "00:0e:c6:60:fa:f1",
 			Login:     "bla.124",
 			InnerIP:   "10.1.108.10",
 			ExtIP:     "82.200.46.10",
@@ -280,6 +283,7 @@ func TestGetUserByID(t *testing.T) {
 		Agreement:   "П-001",
 		Phone:       "88005553550",
 		Comment:     "игрок",
+		Mac:         "00:0e:c6:58:fd:b4",
 		Login:       "blabla.123",
 		InnerIP:     "10.1.108.1",
 		ExtIP:       "82.200.46.10",

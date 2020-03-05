@@ -174,7 +174,7 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "jwt",
 		Value:    token,
 		HttpOnly: false, // for js interaction
-		Secure:   false,
+		Secure:   true,
 		Expires:  time.Now().AddDate(0, 1, 0),
 		SameSite: 3,
 	}
@@ -232,6 +232,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimSpace(r.FormValue("name"))
 	agreement := strings.TrimSpace(r.FormValue("agreement"))
 	isEmployee, _ := strconv.ParseBool(r.FormValue("isEmployee"))
+	mac := strings.TrimSpace(r.FormValue("mac"))
 	login := strings.TrimSpace(r.FormValue("login"))
 	phone := strings.TrimSpace(r.FormValue("phone"))
 	room := strings.TrimSpace(r.FormValue("room"))
@@ -245,6 +246,7 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		Name:            name,
 		Agreement:       agreement,
 		IsEmployee:      isEmployee,
+		Mac:             mac,
 		Login:           login,
 		Tariff:          Tariff{ID: tariff},
 		Phone:           phone,

@@ -115,6 +115,7 @@ function getUser(userID) {
     .then(user => {
       document.querySelector("#name").append(user.name);
       document.querySelector("#agreement").append(user.agreement);
+      document.querySelector("#mac").append(user.mac);
       document.querySelector("#login").append(user.login);
       document.querySelector("#tariff").append(user.tariff.name);
       document.querySelector("#innerIP").append(user.inner_ip);
