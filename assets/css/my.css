@@ -77,10 +77,6 @@ div > span > select {
   border-radius: 6px;
 }
 
-.is-active {
-  background-color: #33ff33;
-}
-
 .income-panel.income-panel.income-panel {
   background-color: white;
   position: absolute;
@@ -273,4 +269,14 @@ h4 {
 
 th > img {
   vertical-align: text-bottom;
+}
+
+.modal-card-body > div {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.modal-card {
+  width: 500px;
 }

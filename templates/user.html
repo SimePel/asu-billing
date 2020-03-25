@@ -53,19 +53,58 @@
             <li>Дата следующей оплаты: <span id="expiredDate"></span></li>
             <li>
               Остаток на счету: <span id="balance"></span>
-              <span class="field">
-                <span class="control" hidden>
-                  <input id="receiptInput" class="input" type="text" name="receipt" placeholder="№ от дд.мм.гггг" />
-                </span>
-                <span class="control" hidden>
-                  <input id="paymentInput" class="input" type="number" name="sum" placeholder="Сумма" />
-                </span>
-                <span class="control">
-                  <button id="paymentButton" class="button is-warning">
-                    Пополнить
-                  </button>
-                </span>
+              <span class="control">
+                <button id="revealButton" class="button is-warning">
+                  Пополнить
+                </button>
               </span>
+              <div id="paymentModal" class="modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                  <header class="modal-card-head">
+                    <p class="modal-card-title">Пополнение счета</p>
+                    <button id="closePaymentModal" class="delete" aria-label="close"></button>
+                  </header>
+                  <section class="modal-card-body">
+                    <div class="control">
+                      № квитанции:<input
+                        style="width: 4.4rem;"
+                        id="receipt"
+                        class="input"
+                        type="text"
+                        name="receipt"
+                        maxlength="6"
+                      />
+                    </div>
+                    <div class="control">
+                      Дата квитанции:<input
+                        style="width: 6.5rem;"
+                        id="receiptDate"
+                        class="input"
+                        type="text"
+                        name="receiptDate"
+                        maxlength="10"
+                        placeholder="дд.мм.гггг"
+                      />
+                    </div>
+                    <div class="control">
+                      Сумма:<input
+                        style="width: 4.7rem;"
+                        id="paymentSum"
+                        class="input"
+                        type="text"
+                        name="paymentSum"
+                        maxlength="4"
+                      />
+                    </div>
+                  </section>
+                  <footer class="modal-card-foot">
+                    <button id="paymentButton" class="button is-success">
+                      Пополнить
+                    </button>
+                  </footer>
+                </div>
+              </div>
             </li>
           </ul>
 

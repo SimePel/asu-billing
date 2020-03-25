@@ -5,8 +5,8 @@ getUser(userID);
 let editButton = document.querySelector("#editButton");
 editButton.setAttribute("href", "/edit-user?id=" + userID);
 
-let paymentButton = document.querySelector("#paymentButton");
-paymentButton.addEventListener("click", revealPaymentInputs);
+let revealButton = document.querySelector("#revealButton");
+revealButton.addEventListener("click", revealPaymentInputs);
 
 let deactivateButton = document.querySelector("#deactivateButton");
 deactivateButton.addEventListener("click", deactivateUser);
@@ -19,6 +19,26 @@ archiveButton.addEventListener("click", archiveUser);
 
 let restoreButton = document.querySelector("#restoreButton");
 restoreButton.addEventListener("click", restoreUser);
+
+let closePaymentModal = document.querySelector("#closePaymentModal");
+closePaymentModal.addEventListener("click", () => {
+  let paymentModal = document.querySelector("#paymentModal");
+  paymentModal.classList.remove("is-active");
+});
+
+let body = document.querySelector("body");
+body.addEventListener("keyup", event => {
+  if (event.keyCode === 27) {
+    let paymentModal = document.querySelector("#paymentModal");
+    paymentModal.classList.remove("is-active");
+  }
+});
+
+body.addEventListener("keyup", event => {
+  if (event.keyCode === 13) {
+    revealPaymentInputs();
+  }
+});
 
 function deactivateUser() {
   fetch("users/" + userID + "/deactivate", {
@@ -52,9 +72,9 @@ function replaceDeactivateButtonToActivateButton() {
   activateButtonGrandParent.removeAttribute("hidden");
 }
 
-function hidePaymentButton() {
-  let paymentButtonGrandParent = paymentButton.parentElement.parentElement;
-  paymentButtonGrandParent.setAttribute("hidden", "");
+function hideRevealButton() {
+  let revealButtonParent = revealButton.parentElement;
+  revealButtonParent.setAttribute("hidden", "");
 }
 
 function hideDeactivateButton() {
@@ -143,7 +163,7 @@ function getUser(userID) {
 
       if (user.is_archived) {
         replaceArchiveButtonToRestoreButton();
-        hidePaymentButton();
+        hideRevealButton();
         hideDeactivateButton();
       }
 
@@ -169,8 +189,8 @@ function deposit() {
     },
     body: JSON.stringify({
       id: parseInt(userID),
-      receipt: document.querySelector("#receiptInput").value,
-      sum: parseInt(document.querySelector("#paymentInput").value),
+      receipt: "№" + document.querySelector("#receipt").value + " от " + document.querySelector("#receiptDate").value,
+      sum: parseInt(document.querySelector("#paymentSum").value),
     }),
   }).then(() => {
     location.replace("/user?id=" + userID);
@@ -178,24 +198,25 @@ function deposit() {
 }
 
 function revealPaymentInputs() {
-  let receiptInput = document.querySelector("#receiptInput");
-  let receiptInputParent = receiptInput.parentElement;
+  body.removeEventListener("keyup", event => {
+    if (event.keyCode === 13) {
+      revealPaymentInputs();
+    }
+  });
 
-  receiptInputParent.removeAttribute("hidden");
-  receiptInput.focus();
-
-  let paymentInput = document.querySelector("#paymentInput");
-  let paymentInputParent = paymentInput.parentElement;
-
-  paymentInputParent.removeAttribute("hidden");
-  paymentButton.removeEventListener("click", revealPaymentInputs);
+  let paymentModal = document.querySelector("#paymentModal");
+  paymentModal.classList.add("is-active");
 
   paymentButton.addEventListener("click", deposit);
-  paymentInput.addEventListener("keyup", event => {
+  let paymentSum = document.querySelector("#paymentSum");
+  paymentSum.addEventListener("keyup", event => {
     if (event.keyCode === 13) {
       deposit();
     }
   });
+
+  let receipt = document.querySelector("#receipt");
+  receipt.focus();
 }
 
 function archiveUser() {
