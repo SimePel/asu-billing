@@ -53,13 +53,20 @@
                 <div class="control">
                   <div style="display: inline-block; width: 24px;">C:</div>
                   <div class="small-input">
-                    <input class="input is-small" type="date" min="2019-03-19" name="from" id="fromDate" />
+                    <input
+                      class="input is-small"
+                      type="date"
+                      min="2019-03-19"
+                      name="from"
+                      id="fromDate"
+                      tabindex="-1"
+                    />
                   </div>
                 </div>
                 <div class="control">
                   <div style="display: inline-block;">ПО:</div>
                   <p class="small-input">
-                    <input class="input is-small" type="date" min="2019-03-20" name="to" id="toDate" />
+                    <input class="input is-small" type="date" min="2019-03-20" name="to" id="toDate" tabindex="-1" />
                   </p>
                 </div>
                 <p>За данный промежуток поступило <span id="incomeForPeriod"></span></p>
