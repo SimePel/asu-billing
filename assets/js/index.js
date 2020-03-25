@@ -74,6 +74,7 @@ function fillUsersToTheTable(users) {
     tr.append(...tds);
     tr.classList.add("clickable");
     tr.setAttribute("data-id", user.id);
+    tr.setAttribute("tabindex", 0);
     tr.addEventListener("click", e => {
       window.location.href = "/user?id=" + user.id;
     });
@@ -535,6 +536,14 @@ let searchInput = document.querySelector("#search");
 searchInput.addEventListener("keyup", event => {
   if (event.keyCode === 13) {
     searchThroughTheTable();
+  }
+});
+
+let tbody = document.querySelector("tbody");
+tbody.addEventListener("keyup", event => {
+  if (event.keyCode === 13) {
+    const id = event.target.getAttribute("data-id");
+    location.replace("/user?id=" + id);
   }
 });
 
