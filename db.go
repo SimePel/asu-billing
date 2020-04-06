@@ -283,7 +283,7 @@ func (mysql MySQL) ProcessPayment(userID, sum int, receipt, admin string) error 
 	}
 
 	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, sum, date) VALUES (?,?,?,?,?)`,
-		userID, admin, receipt, sum, time.Now().Add(time.Hour*7))
+		userID, admin, receipt, sum, time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)
 	}
@@ -293,7 +293,7 @@ func (mysql MySQL) ProcessPayment(userID, sum int, receipt, admin string) error 
 
 // PayForNextMonth activates user for next month
 func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
-	t := time.Now().AddDate(0, 1, 0).Add(time.Hour * 7)
+	t := time.Now().AddDate(0, 1, 0)
 	_, err := mysql.db.Exec(`UPDATE users SET expired_date=?, paid=1, balance=balance-? WHERE id=?`,
 		t, user.Tariff.Price, user.ID)
 	if err != nil {
@@ -309,7 +309,7 @@ func (mysql MySQL) ActivateUserByID(id int, admin string) error {
 		return fmt.Errorf("cannot activate user: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "activate", time.Now().Add(time.Hour*7))
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "activate", time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot add 'activate' operation: %v", err)
 	}
@@ -340,7 +340,7 @@ func (mysql MySQL) DeactivateUserByID(id int, admin string) error {
 		return fmt.Errorf("cannot deactivate user: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "deactivate", time.Now().Add(time.Hour*7))
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "deactivate", time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot add 'deactivate' operation: %v", err)
 	}
