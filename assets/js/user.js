@@ -192,8 +192,8 @@ function deposit() {
     body: JSON.stringify({
       id: parseInt(userID),
       receipt: "№" + document.querySelector("#receipt").value + " от " + document.querySelector("#receiptDate").value,
-      method: document.querySelector('input[name="paymentMethod"]:checked').value,
       sum: parseInt(document.querySelector("#paymentSum").value),
+      method: document.querySelector('input[name="paymentMethod"]:checked').value,
     }),
   }).then(() => {
     location.replace("/user?id=" + userID);

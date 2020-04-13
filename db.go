@@ -283,7 +283,7 @@ func (mysql MySQL) ProcessPayment(userID, sum int, method, receipt, admin string
 		return fmt.Errorf("cannot increase balance field: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, sum, method, date) VALUES (?,?,?,?,?,?)`,
+	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, method, sum, date) VALUES (?,?,?,?,?,?)`,
 		userID, admin, receipt, method, sum, time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)
