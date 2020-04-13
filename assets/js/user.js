@@ -27,14 +27,14 @@ closePaymentModal.addEventListener("click", () => {
 });
 
 let body = document.querySelector("body");
-body.addEventListener("keyup", event => {
+body.addEventListener("keyup", (event) => {
   if (event.keyCode === 27) {
     let paymentModal = document.querySelector("#paymentModal");
     paymentModal.classList.remove("is-active");
   }
 });
 
-body.addEventListener("keyup", event => {
+body.addEventListener("keyup", (event) => {
   if (event.keyCode === 13) {
     revealPaymentInputs();
   }
@@ -89,6 +89,8 @@ function showPayments(payments) {
     adminTD.append(payment.admin);
     let receiptTD = document.createElement("td");
     receiptTD.append(payment.receipt);
+    let methodTD = document.createElement("td");
+    methodTD.append(payment.method);
     let sumTD = document.createElement("td");
     sumTD.append(payment.sum);
     let dateTD = document.createElement("td");
@@ -96,7 +98,7 @@ function showPayments(payments) {
     const date = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
     dateTD.append(date);
     let tds = [];
-    tds.push(adminTD, receiptTD, dateTD, sumTD);
+    tds.push(adminTD, receiptTD, methodTD, dateTD, sumTD);
     tr.append(...tds);
     document.querySelector("#tbody").append(tr);
   }
@@ -129,10 +131,10 @@ function showOperations(operations) {
 
 function getUser(userID) {
   fetch("/users/" + userID)
-    .then(res => {
+    .then((res) => {
       return res.json();
     })
-    .then(user => {
+    .then((user) => {
       document.querySelector("#name").append(user.name);
       document.querySelector("#agreement").append(user.agreement);
       document.querySelector("#mac").append(user.mac);
@@ -190,6 +192,7 @@ function deposit() {
     body: JSON.stringify({
       id: parseInt(userID),
       receipt: "№" + document.querySelector("#receipt").value + " от " + document.querySelector("#receiptDate").value,
+      method: document.querySelector('input[name="paymentMethod"]:checked').value,
       sum: parseInt(document.querySelector("#paymentSum").value),
     }),
   }).then(() => {
@@ -198,7 +201,7 @@ function deposit() {
 }
 
 function revealPaymentInputs() {
-  body.removeEventListener("keyup", event => {
+  body.removeEventListener("keyup", (event) => {
     if (event.keyCode === 13) {
       revealPaymentInputs();
     }
@@ -209,7 +212,7 @@ function revealPaymentInputs() {
 
   paymentButton.addEventListener("click", deposit);
   let paymentSum = document.querySelector("#paymentSum");
-  paymentSum.addEventListener("keyup", event => {
+  paymentSum.addEventListener("keyup", (event) => {
     if (event.keyCode === 13) {
       deposit();
     }

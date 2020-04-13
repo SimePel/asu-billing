@@ -313,6 +313,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payment struct {
 		UserID  int    `json:"id"`
 		Sum     int    `json:"sum"`
+		Method  string `json:"method"`
 		Receipt string `json:"receipt"`
 		Admin   string `json:"admin"`
 	}
@@ -333,7 +334,7 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err = mysql.ProcessPayment(payment.UserID, payment.Sum, payment.Receipt, payment.Admin)
+	err = mysql.ProcessPayment(payment.UserID, payment.Sum, payment.Method, payment.Receipt, payment.Admin)
 	if err != nil {
 		log.Println(err)
 		return

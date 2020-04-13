@@ -90,6 +90,7 @@ func prepareDB(db *sql.DB) error {
 		user_id bigint(20) unsigned NOT NULL,
 		admin varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		receipt varchar(25) COLLATE utf8_unicode_ci NOT NULL,
+		method varchar(20) COLLATE utf8_unicode_ci NOT NULL,
 		sum smallint(6) NOT NULL,
 		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		PRIMARY KEY (id),
@@ -431,7 +432,7 @@ func TestUpdateUser(t *testing.T) {
 
 func TestProcessPayment(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
-	err := mysql.ProcessPayment(1, 100, "№1112 от 28.09.2019", "rozhkov")
+	err := mysql.ProcessPayment(1, 100, "Касса АГУ", "№1112 от 28.09.2019", "rozhkov")
 	require.NoError(t, err)
 
 	user, err := mysql.GetUserByID(1)
@@ -440,7 +441,7 @@ func TestProcessPayment(t *testing.T) {
 	assert.Equal(t, 200, user.Balance)
 	assert.Equal(t, "№1112 от 28.09.2019", user.Payments[len(user.Payments)-1].Receipt)
 
-	err = mysql.ProcessPayment(100000, 100000, "№1 от 1.1.1", "error")
+	err = mysql.ProcessPayment(100000, 100000, "Касса АГУ", "№1 от 1.1.1", "error")
 	require.Error(t, err)
 	// Еще протестить, что создалась запись в табличке payments
 }
@@ -466,10 +467,10 @@ func TestGetPaymentsByID(t *testing.T) {
 	require.NoError(t, err)
 	user.ID = uint(id)
 
-	err = mysql.ProcessPayment(id, 200, "№6661 от 27.09.2019", "rozhkov")
+	err = mysql.ProcessPayment(id, 200, "Сбербанк Онлайн", "№6661 от 27.09.2019", "rozhkov")
 	require.NoError(t, err)
 
-	err = mysql.ProcessPayment(id, 100, "№6662 от 27.09.2019", "rozhkov")
+	err = mysql.ProcessPayment(id, 100, "Касса АГУ", "№6662 от 27.09.2019", "rozhkov")
 	require.NoError(t, err)
 
 	actualPayments, err := mysql.GetPaymentsByID(id)
@@ -477,9 +478,11 @@ func TestGetPaymentsByID(t *testing.T) {
 
 	assert.Equal(t, 2, len(actualPayments))
 	assert.Equal(t, 200, actualPayments[0].Sum)
+	assert.Equal(t, "Сбербанк Онлайн", actualPayments[0].Method)
 	assert.Equal(t, "№6661 от 27.09.2019", actualPayments[0].Receipt)
 	assert.Equal(t, "rozhkov", actualPayments[0].Admin)
 	assert.Equal(t, 100, actualPayments[1].Sum)
+	assert.Equal(t, "Касса АГУ", actualPayments[1].Method)
 	assert.Equal(t, "№6662 от 27.09.2019", actualPayments[1].Receipt)
 	assert.Equal(t, "rozhkov", actualPayments[1].Admin)
 }

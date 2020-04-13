@@ -36,6 +36,7 @@ type Payment struct {
 	Sum     int       `json:"sum"`
 	Date    time.Time `json:"date"`
 	Receipt string    `json:"receipt"`
+	Method  string    `json:"method"`
 	Admin   string    `json:"admin"`
 }
 
@@ -276,13 +277,13 @@ func (mysql MySQL) UpdateUser(user User) error {
 }
 
 // ProcessPayment updates balance and insert record into payments table
-func (mysql MySQL) ProcessPayment(userID, sum int, receipt, admin string) error {
+func (mysql MySQL) ProcessPayment(userID, sum int, method, receipt, admin string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET balance=balance+? WHERE id=?`, sum, userID)
 	if err != nil {
 		return fmt.Errorf("cannot increase balance field: %v", err)
 	}
 
-	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, sum, date) VALUES (?,?,?,?,?)`,
+	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, sum, method, date) VALUES (?,?,?,?,?,?)`,
 		userID, admin, receipt, sum, time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)

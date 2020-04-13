@@ -97,6 +97,17 @@
                         maxlength="4"
                       />
                     </div>
+                    <div class="control">
+                      Способ оплаты:
+                      <label class="radio">
+                        <input type="radio" name="paymentMethod" value="Касса АГУ" checked />
+                        Касса АГУ
+                      </label>
+                      <label class="radio">
+                        <input type="radio" name="paymentMethod" value="Сбербанк Онлайн" />
+                        Сбербанк Онлайн
+                      </label>
+                    </div>
                   </section>
                   <footer class="modal-card-foot">
                     <button id="paymentButton" class="button is-success">
@@ -134,7 +145,7 @@
             </div>
           </div>
         </div>
-        <div class="column is-4">
+        <div class="column is-5">
           <h4>Платежи</h4>
           <div class="table-container">
             <table class="table is-hoverable is-fullwidth">
@@ -142,6 +153,7 @@
                 <tr>
                   <th>Внес</th>
                   <th>Квитанция</th>
+                  <th>Способ оплаты</th>
                   <th>Дата</th>
                   <th>Сумма</th>
                 </tr>
