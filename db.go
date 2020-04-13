@@ -284,7 +284,7 @@ func (mysql MySQL) ProcessPayment(userID, sum int, method, receipt, admin string
 	}
 
 	_, err = mysql.db.Exec(`INSERT INTO payments (user_id, admin, receipt, sum, method, date) VALUES (?,?,?,?,?,?)`,
-		userID, admin, receipt, sum, time.Now())
+		userID, admin, receipt, method, sum, time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot insert record about payment: %v", err)
 	}
