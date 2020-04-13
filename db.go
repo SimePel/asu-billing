@@ -161,7 +161,7 @@ func (mysql MySQL) GetUserIDbyLogin(login string) (uint, error) {
 
 // GetPaymentsByID returns info about user payments
 func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
-	rows, err := mysql.db.Query(`SELECT admin, receipt, sum, date FROM payments WHERE user_id= ?`, userID)
+	rows, err := mysql.db.Query(`SELECT admin, receipt, method, sum, date FROM payments WHERE user_id= ?`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get payments by id: %v", err)
 	}
@@ -169,7 +169,7 @@ func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
 	var payment Payment
 	payments := make([]Payment, 0)
 	for rows.Next() {
-		err := rows.Scan(&payment.Admin, &payment.Receipt, &payment.Sum, &payment.Date)
+		err := rows.Scan(&payment.Admin, &payment.Receipt, &payment.Method, &payment.Sum, &payment.Date)
 		if err != nil {
 			return nil, fmt.Errorf("cannot scan from row: %v", err)
 		}

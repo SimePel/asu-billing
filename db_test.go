@@ -150,7 +150,7 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`INSERT INTO payments (id, admin, receipt, user_id, sum, date) VALUES (1, 'rozhkov', '№1111 от 27.09.2019' , 1, 200, '2019-06-07 07:32:50');`)
+	_, err = db.Exec(`INSERT INTO payments (id, admin, receipt, method, user_id, sum, date) VALUES (1, 'rozhkov', '№1111 от 27.09.2019' , 'Касса АГУ', 1, 200, '2019-06-07 07:32:50');`)
 	if err != nil {
 		return err
 	}
@@ -294,6 +294,7 @@ func TestGetUserByID(t *testing.T) {
 			Payment{
 				Admin:   "rozhkov",
 				Receipt: "№1111 от 27.09.2019",
+				Method:  "Касса АГУ",
 				Sum:     200,
 				Date:    time.Date(2019, time.June, 7, 7, 32, 50, 0, time.UTC),
 			},
