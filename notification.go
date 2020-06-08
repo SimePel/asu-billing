@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"time"
 )
@@ -87,23 +88,45 @@ func sendSMS(phone, message string) error {
 		return nil
 	}
 
-	user := os.Getenv("BEELINE_USER")
-	password := os.Getenv("BEELINE_PASS")
-
-	resp, err := http.PostForm("https://beeline.amega-inform.ru/sms_send/", url.Values{
-		"user": {user}, "pass": {password}, "action": {"post_sms"},
-		"message": {message}, "target": {phone}, "sender": {"asu"},
-	})
-	if err != nil {
-		return fmt.Errorf("cannot do post request: %v", err)
+	L := struct {
+		GroupIDs []int  `json:"group_ids"`
+		Message  string `json:"message"`
+		Phones   string `json:"phones"`
+	}{
+		GroupIDs: []int{},
+		Message:  message,
+		Phones:   phone,
 	}
 
-	defer resp.Body.Close()
+	b, err := json.Marshal(&L)
+	if err != nil {
+		return fmt.Errorf("cannot marshal json: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://sms-gate.asu.ru/send-sms", bytes.NewReader(b))
+	if err != nil {
+		return fmt.Errorf("cannot make post request: %v", err)
+	}
+
+	c := &http.Cookie{
+		Name:     "jwt",
+		Value:    os.Getenv("JWT_FOR_SMS_GATE"),
+		HttpOnly: true,
+		Expires:  time.Now().AddDate(0, 0, 1),
+	}
+	req.AddCookie(c)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("cannot send request: %v", err)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("cannot read from body: %v", err)
+		return fmt.Errorf("cannot read response body: %v", err)
 	}
 
-	log.Println(string(body))
+	log.Println(string(body)) // В будующем тут будет лежать статус сообщения
 	return nil
 }
