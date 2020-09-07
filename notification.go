@@ -122,11 +122,11 @@ func sendSMS(phone, message string) error {
 		return fmt.Errorf("cannot send request: %v", err)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	_, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %v", err)
 	}
 
-	log.Println(string(body)) // В будующем тут будет лежать статус сообщения
+	// log.Println(string(body)) // В будующем тут будет лежать статус сообщения
 	return nil
 }
