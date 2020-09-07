@@ -539,7 +539,7 @@ func TestPayForNextMonth(t *testing.T) {
 		100,
 	}
 
-	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04"), actualUser.ExpiredDate.Format("2016.01.2 15:04"))
+	assert.Equal(t, expected.ExpiredDate.Format("2016.01.2 15:04"), actualUser.ExpiredDate.Add(7*time.Hour).Format("2016.01.2 15:04"))
 	assert.Equal(t, expected.Paid, actualUser.Paid)
 	assert.Equal(t, expected.Balance, actualUser.Balance)
 }
