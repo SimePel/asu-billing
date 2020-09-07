@@ -103,7 +103,7 @@ func sendSMS(phone, message string) error {
 		return fmt.Errorf("cannot marshal json: %v", err)
 	}
 
-	req, err := http.NewRequest("POST", "https://sms-gate.asu.ru/send-sms", bytes.NewReader(b))
+	req, err := http.NewRequest("POST", "https://sms-gate.asu.ru/v1/send-sms", bytes.NewReader(b))
 	if err != nil {
 		return fmt.Errorf("cannot make post request: %v", err)
 	}
