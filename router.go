@@ -195,18 +195,20 @@ func addUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	room := strings.TrimSpace(r.FormValue("room"))
 	comment := strings.TrimSpace(r.FormValue("comment"))
 	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
+	agreementConclusionDate, _ := time.Parse("2006-01-02", r.FormValue("agreementConclusionDate"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
 	user := User{
-		Name:            name,
-		IsEmployee:      isEmployee,
-		Agreement:       agreement,
-		Login:           login,
-		Tariff:          Tariff{ID: tariff},
-		Phone:           phone,
-		Room:            room,
-		Comment:         comment,
-		ConnectionPlace: connectionPlace,
+		Name:                    name,
+		IsEmployee:              isEmployee,
+		Agreement:               agreement,
+		Login:                   login,
+		Tariff:                  Tariff{ID: tariff},
+		Phone:                   phone,
+		Room:                    room,
+		Comment:                 comment,
+		ConnectionPlace:         connectionPlace,
+		AgreementConclusionDate: agreementConclusionDate,
 	}
 
 	mysql := MySQL{db: initializeDB()}
@@ -239,21 +241,23 @@ func editUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	comment := strings.TrimSpace(r.FormValue("comment"))
 	connectionPlace := strings.TrimSpace(r.FormValue("connectionPlace"))
 	expiredDate, _ := time.Parse("2006-01-02", r.FormValue("expiredDate"))
+	agreementConclusionDate, _ := time.Parse("2006-01-02", r.FormValue("agreementConclusionDate"))
 	tariff, _ := strconv.Atoi(r.FormValue("tariff"))
 
 	user := User{
-		ID:              uint(id),
-		Name:            name,
-		Agreement:       agreement,
-		IsEmployee:      isEmployee,
-		Mac:             mac,
-		Login:           login,
-		Tariff:          Tariff{ID: tariff},
-		Phone:           phone,
-		Room:            room,
-		Comment:         comment,
-		ConnectionPlace: connectionPlace,
-		ExpiredDate:     expiredDate,
+		ID:                      uint(id),
+		Name:                    name,
+		Agreement:               agreement,
+		IsEmployee:              isEmployee,
+		Mac:                     mac,
+		Login:                   login,
+		Tariff:                  Tariff{ID: tariff},
+		Phone:                   phone,
+		Room:                    room,
+		Comment:                 comment,
+		ConnectionPlace:         connectionPlace,
+		ExpiredDate:             expiredDate,
+		AgreementConclusionDate: agreementConclusionDate,
 	}
 
 	mysql := MySQL{db: initializeDB()}

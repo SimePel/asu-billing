@@ -30,6 +30,7 @@ func prepareDB(db *sql.DB) error {
 		is_archived tinyint(1) NOT NULL DEFAULT '0',
 		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',
+		agreement_conclusion_date datetime NOT NULL,
 		tariff int(10) unsigned NOT NULL,
 		ip_id int(10) unsigned NOT NULL,
 		ext_ip varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -142,10 +143,10 @@ func prepareDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, mac, login,
-		connection_place, phone, room, comment, is_archived, paid, activity, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
+		connection_place, phone, room, comment, is_archived, paid, activity, agreement_conclusion_date, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
 		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', '00:0e:c6:58:fd:b4', 'blabla.123', '', '88005553550', '', 'игрок', 0, 1, 1, 
-		1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', '00:0e:c6:60:fa:f1', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, 1, 2, '82.200.46.10');`)
+		'2019-06-11 00:00:00', 1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
+		'0000-00-00 00:00:00', '00:0e:c6:60:fa:f1', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, '2019-08-12 00:00:00', 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
@@ -277,19 +278,20 @@ func TestGetAllUsers(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	expectedUser := User{
-		ID:          1,
-		Paid:        true,
-		Activity:    true,
-		Name:        "Тестовый Тест Тестович",
-		Agreement:   "П-001",
-		Phone:       "88005553550",
-		Comment:     "игрок",
-		Mac:         "00:0e:c6:58:fd:b4",
-		Login:       "blabla.123",
-		InnerIP:     "10.1.108.1",
-		ExtIP:       "82.200.46.10",
-		Balance:     100,
-		ExpiredDate: time.Date(2019, time.June, 27, 4, 25, 26, 0, time.UTC),
+		ID:                      1,
+		Paid:                    true,
+		Activity:                true,
+		Name:                    "Тестовый Тест Тестович",
+		Agreement:               "П-001",
+		Phone:                   "88005553550",
+		Comment:                 "игрок",
+		Mac:                     "00:0e:c6:58:fd:b4",
+		Login:                   "blabla.123",
+		InnerIP:                 "10.1.108.1",
+		ExtIP:                   "82.200.46.10",
+		Balance:                 100,
+		ExpiredDate:             time.Date(2019, time.June, 27, 4, 25, 26, 0, time.UTC),
+		AgreementConclusionDate: time.Date(2019, time.June, 11, 0, 0, 0, 0, time.UTC),
 		Payments: []Payment{
 			Payment{
 				Admin:   "rozhkov",
@@ -333,13 +335,14 @@ func TestGetUserIDbyLogin(t *testing.T) {
 
 func TestAddUser(t *testing.T) {
 	expectedUser := User{
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович3",
-		Agreement: "П-003",
-		Phone:     "88005553553",
-		Comment:   "Серьезный",
-		Login:     "baloga.154",
-		ExtIP:     "82.200.46.10",
+		Paid:                    false,
+		Name:                    "Тестовый Тест Тестович3",
+		Agreement:               "П-003",
+		Phone:                   "88005553553",
+		Comment:                 "Серьезный",
+		Login:                   "baloga.154",
+		ExtIP:                   "82.200.46.10",
+		AgreementConclusionDate: time.Date(2019, time.June, 11, 0, 0, 0, 0, time.UTC),
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
@@ -361,6 +364,7 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, expectedUser.Room, actualUser.Room)
 	assert.Equal(t, expectedUser.Comment, actualUser.Comment)
 	assert.Equal(t, expectedUser.ConnectionPlace, actualUser.ConnectionPlace)
+	assert.Equal(t, expectedUser.AgreementConclusionDate, actualUser.AgreementConclusionDate)
 	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
 }
 
@@ -422,6 +426,7 @@ func TestUpdateUser(t *testing.T) {
 	user.Phone = "89993334455"
 	user.ConnectionPlace = "рандом"
 	user.Comment = "обновился"
+	user.AgreementConclusionDate = time.Date(2019, time.June, 12, 0, 0, 0, 0, time.UTC)
 
 	err = mysql.UpdateUser(user)
 	require.NoError(t, err)

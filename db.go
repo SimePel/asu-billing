@@ -73,11 +73,12 @@ type User struct {
 	Operations []Operation `json:"operations,omitempty"`
 	Agreement  string      `json:"agreement"`
 	// separate for a more beautiful view
-	IsDeactivated   bool      `json:"is_deactivated"`
-	IsEmployee      bool      `json:"is_employee"`
-	IsArchived      bool      `json:"is_archived"`
-	ExpiredDate     time.Time `json:"expired_date"`
-	ConnectionPlace string    `json:"connection_place"`
+	IsDeactivated           bool      `json:"is_deactivated"`
+	IsEmployee              bool      `json:"is_employee"`
+	IsArchived              bool      `json:"is_archived"`
+	ExpiredDate             time.Time `json:"expired_date"`
+	AgreementConclusionDate time.Time `json:"agreement_conclusion_date"`
+	ConnectionPlace         string    `json:"connection_place"`
 }
 
 func (u User) hasEnoughMoneyForPayment() bool {
@@ -121,14 +122,14 @@ func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
 	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, mac, login, agreement, expired_date,
 		connection_place, activity, paid, room, comment, is_deactivated, is_employee, is_archived, phone,
-	 	tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
+		agreement_conclusion_date, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip  
 	FROM (( users
 		INNER JOIN ips ON users.ip_id = ips.id)
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
 	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Mac, &user.Login, &user.Agreement,
 		&user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Paid, &user.Room, &user.Comment,
-		&user.IsDeactivated, &user.IsEmployee, &user.IsArchived, &user.Phone, &user.Tariff.ID, &user.Tariff.Name,
-		&user.Tariff.Price, &user.InnerIP, &user.ExtIP)
+		&user.IsDeactivated, &user.IsEmployee, &user.IsArchived, &user.Phone, &user.AgreementConclusionDate,
+		&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
 	}
@@ -214,9 +215,9 @@ func (mysql MySQL) AddUser(user User) (int, error) {
 	}
 
 	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, is_employee, room, comment, mac, login, phone,
-		ext_ip, ip_id, tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		ext_ip, ip_id, agreement_conclusion_date, tariff, agreement, connection_place, expired_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		user.Balance, user.Paid, user.Name, user.IsEmployee, user.Room, user.Comment, user.Mac, user.Login, user.Phone,
-		"82.200.46.10", innerIPid, user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
+		"82.200.46.10", innerIPid, user.AgreementConclusionDate, user.Tariff.ID, user.Agreement, user.ConnectionPlace, user.ExpiredDate)
 	if err != nil {
 		return 0, fmt.Errorf("cannot insert values in db: %v", err)
 	}
@@ -266,9 +267,9 @@ func (mysql MySQL) ResetFreePaymentForOneYear(id int) error {
 
 func (mysql MySQL) UpdateUser(user User) error {
 	_, err := mysql.db.Exec(`UPDATE users SET name=?, agreement=?, is_employee=?, mac=?, login=?, tariff=?, phone=?,
-			room=?, comment=?, connection_place=?, expired_date=? WHERE id=?`,
+			room=?, comment=?, connection_place=?, agreement_conclusion_date=?, expired_date=? WHERE id=?`,
 		user.Name, user.Agreement, user.IsEmployee, user.Mac, user.Login, user.Tariff.ID, user.Phone, user.Room,
-		user.Comment, user.ConnectionPlace, user.ExpiredDate, user.ID)
+		user.Comment, user.ConnectionPlace, user.AgreementConclusionDate, user.ExpiredDate, user.ID)
 	if err != nil {
 		return fmt.Errorf("cannot update user fields: %v", err)
 	}

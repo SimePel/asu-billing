@@ -192,15 +192,16 @@ func TestLoginPostHandler(t *testing.T) {
 
 func TestAddUserPostHandler(t *testing.T) {
 	expected := struct {
-		Name            string
-		IsEmployee      string
-		Agreement       string
-		Login           string
-		Phone           string
-		Room            string
-		Comment         string
-		Tariff          int
-		ConnectionPlace string
+		Name                    string
+		IsEmployee              string
+		Agreement               string
+		Login                   string
+		Phone                   string
+		Room                    string
+		Comment                 string
+		Tariff                  int
+		ConnectionPlace         string
+		AgreementConclusionDate time.Time
 	}{
 		"Tестовый Тест Тестович4",
 		"false",
@@ -211,6 +212,7 @@ func TestAddUserPostHandler(t *testing.T) {
 		"Важный пользователь",
 		1,
 		"",
+		time.Date(2019, time.June, 4, 0, 0, 0, 0, time.UTC),
 	}
 
 	formValues := url.Values{}
@@ -221,8 +223,9 @@ func TestAddUserPostHandler(t *testing.T) {
 	formValues.Add("phone", expected.Phone)
 	formValues.Add("room", expected.Room)
 	formValues.Add("comment", expected.Comment)
-	formValues.Add("connectionPlace", expected.ConnectionPlace)
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
+	formValues.Add("connectionPlace", expected.ConnectionPlace)
+	formValues.Add("agreementConclusionDate", expected.AgreementConclusionDate.Format("2006-01-02"))
 
 	require.HTTPRedirect(t, addUserPostHandler, "POST", "/add-user", formValues)
 
@@ -240,8 +243,9 @@ func TestAddUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Phone, user.Phone)
 	assert.Equal(t, expected.Room, user.Room)
 	assert.Equal(t, expected.Comment, user.Comment)
-	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
 	assert.Equal(t, expected.Tariff, user.Tariff.ID)
+	assert.Equal(t, expected.ConnectionPlace, user.ConnectionPlace)
+	assert.Equal(t, expected.AgreementConclusionDate, user.AgreementConclusionDate)
 }
 
 func TestAddEmployeeUserPostHandler(t *testing.T) {
@@ -314,15 +318,16 @@ func TestEditUserPostHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	expected := struct {
-		Name            string
-		Agreement       string
-		Login           string
-		Phone           string
-		Room            string
-		Comment         string
-		ConnectionPlace string
-		ExpiredDate     time.Time
-		Tariff          int
+		Name                    string
+		Agreement               string
+		Login                   string
+		Phone                   string
+		Room                    string
+		Comment                 string
+		ConnectionPlace         string
+		ExpiredDate             time.Time
+		AgreementConclusionDate time.Time
+		Tariff                  int
 	}{
 		"Tестовый Тест Тестович128",
 		"П-128",
@@ -332,6 +337,7 @@ func TestEditUserPostHandler(t *testing.T) {
 		"улетел",
 		"рандом",
 		time.Now().AddDate(0, 1, 0),
+		time.Date(2019, time.June, 28, 0, 0, 0, 0, time.UTC),
 		1,
 	}
 
@@ -346,6 +352,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	formValues.Add("tariff", strconv.Itoa(expected.Tariff))
 	formValues.Add("connectionPlace", expected.ConnectionPlace)
 	formValues.Add("expiredDate", expected.ExpiredDate.Format("2006-01-02"))
+	formValues.Add("agreementConclusionDate", expected.AgreementConclusionDate.Format("2006-01-02"))
 
 	require.HTTPRedirect(t, editUserPostHandler, "POST", "/edit-user", formValues)
 
@@ -361,6 +368,7 @@ func TestEditUserPostHandler(t *testing.T) {
 	assert.Equal(t, expected.Tariff, updatedUser.Tariff.ID)
 	assert.Equal(t, expected.ConnectionPlace, updatedUser.ConnectionPlace)
 	assert.Equal(t, expected.ExpiredDate.Format("2006-01-02"), updatedUser.ExpiredDate.Format("2006-01-02"))
+	assert.Equal(t, expected.AgreementConclusionDate.Format("2006-01-02"), updatedUser.AgreementConclusionDate.Format("2006-01-02"))
 }
 
 func TestNotEmployeeUserBecomeEmployeeEditPostHandler(t *testing.T) {

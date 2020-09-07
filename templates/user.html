@@ -50,13 +50,12 @@
             <li>Комната: <span id="room"></span></li>
             <li>Точка подключения: <span id="connectionPlace"></span></li>
             <li>Комментарий: <span id="comment"></span></li>
+            <li>Дата заключения договора: <span id="agreementConclusionDate"></span></li>
             <li>Дата следующей оплаты: <span id="expiredDate"></span></li>
             <li>
               Остаток на счету: <span id="balance"></span>
               <span class="control">
-                <button id="revealButton" class="button is-warning">
-                  Пополнить
-                </button>
+                <button id="revealButton" class="button is-warning">Пополнить</button>
               </span>
               <div id="paymentModal" class="modal">
                 <div class="modal-background"></div>
@@ -68,7 +67,7 @@
                   <section class="modal-card-body">
                     <div class="control">
                       № квитанции:<input
-                        style="width: 5.6rem;"
+                        style="width: 5.6rem"
                         id="receipt"
                         class="input"
                         type="text"
@@ -78,7 +77,7 @@
                     </div>
                     <div class="control">
                       Дата квитанции:<input
-                        style="width: 6.5rem;"
+                        style="width: 6.5rem"
                         id="receiptDate"
                         class="input"
                         type="text"
@@ -89,7 +88,7 @@
                     </div>
                     <div class="control">
                       Сумма:<input
-                        style="width: 4.7rem;"
+                        style="width: 4.7rem"
                         id="paymentSum"
                         class="input"
                         type="text"
@@ -110,9 +109,7 @@
                     </div>
                   </section>
                   <footer class="modal-card-foot">
-                    <button id="paymentButton" class="button is-success">
-                      Пополнить
-                    </button>
+                    <button id="paymentButton" class="button is-success">Пополнить</button>
                   </footer>
                 </div>
               </div>
