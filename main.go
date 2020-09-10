@@ -58,7 +58,14 @@ func archiveOldUsers() {
 
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	for _, user := range users {
-		if len(user.Payments) <= 0 || user.IsEmployee {
+		payments, err := mysql.GetPaymentsByID(int(user.ID))
+		if err != nil {
+			log.Printf("cannot get payments with id=%v: %v", int(user.ID), err)
+			continue
+		}
+		user.Payments = payments
+
+		if len(user.Payments) <= 0 || user.Paid || user.IsEmployee {
 			continue
 		}
 
