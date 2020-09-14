@@ -26,19 +26,19 @@ div > .container > table {
   text-align: center;
 }
 
-.table td[data-table-tag="name"],
-.table th[data-table-tag="name"] {
+.table td[data-table-tag='name'],
+.table th[data-table-tag='name'] {
   text-align: left;
 }
 
-.table tr[data-is-sending="true"]::before {
-  content: "📨";
+.table tr[data-is-sending='true']::before {
+  content: '📨';
   vertical-align: middle;
   vertical-align: -moz-middle-with-baseline;
 }
 
-.table tr[data-is-sending="false"]::before {
-  content: "";
+.table tr[data-is-sending='false']::before {
+  content: '';
   vertical-align: middle;
   vertical-align: -moz-middle-with-baseline;
 }
@@ -203,7 +203,7 @@ div.column > form > div > input {
   width: 16rem;
 }
 
-div.column > form > div > input[type="radio"] {
+div.column > form > div > input[type='radio'] {
   width: 2rem;
   vertical-align: middle;
 }
@@ -284,4 +284,9 @@ th > img {
 
 .modal-card {
   width: 500px;
+}
+
+#esocketsInfo {
+  font-size: 1.3rem;
+  margin-left: 0.5rem;
 }

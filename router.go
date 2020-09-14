@@ -27,6 +27,8 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Post("/send-mass-sms", sendMassSMSPostHandler)
 	r.With(checkJWTtoken).Post("/income-for-period", getIncomeForPeriodHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
+	r.With(checkJWTtoken).With(jsonContentType).Post("/check-vacant-esockets", areThereSocketInTheRoomHandler)
+	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
 
 	r.With(checkJWTtoken).Get("/", indexHandler)
 	r.With(checkJWTtoken).Get("/logout", logoutHandler)
@@ -35,7 +37,6 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Get("/user", userHandler)
 	r.With(checkJWTtoken).Get("/notification-status", notificationStatusHandler)
 	r.With(checkJWTtoken).Get("/send-mass-sms", sendMassSMSHandler)
-	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/stats", getStatsAboutUsers)
 	r.With(checkJWTtoken).With(jsonContentType).Get("/next-agreement", getNextAgreementHandler)
 
@@ -353,6 +354,43 @@ func paymentPostHandler(w http.ResponseWriter, r *http.Request) {
 	if !user.Paid {
 		tryToRenewPayment(mysql, int(user.ID))
 	}
+}
+
+func areThereSocketInTheRoomHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var j struct {
+		Room string `json:"room"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&j)
+	if err != nil {
+		log.Printf("cannot decode json: %v", err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	mysql := MySQL{db: initializeDB()}
+	roomID, err := mysql.getRoomIDByName(j.Room)
+	if err != nil {
+		log.Printf("cannot get room id by name - %v: %v", j.Room, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	var es int
+	err = mysql.db.QueryRow(`SELECT vacant_esockets FROM rooms WHERE id=?`, roomID).Scan(&es)
+	if err != nil {
+		log.Printf("cannot get vacant_esockets from room with id - %v: %v", roomID, err)
+		http.Error(w, "Что-то пошло не так", http.StatusInternalServerError)
+		return
+	}
+
+	J := struct {
+		Answer bool `json:"answer"`
+	}{
+		Answer: es > 0,
+	}
+	json.NewEncoder(w).Encode(&J)
 }
 
 func getStatsAboutUsers(w http.ResponseWriter, r *http.Request) {
