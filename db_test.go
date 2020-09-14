@@ -23,7 +23,6 @@ func prepareDB(db *sql.DB) error {
 		login varchar(45) COLLATE utf8_unicode_ci NOT NULL,
 		connection_place varchar(17) COLLATE utf8_unicode_ci NOT NULL,
 		phone varchar(12) COLLATE utf8_unicode_ci NOT NULL,
-		room varchar(14) COLLATE utf8_unicode_ci NOT NULL,
 		comment varchar(50) COLLATE utf8_unicode_ci NOT NULL,
 		is_deactivated tinyint(1) NOT NULL DEFAULT '0',
 		is_employee tinyint(1) NOT NULL DEFAULT '0',
@@ -31,6 +30,7 @@ func prepareDB(db *sql.DB) error {
 		paid tinyint(1) NOT NULL DEFAULT '0',
 		activity tinyint(1) NOT NULL DEFAULT '0',
 		agreement_conclusion_date datetime NOT NULL,
+		room_id int(10) unsigned NOT NULL,
 		tariff int(10) unsigned NOT NULL,
 		ip_id int(10) unsigned NOT NULL,
 		ext_ip varchar(15) COLLATE utf8_unicode_ci NOT NULL,
@@ -53,7 +53,7 @@ func prepareDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`ALTER TABLE users
-		ADD FOREIGN KEY (ip_id) REFERENCES ips(id);`)
+		ADD FOREIGN KEY (ip_id) REFERENCES ips(id) ON DELETE RESTRICT ON UPDATE CASCADE;`)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,23 @@ func prepareDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`ALTER TABLE users
-		ADD FOREIGN KEY (tariff) REFERENCES tariffs(id);`)
+		ADD FOREIGN KEY (tariff) REFERENCES tariffs(id) ON DELETE RESTRICT ON UPDATE CASCADE;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS rooms (
+		id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+		name varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+		vacant_esockets int(10) NOT NULL DEFAULT '0',
+		PRIMARY KEY (id)
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users
+		ADD FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE RESTRICT ON UPDATE CASCADE;`)
 	if err != nil {
 		return err
 	}
@@ -77,10 +93,11 @@ func prepareDB(db *sql.DB) error {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS operations (
 		id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 		user_id bigint(20) UNSIGNED NOT NULL,
+		admin varchar(10) COLLATE utf8_unicode_ci NOT NULL,
 		type enum('deactivate','activate') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'deactivate',
 		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (id),
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
 	if err != nil {
 		return err
@@ -95,7 +112,7 @@ func prepareDB(db *sql.DB) error {
 		sum smallint(6) NOT NULL,
 		date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		PRIMARY KEY (id),
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;`)
 	if err != nil {
 		return err
@@ -142,11 +159,16 @@ func prepareDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`INSERT INTO rooms (id, name, vacant_esockets) VALUES (1, 'В 53Б', 0), (2, 'А 126М', 1);`)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`INSERT INTO users (id, name, balance, agreement, create_date, expired_date, mac, login,
-		connection_place, phone, room, comment, is_archived, paid, activity, agreement_conclusion_date, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
-		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', '00:0e:c6:58:fd:b4', 'blabla.123', '', '88005553550', '', 'игрок', 0, 1, 1, 
-		'2019-06-11 00:00:00', 1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
-		'0000-00-00 00:00:00', '00:0e:c6:60:fa:f1', 'bla.124', '', '', '501c', 'комментарий', 0, 0, 0, '2019-08-12 00:00:00', 1, 2, '82.200.46.10');`)
+		connection_place, phone, comment, is_archived, paid, activity, agreement_conclusion_date, room_id, tariff, ip_id, ext_ip) VALUES (1, 'Тестовый Тест Тестович',
+		100, 'П-001', '2019-06-11 05:49:05', '2019-06-27 04:25:26', '00:0e:c6:58:fd:b4', 'blabla.123', '', '88005553550', 'игрок', 0, 1, 1, 
+		'2019-06-11 00:00:00', 1, 1, 1, '82.200.46.10'), (2, 'Тестовый Тест Тестович2', 300, 'П-002', '2019-08-12 07:46:35',
+		'0000-00-00 00:00:00', '00:0e:c6:60:fa:f1', 'bla.124', '', '', 'комментарий', 0, 0, 0, '2019-08-12 00:00:00', 2, 1, 2, '82.200.46.10');`)
 	if err != nil {
 		return err
 	}
@@ -171,6 +193,11 @@ func clearDB(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(`TRUNCATE TABLE tariffs;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`TRUNCATE TABLE rooms;`)
 	if err != nil {
 		return err
 	}
@@ -239,6 +266,7 @@ func TestGetAllUsers(t *testing.T) {
 			Name:        "Тестовый Тест Тестович",
 			Agreement:   "П-001",
 			Phone:       "88005553550",
+			Room:        "В 53Б",
 			Comment:     "игрок",
 			Mac:         "00:0e:c6:58:fd:b4",
 			Login:       "blabla.123",
@@ -256,7 +284,7 @@ func TestGetAllUsers(t *testing.T) {
 			Paid:      false,
 			Name:      "Тестовый Тест Тестович2",
 			Agreement: "П-002",
-			Room:      "501c",
+			Room:      "А 126М",
 			Comment:   "комментарий",
 			Mac:       "00:0e:c6:60:fa:f1",
 			Login:     "bla.124",
@@ -284,6 +312,7 @@ func TestGetUserByID(t *testing.T) {
 		Name:                    "Тестовый Тест Тестович",
 		Agreement:               "П-001",
 		Phone:                   "88005553550",
+		Room:                    "В 53Б",
 		Comment:                 "игрок",
 		Mac:                     "00:0e:c6:58:fd:b4",
 		Login:                   "blabla.123",
@@ -339,6 +368,7 @@ func TestAddUser(t *testing.T) {
 		Name:                    "Тестовый Тест Тестович3",
 		Agreement:               "П-003",
 		Phone:                   "88005553553",
+		Room:                    "В 53Б",
 		Comment:                 "Серьезный",
 		Login:                   "baloga.154",
 		ExtIP:                   "82.200.46.10",
@@ -366,6 +396,18 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, expectedUser.ConnectionPlace, actualUser.ConnectionPlace)
 	assert.Equal(t, expectedUser.AgreementConclusionDate, actualUser.AgreementConclusionDate)
 	assert.Equal(t, expectedUser.Tariff.ID, actualUser.Tariff.ID)
+}
+
+func TestGetRoomIDByName(t *testing.T) {
+	mysql := MySQL{db: openTestDBconnection()}
+	expectedID := 1
+	actualID, err := mysql.getRoomIDByName("В 53Б")
+	require.NoError(t, err)
+	assert.Equal(t, expectedID, actualID)
+
+	newID, err := mysql.getRoomIDByName("Несуществующая")
+	require.NoError(t, err)
+	assert.NotZero(t, newID)
 }
 
 func TestFreePaymentForOneYear(t *testing.T) {
@@ -424,6 +466,7 @@ func TestUpdateUser(t *testing.T) {
 	require.NoError(t, err)
 
 	user.Phone = "89993334455"
+	user.Room = "А 75Я1"
 	user.ConnectionPlace = "рандом"
 	user.Comment = "обновился"
 	user.AgreementConclusionDate = time.Date(2019, time.June, 12, 0, 0, 0, 0, time.UTC)
