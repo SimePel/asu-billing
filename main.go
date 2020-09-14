@@ -65,7 +65,7 @@ func archiveOldUsers() {
 		}
 		user.Payments = payments
 
-		if len(user.Payments) <= 0 || user.Paid || user.IsEmployee {
+		if user.IsArchived || len(user.Payments) <= 0 || user.Paid || user.IsEmployee {
 			continue
 		}
 
