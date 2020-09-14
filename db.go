@@ -221,6 +221,11 @@ func (mysql MySQL) AddUser(user User) (int, error) {
 		return 0, fmt.Errorf("cannot get room id: %v", err)
 	}
 
+	_, err = mysql.db.Exec(`UPDATE rooms SET vacant_esockets=vacant_esockets-1 WHERE id = ? AND vacant_esockets > 0`, roomID)
+	if err != nil {
+		return 0, fmt.Errorf("cannot decrease vacant ethernet sockets in the room - %v: %v", user.Room, err)
+	}
+
 	res, err := mysql.db.Exec(`INSERT INTO users (balance, paid, name, is_employee, comment, mac, login, phone, room_id,
 		ext_ip, ip_id, agreement_conclusion_date, tariff, agreement, connection_place, expired_date)
 		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, user.Balance, user.Paid, user.Name, user.IsEmployee, user.Comment,
@@ -383,6 +388,12 @@ func (mysql MySQL) ArchiveUserByID(id int) error {
 		return fmt.Errorf("cannot archive user: %v", err)
 	}
 
+	_, err = mysql.db.Exec(`UPDATE rooms INNER JOIN users ON rooms.id = users.room_id
+		SET vacant_esockets=vacant_esockets+1 WHERE users.id = ? AND connection_place != ''`, id)
+	if err != nil {
+		return fmt.Errorf("cannot restore vacant ethernet socket: %v", err)
+	}
+
 	return nil
 }
 
@@ -390,6 +401,12 @@ func (mysql MySQL) RestoreUserByID(id int) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_archived=0 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot restore user: %v", err)
+	}
+
+	_, err = mysql.db.Exec(`UPDATE rooms INNER JOIN users ON rooms.id = users.room_id
+		SET vacant_esockets=vacant_esockets-1 WHERE users.id = ? AND connection_place != '' AND vacant_esockets > 0`, id)
+	if err != nil {
+		return fmt.Errorf("cannot decrease vacant ethernet socket: %v", err)
 	}
 
 	return nil

@@ -659,15 +659,18 @@ func TestDeactivateUserByID(t *testing.T) {
 	assert.Equal(t, true, deactivatedUser.IsDeactivated)
 }
 
+// Проверить как меняется vacant_esockets если есть connection_place и если его нет
 func TestArchiveUserByID(t *testing.T) {
 	mysql := MySQL{db: openTestDBconnection()}
 	user := User{
-		Paid:      false,
-		Name:      "Тестовый Тест Тестович8",
-		Agreement: "П-008",
-		Phone:     "88005553881",
-		Login:     "unknown.888",
-		ExtIP:     "82.200.46.10",
+		Paid:            false,
+		Name:            "Тестовый Тест Тестович8",
+		Agreement:       "П-008",
+		Phone:           "88005553881",
+		Room:            "В 124М1",
+		ConnectionPlace: "sw-12-1-h5/20",
+		Login:           "unknown.888",
+		ExtIP:           "82.200.46.10",
 		Tariff: Tariff{
 			ID:    1,
 			Name:  "Базовый-30",
