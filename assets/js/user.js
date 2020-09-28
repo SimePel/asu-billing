@@ -2,6 +2,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const userID = urlParams.get('id');
 getUser(userID);
 
+let limitButton = document.querySelector('#limitButton');
+limitButton.addEventListener('click', limitUser);
+
 let editButton = document.querySelector('#editButton');
 editButton.setAttribute('href', '/edit-user?id=' + userID);
 
@@ -70,6 +73,11 @@ function replaceDeactivateButtonToActivateButton() {
 
   let activateButtonGrandParent = activateButton.parentElement.parentElement;
   activateButtonGrandParent.removeAttribute('hidden');
+}
+
+function hideLimitButton() {
+  let limitButtonParent = limitButton.parentElement;
+  limitButtonParent.setAttribute('hidden', '');
 }
 
 function hideRevealButton() {
@@ -153,6 +161,15 @@ function getUser(userID) {
         document.querySelector('#agreementConclusionDate').textContent = 'Не указана';
       }
 
+      document.querySelector('#speed').textContent = 'Не ограничена';
+      if (user.is_limited === true) {
+        document.querySelector('#speed').textContent = 'Ограничена';
+        limitButton.textContent = 'Снять скоростные ограничения';
+        limitButton.classList.replace('is-link', 'is-success');
+        limitButton.removeEventListener('click', limitUser);
+        limitButton.addEventListener('click', unlimitUser);
+      }
+
       document.querySelector('#isEmployee').textContent = 'Нет';
       if (user.is_employee === true) {
         document.querySelector('#isEmployee').textContent = 'Да';
@@ -165,6 +182,7 @@ function getUser(userID) {
       } else {
         document.querySelector('#expiredDate').parentElement.remove();
         hideDeactivateButton();
+        hideLimitButton();
       }
       document.querySelector('#balance').append(user.balance);
 
@@ -172,6 +190,7 @@ function getUser(userID) {
         replaceArchiveButtonToRestoreButton();
         hideRevealButton();
         hideDeactivateButton();
+        hideLimitButton();
       }
 
       if (user.is_deactivated) {
@@ -225,6 +244,28 @@ function revealPaymentInputs() {
 
   let receipt = document.querySelector('#receipt');
   receipt.focus();
+}
+
+function limitUser() {
+  let limitModal = document.querySelector('#limitModal');
+  limitModal.classList.add('is-active');
+
+  fetch('users/' + userID + '/limit', {
+    method: 'POST',
+  }).then(() => {
+    window.location.replace('/user?id=' + userID);
+  });
+}
+
+function unlimitUser() {
+  let limitModal = document.querySelector('#limitModal');
+  limitModal.classList.add('is-active');
+
+  fetch('users/' + userID + '/unlimit', {
+    method: 'POST',
+  }).then(() => {
+    window.location.replace('/user?id=' + userID);
+  });
 }
 
 function archiveUser() {

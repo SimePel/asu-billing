@@ -76,6 +76,7 @@ type User struct {
 	IsDeactivated           bool      `json:"is_deactivated"`
 	IsEmployee              bool      `json:"is_employee"`
 	IsArchived              bool      `json:"is_archived"`
+	IsLimited               bool      `json:"is_limited"`
 	ExpiredDate             time.Time `json:"expired_date"`
 	AgreementConclusionDate time.Time `json:"agreement_conclusion_date"`
 	ConnectionPlace         string    `json:"connection_place"`
@@ -122,7 +123,7 @@ func (mysql MySQL) GetAllUsers() ([]User, error) {
 func (mysql MySQL) GetUserByID(id int) (User, error) {
 	var user User
 	err := mysql.db.QueryRow(`SELECT users.id, balance, users.name, mac, login, agreement, expired_date,
-		connection_place, activity, paid, comment, is_deactivated, is_employee, is_archived, phone,
+		connection_place, activity, paid, comment, is_deactivated, is_employee, is_archived, is_limited, phone,
 		agreement_conclusion_date, rooms.name, tariffs.id AS tariff_id, tariffs.name AS tariff_name, price, ips.ip, ext_ip
 	FROM ((( users
 		INNER JOIN ips ON users.ip_id = ips.id)
@@ -130,7 +131,7 @@ func (mysql MySQL) GetUserByID(id int) (User, error) {
 		INNER JOIN tariffs ON users.tariff = tariffs.id)
 	WHERE users.id = ?`, id).Scan(&user.ID, &user.Balance, &user.Name, &user.Mac, &user.Login, &user.Agreement,
 		&user.ExpiredDate, &user.ConnectionPlace, &user.Activity, &user.Paid, &user.Comment, &user.IsDeactivated,
-		&user.IsEmployee, &user.IsArchived, &user.Phone, &user.AgreementConclusionDate, &user.Room,
+		&user.IsEmployee, &user.IsArchived, &user.IsLimited, &user.Phone, &user.AgreementConclusionDate, &user.Room,
 		&user.Tariff.ID, &user.Tariff.Name, &user.Tariff.Price, &user.InnerIP, &user.ExtIP)
 	if err != nil {
 		return user, fmt.Errorf("cannot get user with id=%v: %v", id, err)
@@ -335,6 +336,24 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	}
 
 	return t, nil
+}
+
+func (mysql MySQL) UnlimitUserByID(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET is_limited=0 WHERE id=?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot unlimit user: %v", err)
+	}
+
+	return nil
+}
+
+func (mysql MySQL) LimitUserByID(id int) error {
+	_, err := mysql.db.Exec(`UPDATE users SET is_limited=1 WHERE id=?`, id)
+	if err != nil {
+		return fmt.Errorf("cannot limit user: %v", err)
+	}
+
+	return nil
 }
 
 func (mysql MySQL) ActivateUserByID(id int, admin string) error {

@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
@@ -58,6 +60,62 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("cannot encode json. ", err)
 		w.Write([]byte("{}"))
 	}
+}
+
+func unlimitUser(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(userCtxKey("user")).(*User)
+
+	// Срезаем букву 'П' и '-'
+	err := unlimitUserPhysically("P" + user.Agreement[3:])
+	if err != nil {
+		log.Printf("cannot unlimit user on the router: %v", err)
+		return
+	}
+
+	mysql := MySQL{db: initializeDB()}
+	err = mysql.UnlimitUserByID(int(user.ID))
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func unlimitUserPhysically(agreement string) error {
+	expect := exec.Command("expect", "unlimit.exp", "user_"+agreement+"_108_in", "user_"+agreement+"_108_out", "class_user_"+agreement+"_108_in", "class_user_"+agreement+"_108_out")
+	out, err := expect.CombinedOutput()
+	if err != nil {
+		log.Printf("got %v\n", string(out))
+		return fmt.Errorf("cannot execute unlimit expect script: %v", err)
+	}
+
+	return nil
+}
+
+func limitUser(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(userCtxKey("user")).(*User)
+
+	// Срезаем букву 'П' и '-'
+	err := limitUserPhysically(user.InnerIP, "P"+user.Agreement[3:])
+	if err != nil {
+		log.Printf("cannot limit user on the router: %v", err)
+		return
+	}
+
+	mysql := MySQL{db: initializeDB()}
+	err = mysql.LimitUserByID(int(user.ID))
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func limitUserPhysically(ip, agreement string) error {
+	expect := exec.Command("expect", "limit.exp", ip, "user_"+agreement+"_108_in", "user_"+agreement+"_108_out", "class_user_"+agreement+"_108_in", "class_user_"+agreement+"_108_out")
+	out, err := expect.CombinedOutput()
+	if err != nil {
+		log.Printf("got %v\n", string(out))
+		return fmt.Errorf("cannot execute limit expect script: %v", err)
+	}
+
+	return nil
 }
 
 func deactivateUser(w http.ResponseWriter, r *http.Request) {

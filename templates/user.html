@@ -43,6 +43,7 @@
             <li>Сотрудник университета: <span id="isEmployee"></span></li>
             <li>Логин: <span id="login"></span></li>
             <li>Тариф: <span id="tariff"></span></li>
+            <li>Скорость: <span id="speed"></span></li>
             <li>Мак адрес: <span id="mac"></span></li>
             <li>Внутренний IP: <span id="innerIP"></span></li>
             <li>Внешний IP: <span id="extIP"></span></li>
@@ -119,6 +120,24 @@
           <div class="field">
             <div class="control">
               <a id="editButton" class="button is-info" href="/edit-user?id=">Изменить</a>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <button id="limitButton" class="button is-link">Ограничить скорость</button>
+            </div>
+            <div id="limitModal" class="modal">
+              <div class="modal-background"></div>
+              <div class="modal-card">
+                <header class="modal-card-head">
+                  <p class="modal-card-title">Идет применение настроек</p>
+                  <button id="closeLimitModal" class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                  Пожалуйста подождите, происходит загрузка настроек на маршрутизатор. Страница перезагрузится, как
+                  только изменения вступят в силу.
+                </section>
+              </div>
             </div>
           </div>
           <div class="field">

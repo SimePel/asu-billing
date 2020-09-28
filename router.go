@@ -51,6 +51,8 @@ func newRouter() *chi.Mux {
 			r.Delete("/", archiveUser)
 			r.Post("/deactivate", deactivateUser)
 			r.Post("/activate", activateUser)
+			r.Post("/limit", limitUser)
+			r.Post("/unlimit", unlimitUser)
 		})
 		r.Get("/", getAllUsers)
 	})
