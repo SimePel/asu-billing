@@ -12,7 +12,7 @@ async function fillAgreementField() {
 window.addEventListener(
   'DOMContentLoaded',
   function () {
-    document.getElementsByName('room')[0].addEventListener('input', () => {
+    document.getElementsByName('room')[0].addEventListener('change', () => {
       fetch('check-vacant-esockets', {
         method: 'POST',
         headers: {
