@@ -338,19 +338,29 @@ func (mysql MySQL) PayForNextMonth(user User) (time.Time, error) {
 	return t, nil
 }
 
-func (mysql MySQL) UnlimitUserByID(id int) error {
+func (mysql MySQL) UnlimitUserByID(id int, admin string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_limited=0 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot unlimit user: %v", err)
 	}
 
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "unlimit", time.Now())
+	if err != nil {
+		return fmt.Errorf("cannot add 'unlimit' operation: %v", err)
+	}
+
 	return nil
 }
 
-func (mysql MySQL) LimitUserByID(id int) error {
+func (mysql MySQL) LimitUserByID(id int, admin string) error {
 	_, err := mysql.db.Exec(`UPDATE users SET is_limited=1 WHERE id=?`, id)
 	if err != nil {
 		return fmt.Errorf("cannot limit user: %v", err)
+	}
+
+	_, err = mysql.db.Exec(`INSERT INTO operations (user_id, admin, type, date) VALUES (?,?,?,?)`, id, admin, "limit", time.Now())
+	if err != nil {
+		return fmt.Errorf("cannot add 'limit' operation: %v", err)
 	}
 
 	return nil

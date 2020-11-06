@@ -122,9 +122,10 @@ function showOperations(operations) {
       actionTD.append('Выключил');
     } else if (operation.type === 'activate') {
       actionTD.append('Включил');
-    }
-    if (operation.admin === 'ssn') {
-      actionTD.append('а');
+    } else if (operation.type === 'limit') {
+      actionTD.append('Установил ограничение скорости');
+    } else if (operation.type === 'unlimit') {
+      actionTD.append('Убрал ограничение скорости');
     }
     let dateTD = document.createElement('td');
     const d = new Date(operation.date);

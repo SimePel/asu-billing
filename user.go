@@ -63,17 +63,25 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func unlimitUser(w http.ResponseWriter, r *http.Request) {
+	token, err := getJWTtokenFromCookies(r.Cookies())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	admin := claims["login"].(string)
 	user := r.Context().Value(userCtxKey("user")).(*User)
 
 	// Срезаем букву 'П' и '-'
-	err := unlimitUserPhysically("P" + user.Agreement[3:])
+	err = unlimitUserPhysically("P" + user.Agreement[3:])
 	if err != nil {
 		log.Printf("cannot unlimit user on the router: %v", err)
 		return
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err = mysql.UnlimitUserByID(int(user.ID))
+	err = mysql.UnlimitUserByID(int(user.ID), admin)
 	if err != nil {
 		log.Println(err)
 	}
@@ -91,17 +99,25 @@ func unlimitUserPhysically(agreement string) error {
 }
 
 func limitUser(w http.ResponseWriter, r *http.Request) {
+	token, err := getJWTtokenFromCookies(r.Cookies())
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	admin := claims["login"].(string)
 	user := r.Context().Value(userCtxKey("user")).(*User)
 
 	// Срезаем букву 'П' и '-'
-	err := limitUserPhysically(user.InnerIP, "P"+user.Agreement[3:])
+	err = limitUserPhysically(user.InnerIP, "P"+user.Agreement[3:])
 	if err != nil {
 		log.Printf("cannot limit user on the router: %v", err)
 		return
 	}
 
 	mysql := MySQL{db: initializeDB()}
-	err = mysql.LimitUserByID(int(user.ID))
+	err = mysql.LimitUserByID(int(user.ID), admin)
 	if err != nil {
 		log.Println(err)
 	}
