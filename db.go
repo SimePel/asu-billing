@@ -163,9 +163,9 @@ func (mysql MySQL) GetUserIDbyLogin(login string) (uint, error) {
 	return id, nil
 }
 
-// GetPaymentsByID returns info about user payments
+// GetPaymentsByID returns info about user payments. Fresh records first
 func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
-	rows, err := mysql.db.Query(`SELECT admin, receipt, method, sum, date FROM payments WHERE user_id= ?`, userID)
+	rows, err := mysql.db.Query(`SELECT admin, receipt, method, sum, date FROM payments WHERE user_id=? ORDER BY date DESC`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get payments by id: %v", err)
 	}
