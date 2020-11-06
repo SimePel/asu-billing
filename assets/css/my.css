@@ -13,6 +13,11 @@ footer {
   margin-top: auto;
 }
 
+.table-container {
+  max-height: 60%;
+  overflow-y: scroll;
+}
+
 div > .container > table {
   margin-top: 1.6rem;
 }
