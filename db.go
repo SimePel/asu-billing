@@ -188,7 +188,7 @@ func (mysql MySQL) GetPaymentsByID(userID int) ([]Payment, error) {
 }
 
 func (mysql MySQL) GetOperationsByID(userID int) ([]Operation, error) {
-	rows, err := mysql.db.Query(`SELECT admin, type, date FROM operations WHERE user_id = ?`, userID)
+	rows, err := mysql.db.Query(`SELECT admin, type, date FROM operations WHERE user_id = ? ORDER BY date DESC`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get operations by user id: %v", err)
 	}
