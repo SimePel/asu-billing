@@ -33,11 +33,11 @@ func initializeDB() *sql.DB {
 
 // Payment struct
 type Payment struct {
-	Sum     int       `json:"sum"`
-	Date    time.Time `json:"date"`
-	Receipt string    `json:"receipt"`
-	Method  string    `json:"method"`
-	Admin   string    `json:"admin"`
+	Receipt string    `json:"receipt" csv:"Квитанция"`
+	Method  string    `json:"method" csv:"Способ"`
+	Admin   string    `json:"admin" csv:"Кто вносил"`
+	Sum     int       `json:"sum" csv:"Сумма"`
+	Date    time.Time `json:"date" csv:"Дата"`
 }
 
 // Operation struct
@@ -492,6 +492,36 @@ func (mysql MySQL) GetIncomeForPeriod(from, to string) (int, error) {
 	}
 
 	return sum, nil
+}
+
+type PaymentRecord struct {
+	Name string `csv:"ФИО"`
+	Payment
+}
+
+func (mysql MySQL) GetPaymentsRecords(from, to string) ([]PaymentRecord, error) {
+	rows, err := mysql.db.Query(`SELECT users.name, receipt, method, sum, admin, date
+		FROM ( users INNER JOIN payments ON users.id = payments.user_id )
+		WHERE date >= ? AND date < ?  ORDER BY date DESC`, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get payments records: %v", err)
+	}
+
+	var payment PaymentRecord
+	payments := make([]PaymentRecord, 0)
+	for rows.Next() {
+		err := rows.Scan(&payment.Name, &payment.Receipt, &payment.Method, &payment.Sum, &payment.Admin, &payment.Date)
+		if err != nil {
+			return nil, fmt.Errorf("cannot scan from row: %v", err)
+		}
+		payments = append(payments, payment)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("something happened with rows: %v", err)
+	}
+
+	return payments, nil
 }
 
 // GetNextAgreement returns next agreement

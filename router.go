@@ -18,6 +18,7 @@ func newRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+	r.Handle("/records/*", http.StripPrefix("/records/", http.FileServer(http.Dir("./records"))))
 	r.Handle("/favicon.ico", http.StripPrefix("/", http.FileServer(http.Dir("./"))))
 
 	r.Get("/login", loginHandler)
@@ -26,6 +27,7 @@ func newRouter() *chi.Mux {
 	r.With(checkJWTtoken).Post("/edit-user", editUserPostHandler)
 	r.With(checkJWTtoken).Post("/send-mass-sms", sendMassSMSPostHandler)
 	r.With(checkJWTtoken).Post("/income-for-period", getIncomeForPeriodHandler)
+	r.With(checkJWTtoken).Post("/generate-payments-report", generatePaymentsReportHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/payment", paymentPostHandler)
 	r.With(checkJWTtoken).With(jsonContentType).Post("/check-vacant-esockets", areThereSocketInTheRoomHandler)
 	r.With(checkJWTtoken).Post("/change-notification-status", changeNotificationStatusHandler)
@@ -462,6 +464,29 @@ func getIncomeForPeriodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, income)
+}
+
+func generatePaymentsReportHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	fromDate, _ := time.Parse("2006-01-02", r.FormValue("from"))
+	toDate, _ := time.Parse("2006-01-02", r.FormValue("to"))
+
+	mysql := MySQL{db: initializeDB()}
+	records, err := mysql.GetPaymentsRecords(fromDate.Format("20060102"), toDate.Format("20060102"))
+	if err != nil {
+		log.Printf("cannot get payments records for period: %v", err)
+		http.Error(w, "0", http.StatusInternalServerError)
+		return
+	}
+
+	f, err := WriteToFile(records)
+	if err != nil {
+		log.Printf("cannot create csv file: %v", err)
+		http.Error(w, "Что-то пошло не так(", http.StatusInternalServerError)
+	}
+
+	fmt.Fprint(w, f.Name())
 }
 
 func getNextAgreementHandler(w http.ResponseWriter, r *http.Request) {

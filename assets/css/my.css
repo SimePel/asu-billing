@@ -117,6 +117,10 @@ div > span > select {
   padding-bottom: 1rem;
 }
 
+#generateReport {
+  margin-top: 0.5rem;
+}
+
 #tableSettings {
   background-color: white;
   position: absolute;

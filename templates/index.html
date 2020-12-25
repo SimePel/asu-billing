@@ -26,9 +26,7 @@
                 <input id="search" class="input" type="search" placeholder="ищи" autofocus />
               </p>
               <p class="control">
-                <button id="searchButton" class="button is-link" tabindex="-1">
-                  Найти
-                </button>
+                <button id="searchButton" class="button is-link" tabindex="-1">Найти</button>
               </p>
             </div>
           </div>
@@ -42,51 +40,52 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <input class="open" id="income-input" type="checkbox" hidden />
-            <button class="button is-light" style="padding: 0;" tabindex="-1">
-              <label for="income-input" style="height: 36px;">
+            <button class="button is-light" style="padding: 0" tabindex="-1">
+              <label for="income-input" style="height: 36px">
                 <img id="wallet" src="../assets/img/wallet.png" alt="Кэш" />
               </label>
             </button>
             <div class="income-panel">
-              <div class="menu">
-                <p class="menu-head">Всего: <span id="income"></span></p>
-                <div class="control">
-                  <div style="display: inline-block; width: 24px;">C:</div>
-                  <div class="small-input">
-                    <input
-                      class="input is-small"
-                      type="date"
-                      min="2019-03-19"
-                      name="from"
-                      id="fromDate"
-                      tabindex="-1"
-                    />
+              <form id="form" action="/generate-payments-report" method="post">
+                <div class="menu">
+                  <p class="menu-head">Всего: <span id="income"></span></p>
+                  <div class="control">
+                    <div style="display: inline-block; width: 24px">C:</div>
+                    <div class="small-input">
+                      <input
+                        class="input is-small"
+                        type="date"
+                        min="2019-03-19"
+                        name="from"
+                        id="fromDate"
+                        tabindex="-1"
+                      />
+                    </div>
                   </div>
+                  <div class="control">
+                    <div style="display: inline-block">ПО:</div>
+                    <p class="small-input">
+                      <input class="input is-small" type="date" min="2019-03-20" name="to" id="toDate" tabindex="-1" />
+                    </p>
+                  </div>
+                  <p>За данный промежуток поступило <span id="incomeForPeriod"></span></p>
+                  <button id="generateReport" class="button is-info" type="submit">Получить отчет</button>
                 </div>
-                <div class="control">
-                  <div style="display: inline-block;">ПО:</div>
-                  <p class="small-input">
-                    <input class="input is-small" type="date" min="2019-03-20" name="to" id="toDate" tabindex="-1" />
-                  </p>
-                </div>
-                <p>За данный промежуток поступило <span id="incomeForPeriod"></span></p>
-              </div>
+              </form>
             </div>
           </div>
           <div class="navbar-item">
             <input class="open" id="settings" type="checkbox" hidden />
-            <button class="button is-light" style="width: 36px; height: 36px; padding: 0;" tabindex="-1">
+            <button class="button is-light" style="width: 36px; height: 36px; padding: 0" tabindex="-1">
               <label for="settings">
-                <span class="icon" style="width: 36px; height: 36px;">
+                <span class="icon" style="width: 36px; height: 36px">
                   <i class="fas fa-cog"></i>
                 </span>
               </label>
             </button>
             <div class="settings-panel">
               <div class="menu">
-                <p class="menu-label">
-                  Что показывать в таблице
-                </p>
+                <p class="menu-label">Что показывать в таблице</p>
                 <ul id="menu-list" class="menu-list">
                   <li><a data-menu-item="name">ФИО</a></li>
                   <li><a data-menu-item="agreement">Договор</a></li>
@@ -100,9 +99,7 @@
                   <li><a data-menu-item="balance">Баланс</a></li>
                   <li><a data-menu-item="activity">Статус</a></li>
                 </ul>
-                <p class="menu-label">
-                  СМС оповещения
-                </p>
+                <p class="menu-label">СМС оповещения</p>
                 <ul class="menu-list">
                   <li><a id="sms-status">Включены</a></li>
                 </ul>
